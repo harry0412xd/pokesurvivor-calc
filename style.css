@@ -1,3 +1,11 @@
-/* PokéSurvivor Toolkit styles - see repo releases for full bundle */
-body{font-family:system-ui;background:#0f1419;color:#e7ecf3;margin:0;padding:1rem}
-a{color:#4fc3f7}
+:root {
+  --bg: #0f1419;
+  --card: #1a2332;
+  --border: #2d3a4f;
+  --text: #e7ecf3;
+  --muted: #8b9bb4;
+  --accent: #4fc3f7;
+}
+body { font-family: system-ui; background: var(--bg); color: var(--text); padding: 1rem; }
+.container { max-width: 1100px; margin: 0 auto; }
+a { color: var(--accent); }

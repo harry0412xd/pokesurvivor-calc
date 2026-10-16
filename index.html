@@ -1,24 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>PokéSurvivor Toolkit</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>PokéSurvivor Toolkit</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<p style="font-family:system-ui;color:#9aa4b2;padding:1.5rem">Loading PokéSurvivor Toolkit…</p>
-<script>
-(async function () {
-  const files = ['b64_0.txt','b64_1.txt','b64_2.txt','b64_3.txt','b64_4.txt','b64_5.txt','b64_6.txt','b64_7.txt','b64_8.txt','b64_9.txt'];
-  let b64 = '';
-  for (const f of files) {
-    b64 += await (await fetch(f + '?v=120')).text();
-  }
-  const html = new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0)));
-  document.open();
-  document.write(html);
-  document.close();
-})();
-</script>
+
+  <div class="container">
+    <h1>⚡ PokéSurvivor Toolkit</h1>
+    <p class="subtitle">
+      Live data from
+      <a href="https://github.com/JPTER78/pokesurvivor" target="_blank" rel="noopener">JPTER78/pokesurvivor</a>
+      · DPS · Pokédex · Best type combos · <span id="verInline">v1.2.0</span>
+    </p>
+
+    <div id="globalPokeBar" class="global-poke-bar" style="display:none">
+      Using: <strong id="globalPokeName">—</strong>
+      <button class="btn-secondary" style="padding:0.15rem 0.45rem;font-size:0.72rem;margin-left:0.5rem" onclick="clearGlobalPoke()">Clear</button>
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="dps">DPS Table</div>
+      <div class="tab" data-tab="calc">Calculator</div>
+      <div class="tab" data-tab="pokedex">Pokédex</div>
+      <div class="tab" data-tab="combos">Best Combos</div>
+      <div class="tab" data-tab="enemies">Weakness</div>
+      <div class="tab" data-tab="size">Size Compare</div>
+      <div class="tab" data-tab="items">Items</div>
+      <div class="tab" data-tab="changelog">Changelog</div>
+      <div class="tab" data-tab="config">Config</div>
+    </div>
+
+    <!-- panels are in the full file; this is a placeholder to get deploy working first -->
+    <div class="panel active" id="panel-dps">
+      <h2>DPS Table</h2>
+      <p>Loading full UI… If this persists, refresh. Data loads from GitHub.</p>
+      <div id="status" class="status">Ready. Loading data…</div>
+    </div>
+  </div>
+  <script src="app.js"></script>
 </body>
 </html>
