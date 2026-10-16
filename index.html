@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>PokéSurvivor Toolkit</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PokéSurvivor Toolkit</title>
 </head>
 <body>
-  <div id="app-root"></div>
-  <script src="app.js"></script>
+<p style="font-family:system-ui;color:#9aa4b2;padding:1.5rem">Loading PokéSurvivor Toolkit…</p>
+<script>
+(async function () {
+  const files = ['b64_0.txt','b64_1.txt','b64_2.txt','b64_3.txt','b64_4.txt','b64_5.txt','b64_6.txt','b64_7.txt','b64_8.txt','b64_9.txt'];
+  let b64 = '';
+  for (const f of files) {
+    b64 += await (await fetch(f + '?v=120')).text();
+  }
+  const html = new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0)));
+  document.open();
+  document.write(html);
+  document.close();
+})();
+</script>
 </body>
 </html>
