@@ -9,10 +9,10 @@
 <p style="font-family:system-ui;color:#9aa4b2;padding:1.5rem">Loading PokéSurvivor Toolkit…</p>
 <script>
 (async function () {
-  const files = ['c0.txt','c1.txt','c2.txt','c3.txt'];
+  const files = ['k0.txt','k1.txt','k2.txt','k3.txt','k4.txt','k5.txt','k6.txt','k7.txt','k8.txt','k9.txt','k10.txt','k11.txt','k12.txt','k13.txt','k14.txt','k15.txt','k16.txt','k17.txt','k18.txt'];
   let b64 = '';
   for (const f of files) {
-    const r = await fetch(f + '?v=130');
+    const r = await fetch(f + '?v=131');
     if (!r.ok) throw new Error('Missing ' + f + ' (' + r.status + ')');
     b64 += await r.text();
   }
@@ -24,7 +24,7 @@
   document.write(new TextDecoder().decode(bytes));
   document.close();
 })().catch(e => {
-  document.body.innerHTML = '<pre style="font-family:system-ui;color:#ef5350;padding:1.5rem;white-space:pre-wrap">Load failed: ' + e.message + '\n\nUpload pokesurvivor-toolkit-full.html from project artifacts as index.html to fix.</pre>';
+  document.body.innerHTML = '<pre style="font-family:system-ui;color:#ef5350;padding:1.5rem;white-space:pre-wrap">Load failed: ' + e.message + '</pre>';
   console.error(e);
 });
 </script>
