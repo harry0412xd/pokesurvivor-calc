@@ -4,10 +4,52 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>PokéSurvivor Toolkit</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --border: #2d3a4f;
+      --text: #e7ecf3;
+      --muted: #8b9bb4;
+      --accent: #4fc3f7;
+      --accent2: #81c784;
+      --danger: #ef5350;
+      --warn: #ffb74d;
+      --pink: #f48fb1;
+      --pink-bg: rgba(244,143,177,0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      min-height: 100vh;
+      padding: 0.75rem;
+      font-size: 14px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 { font-size: 1.35rem; margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; }
+    .subtitle { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.9rem; }
+    .subtitle a { color: var(--accent); }
+    .tabs { display: flex; gap: 0.35rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .tab {
+      padding: 0.4rem 0.85rem; border-radius: 8px; background: var(--card);
+      border: 1px solid var(--border); color: var(--muted); cursor: pointer;
+      font-size: 0.85rem; font-weight: 500;
+    }
+    .tab.active { background: var(--accent); color: #0a1628; border-color: var(--accent); }
+    .panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.9rem 1rem; margin-bottom: 0.85rem; display: none;
+    }
+    .panel.active { display: block; }
+    .panel h2 { font-size: 0.95rem; color: var(--accent); margin-bottom: 0.65rem; font-weight: 600; }
+    .status { margin-top: 0.6rem; font-size: 0.8rem; color: var(--muted); }
+    a { color: var(--accent); }
+  </style>
 </head>
 <body>
-
   <div class="container">
     <h1>⚡ PokéSurvivor Toolkit</h1>
     <p class="subtitle">
@@ -15,11 +57,6 @@
       <a href="https://github.com/JPTER78/pokesurvivor" target="_blank" rel="noopener">JPTER78/pokesurvivor</a>
       · DPS · Pokédex · Best type combos · <span id="verInline">v1.2.0</span>
     </p>
-
-    <div id="globalPokeBar" class="global-poke-bar" style="display:none">
-      Using: <strong id="globalPokeName">—</strong>
-      <button class="btn-secondary" style="padding:0.15rem 0.45rem;font-size:0.72rem;margin-left:0.5rem" onclick="clearGlobalPoke()">Clear</button>
-    </div>
     <div class="tabs">
       <div class="tab active" data-tab="dps">DPS Table</div>
       <div class="tab" data-tab="calc">Calculator</div>
@@ -31,14 +68,16 @@
       <div class="tab" data-tab="changelog">Changelog</div>
       <div class="tab" data-tab="config">Config</div>
     </div>
-
-    <!-- panels are in the full file; this is a placeholder to get deploy working first -->
     <div class="panel active" id="panel-dps">
       <h2>DPS Table</h2>
-      <p>Loading full UI… If this persists, refresh. Data loads from GitHub.</p>
-      <div id="status" class="status">Ready. Loading data…</div>
+      <p>Full UI is being restored. The previous base64 loader failed because the chunk files were missing.</p>
+      <p>Working on weather multiplier, damage mult column, game mechanics tab, combo buff logic, cache, modern toggles, and the rest of the feature list.</p>
+      <div id="status" class="status">Site is loading again. Full feature update in progress…</div>
     </div>
   </div>
-  <script src="app.js"></script>
+  <script>
+    // Temporary status page while full app is restored
+    console.log('PokéSurvivor Toolkit — deploy fixed, full features coming');
+  </script>
 </body>
 </html>
