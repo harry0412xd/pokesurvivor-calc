@@ -1,166 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>PokéSurvivor Toolkit</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PokéSurvivor Toolkit</title>
 </head>
 <body>
-
-  <div class="container">
-    <h1>⚡ PokéSurvivor Toolkit</h1>
-    <p class="subtitle">
-      Live data from
-      <a href="https://github.com/JPTER78/pokesurvivor" target="_blank" rel="noopener">JPTER78/pokesurvivor</a>
-      · DPS · Pokédex · Best type combos · <span id="verInline">v1.3.0</span>
-    </p>
-
-    <div id="globalPokeBar" class="global-poke-bar" style="display:none">
-      Using: <strong id="globalPokeName">—</strong>
-      <button class="btn-secondary" style="padding:0.15rem 0.45rem;font-size:0.72rem;margin-left:0.5rem" onclick="clearGlobalPoke()">Clear</button>
-    </div>
-    <div class="tabs">
-      <div class="tab active" data-tab="dps">DPS Table</div>
-      <div class="tab" data-tab="calc">Calculator</div>
-      <div class="tab" data-tab="pokedex">Pokédex</div>
-      <div class="tab" data-tab="combos">Best Combos</div>
-      <div class="tab" data-tab="enemies">Weakness</div>
-      <div class="tab" data-tab="size">Size Compare</div>
-      <div class="tab" data-tab="items">Items</div>
-      <div class="tab" data-tab="changelog">Changelog</div>
-      <div class="tab" data-tab="config">Config</div>
-    </div>
-
-    <div class="panel active" id="panel-dps">
-      <h2>DPS Table (Move Level 1 → 5)</h2>
-      <div class="filters" style="align-items:flex-end">
-        <div>
-          <label><input type="checkbox" id="useAvgType" onchange="recalcAll()" /> Avg type mult vs enemies</label>
-        </div>
-        <div>
-          <label><input type="checkbox" id="usePoison" checked onchange="recalcAll()" /> Include DoT (poison / burn)</label>
-        </div>
-        <div>
-          <label>Kind</label>
-          <select id="filterKind" onchange="renderDps()"></select>
-        </div>
-        <div style="flex:1;min-width:140px">
-          <label>Search</label>
-          <input type="text" id="searchMove" placeholder="prefix… or ~contains" oninput="renderDps()" />
-        </div>
-      </div>
-      <div style="margin:0.25rem 0 0.5rem">
-        <label style="display:block;margin-bottom:0.2rem">Types (multi-select)</label>
-        <div id="dpsTypeChips"></div>
-        <button class="btn-secondary" style="margin-top:0.25rem;padding:0.2rem 0.5rem;font-size:0.72rem" onclick="clearDpsTypes()">Clear types</button>
-      </div>
-      <div class="table-wrap"><table id="dpsTable"><thead></thead><tbody></tbody></table></div>
-    </div>
-
-    <div class="panel" id="panel-calc">
-      <h2>Calculator</h2>
-      <p class="note" style="margin-top:0">Select a Pokémon first (pool = Normal + its types). Click an empty cell to pick a move. ATK buff in main = max stacks; in another slot = uptime cost.</p>
-      <div id="calcUI"></div>
-    </div>
-
-    <div class="panel" id="panel-pokedex">
-      <h2>Pokédex</h2>
-      <div class="filters">
-        <div style="flex:1;min-width:140px">
-          <label>Search</label>
-          <input type="text" id="searchPoke" placeholder="name / dex…" oninput="renderPokedex()" />
-        </div>
-      </div>
-      <div style="margin:0.25rem 0 0.5rem">
-        <label style="display:block;margin-bottom:0.2rem">Types</label>
-        <div id="pokeTypeChips"></div>
-        <button class="btn-secondary" style="margin-top:0.25rem;padding:0.2rem 0.5rem;font-size:0.72rem" onclick="clearPokeTypes()">Clear types</button>
-      </div>
-      <div class="table-wrap"><table id="pokeTable"><thead></thead><tbody></tbody></table></div>
-    </div>
-
-    <div class="panel" id="panel-combos">
-      <h2>Best Combos</h2>
-      <div id="comboList" class="combo-list"></div>
-    </div>
-
-    <div class="panel" id="panel-enemies">
-      <h2>Weakness Matrix</h2>
-      <div class="table-wrap"><table id="weakTable"><thead></thead><tbody></tbody></table></div>
-    </div>
-
-    <div class="panel" id="panel-size">
-      <h2>Size Compare</h2>
-      <div id="sizeView"></div>
-    </div>
-
-    <div class="panel" id="panel-items">
-      <h2>Items</h2>
-      <div id="itemList" class="combo-list"></div>
-    </div>
-
-    <div class="panel" id="panel-changelog">
-      <h2>Changelog</h2>
-      <div id="changelogList" class="combo-list"></div>
-    </div>
-
-    <div class="panel" id="panel-config">
-      <h2>Configuration</h2>
-      <div class="config-grid">
-        <div>
-          <label for="typeMult">Type Multiplier</label>
-          <input type="number" id="typeMult" value="1.00" min="0.3" max="2.4" step="0.1" />
-        </div>
-        <div>
-          <label for="weatherMult">Weather Multiplier (manual)</label>
-          <input type="number" id="weatherMult" value="1.00" min="0.5" max="1.5" step="0.1" />
-        </div>
-        <div>
-          <label><input type="checkbox" id="useWeatherAvg" onchange="recalcAll()" /> Use weather avg (~18% uptime, biome-weighted)</label>
-        </div>
-        <div>
-          <label for="coneHitCap">Cone/Nova same-target hit cap</label>
-          <input type="number" id="coneHitCap" value="3" min="1" max="20" step="1" />
-        </div>
-        <div>
-          <label for="trailTick">Trail patch tick (s)</label>
-          <input type="number" id="trailTick" value="0.5" min="0.1" max="2" step="0.05" />
-        </div>
-        <div>
-          <label for="refEnemyHp">Ref enemy HP (poison DoT)</label>
-          <input type="number" id="refEnemyHp" value="100" min="10" max="5000" step="10" />
-        </div>
-        <div>
-          <label for="refPlayerLvl">Ref player level (burn DoT)</label>
-          <input type="number" id="refPlayerLvl" value="20" min="1" max="100" step="1" />
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn-primary" onclick="recalcAll()">Recalculate</button>
-        <button class="btn-secondary" onclick="fetchAll(true)">Force reload from GitHub</button>
-      </div>
-      <div id="status" class="status">Ready. Loading data…</div>
-    </div>
-  </div>
-  <div id="tt"></div>
-  <div id="radarModal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)closeRadarModal()">
-    <div class="modal-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.4rem">
-        <h3 id="pokeDetailTitle" style="margin:0">Pokémon</h3>
-        <button class="btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.75rem" onclick="closeRadarModal()">Close</button>
-      </div>
-      <div class="filters" style="margin-bottom:0.45rem">
-        <div><label><input type="checkbox" id="radarAllAvg" checked onchange="drawPokeRadar()" /> All avg</label></div>
-        <div><label><input type="checkbox" id="radarTypeAvg" checked onchange="drawPokeRadar()" /> Per-type avg</label></div>
-      </div>
-      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-start;justify-content:center">
-        <canvas id="pokeRadar" width="260" height="260" style="background:#0a1018;border-radius:12px;border:1px solid var(--border)"></canvas>
-        <div id="pokeStatList" style="font-size:0.82rem;line-height:1.65;min-width:140px"></div>
-      </div>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+<p style="font-family:system-ui;color:#9aa4b2;padding:1.5rem">Loading PokéSurvivor Toolkit…</p>
+<script>
+(async function () {
+  const files = ['c0.txt','c1.txt','c2.txt','c3.txt'];
+  let b64 = '';
+  for (const f of files) {
+    const r = await fetch(f + '?v=130');
+    if (!r.ok) throw new Error('Missing ' + f + ' (' + r.status + ')');
+    b64 += await r.text();
+  }
+  b64 = b64.replace(/\s+/g, '');
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  document.open();
+  document.write(new TextDecoder().decode(bytes));
+  document.close();
+})().catch(e => {
+  document.body.innerHTML = '<pre style="font-family:system-ui;color:#ef5350;padding:1.5rem;white-space:pre-wrap">Load failed: ' + e.message + '\n\nUpload pokesurvivor-toolkit-full.html from project artifacts as index.html to fix.</pre>';
+  console.error(e);
+});
+</script>
 </body>
 </html>
