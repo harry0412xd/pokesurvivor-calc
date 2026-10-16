@@ -2,19 +2,32 @@
 
 Interactive DPS / Pokédex / weakness / calculator for [PokéSurvivor](https://github.com/JPTER78/pokesurvivor).
 
-**Live site:** https://harry0412xd.github.io/pokesurvivor-toolkit/
+**Version:** 1.2.0  
+**Site:** https://harry0412xd.github.io/pokesurvivor-toolkit/
 
-Data is fetched live from the game repo (`moves.js`, `pokedex.js`, etc.).
+## Enable GitHub Pages
 
-## Features
+1. Repo **Settings → Pages**
+2. Source: **Deploy from a branch**
+3. Branch **main**, folder **/ (root)**
+4. Save
 
-- DPS table (levels 1–5, evolutions, DoT, orbit formula)
-- Calculator (4×4 bonded slots)
-- Pokédex with coverage, ranks, radar popup
-- Weakness matrix vs spawn-weighted enemy types
-- Size / hitbox compare
-- Best type combos, items, changelog
+## Files
 
-## Local use
+Put these at the repo root (download from the Grok project `artifacts/` folder if needed):
 
-Open `index.html` in a browser (needs network for GitHub raw + sprites).
+| File | Role |
+|------|------|
+| `index.html` | UI |
+| `style.css` | Styles |
+| `app.js` | Logic (fetches live game data) |
+
+Or open the single-file `pokesurvivor-dps.html` locally.
+
+## Features (v1.2.0)
+
+- Radar min–max scale; per-type averages; popup radar
+- Global **Use** Pokémon across Calc / Size / Weakness
+- Type multi-select only allows real species type combos
+- Changelog tab + version history
+- DPS, combos, items, weakness matrix, size compare
