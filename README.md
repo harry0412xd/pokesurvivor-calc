@@ -2,32 +2,23 @@
 
 Interactive DPS / Pokédex / weakness / calculator for [PokéSurvivor](https://github.com/JPTER78/pokesurvivor).
 
-**Version:** 1.2.0  
 **Site:** https://harry0412xd.github.io/pokesurvivor-toolkit/
+
+## Features
+
+- Live data from the official game repo (no hard-coded moves/Pokédex)
+- DPS table (Lv1→5) with poison/burn DoT, avg type mult, weather mult
+- Calculator with 4×4 move grid, ATK buff stacking, bond support
+- Pokédex with coverage, ranks, radar (selectable axes)
+- Best type combos ranker
+- Weakness matrix (Best / Avg-split)
+- Size compare
+- Items list
+- Config for hit-cap approximations, weather, DoT refs
+- Client cache with recheck interval
+- Type multi-select (real species combos only)
+- Game mechanics reference tab (grouped)
 
 ## Enable GitHub Pages
 
-1. Repo **Settings → Pages**
-2. Source: **Deploy from a branch**
-3. Branch **main**, folder **/ (root)**
-4. Save
-
-## Files
-
-Put these at the repo root (download from the Grok project `artifacts/` folder if needed):
-
-| File | Role |
-|------|------|
-| `index.html` | UI |
-| `style.css` | Styles |
-| `app.js` | Logic (fetches live game data) |
-
-Or open the single-file `pokesurvivor-dps.html` locally.
-
-## Features (v1.2.0)
-
-- Radar min–max scale; per-type averages; popup radar
-- Global **Use** Pokémon across Calc / Size / Weakness
-- Type multi-select only allows real species type combos
-- Changelog tab + version history
-- DPS, combos, items, weakness matrix, size compare
+Settings → Pages → Deploy from branch → main / (root)

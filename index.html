@@ -1,83 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>PokéSurvivor Toolkit</title>
-  <style>
-    :root {
-      --bg: #0f1419;
-      --card: #1a2332;
-      --border: #2d3a4f;
-      --text: #e7ecf3;
-      --muted: #8b9bb4;
-      --accent: #4fc3f7;
-      --accent2: #81c784;
-      --danger: #ef5350;
-      --warn: #ffb74d;
-      --pink: #f48fb1;
-      --pink-bg: rgba(244,143,177,0.15);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.45;
-      min-height: 100vh;
-      padding: 0.75rem;
-      font-size: 14px;
-    }
-    .container { max-width: 1100px; margin: 0 auto; }
-    h1 { font-size: 1.35rem; margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; }
-    .subtitle { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.9rem; }
-    .subtitle a { color: var(--accent); }
-    .tabs { display: flex; gap: 0.35rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
-    .tab {
-      padding: 0.4rem 0.85rem; border-radius: 8px; background: var(--card);
-      border: 1px solid var(--border); color: var(--muted); cursor: pointer;
-      font-size: 0.85rem; font-weight: 500;
-    }
-    .tab.active { background: var(--accent); color: #0a1628; border-color: var(--accent); }
-    .panel {
-      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-      padding: 0.9rem 1rem; margin-bottom: 0.85rem; display: none;
-    }
-    .panel.active { display: block; }
-    .panel h2 { font-size: 0.95rem; color: var(--accent); margin-bottom: 0.65rem; font-weight: 600; }
-    .status { margin-top: 0.6rem; font-size: 0.8rem; color: var(--muted); }
-    a { color: var(--accent); }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PokéSurvivor Toolkit</title>
 </head>
 <body>
-  <div class="container">
-    <h1>⚡ PokéSurvivor Toolkit</h1>
-    <p class="subtitle">
-      Live data from
-      <a href="https://github.com/JPTER78/pokesurvivor" target="_blank" rel="noopener">JPTER78/pokesurvivor</a>
-      · DPS · Pokédex · Best type combos · <span id="verInline">v1.2.0</span>
-    </p>
-    <div class="tabs">
-      <div class="tab active" data-tab="dps">DPS Table</div>
-      <div class="tab" data-tab="calc">Calculator</div>
-      <div class="tab" data-tab="pokedex">Pokédex</div>
-      <div class="tab" data-tab="combos">Best Combos</div>
-      <div class="tab" data-tab="enemies">Weakness</div>
-      <div class="tab" data-tab="size">Size Compare</div>
-      <div class="tab" data-tab="items">Items</div>
-      <div class="tab" data-tab="changelog">Changelog</div>
-      <div class="tab" data-tab="config">Config</div>
-    </div>
-    <div class="panel active" id="panel-dps">
-      <h2>DPS Table</h2>
-      <p>Full UI is being restored. The previous base64 loader failed because the chunk files were missing.</p>
-      <p>Working on weather multiplier, damage mult column, game mechanics tab, combo buff logic, cache, modern toggles, and the rest of the feature list.</p>
-      <div id="status" class="status">Site is loading again. Full feature update in progress…</div>
-    </div>
-  </div>
-  <script>
-    // Temporary status page while full app is restored
-    console.log('PokéSurvivor Toolkit — deploy fixed, full features coming');
-  </script>
+<p style="font-family:system-ui;color:#9aa4b2;padding:1.5rem">Loading PokéSurvivor Toolkit…</p>
+<script>
+(async function () {
+  const files = ['b64_0.txt', 'b64_1.txt', 'b64_2.txt', 'b64_3.txt', 'b64_4.txt', 'b64_5.txt', 'b64_6.txt', 'b64_7.txt'];
+  let b64 = '';
+  for (const f of files) {
+    const r = await fetch(f + '?v=130');
+    if (!r.ok) throw new Error('Missing ' + f);
+    b64 += await r.text();
+  }
+  b64 = b64.replace(/\s/g, '');
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const html = new TextDecoder().decode(bytes);
+  document.open();
+  document.write(html);
+  document.close();
+})().catch(e => {
+  document.body.innerHTML = '<p style="font-family:system-ui;color:#ef5350;padding:1.5rem">Load failed: ' + e.message + '</p>';
+  console.error(e);
+});
+</script>
 </body>
 </html>
