@@ -151,3 +151,17 @@ tr:hover td { background: rgba(79,195,247,0.06); }
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 .table-wrap { overflow-x: auto; margin-top: 0.4rem; }
+.combo-list { display: flex; flex-direction: column; gap: 0.45rem; }
+.combo-row {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;
+}
+.combo-row .left { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+.combo-row .score { margin-left: auto; font-weight: 600; color: var(--accent2); }
+.combo-row .moves { font-size: 0.75rem; color: var(--muted); width: 100%; }
+.note { font-size: 0.8rem; color: var(--muted); }
+.slot-move { font-size: 0.78rem; }
+.slot-move.buff { color: var(--warn); }
