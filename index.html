@@ -4,9 +4,4321 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>PokéSurvivor Toolkit</title>
-  <link rel="stylesheet" href="css/app.css" />
+  <style>
+:root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --border: #2d3a4f;
+      --text: #e7ecf3;
+      --muted: #8b9bb4;
+      --accent: #4fc3f7;
+      --accent2: #81c784;
+      --danger: #ef5350;
+      --warn: #ffb74d;
+      --pink: #f48fb1;
+      --pink-bg: rgba(244,143,177,0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      min-height: 100vh;
+      padding: 0.75rem;
+      font-size: 14px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 {
+      font-size: 1.35rem;
+      margin-bottom: 0.15rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .subtitle { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.9rem; }
+    .subtitle a { color: var(--accent); }
+    .tabs {
+      display: flex; gap: 0.35rem; margin-bottom: 0.75rem; flex-wrap: wrap;
+    }
+    .tab {
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: #0a1628;
+      border-color: var(--accent);
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.85rem;
+      display: none;
+    }
+    .panel.active { display: block; }
+    .panel h2 {
+      font-size: 0.95rem;
+      color: var(--accent);
+      margin-bottom: 0.65rem;
+      font-weight: 600;
+    }
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      align-items: end;
+    }
+    label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    input[type="number"], input[type="text"], select {
+      width: 100%;
+      padding: 0.45rem 0.55rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.65rem; }
+    button {
+      padding: 0.4rem 0.75rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    button:hover { opacity: 0.88; }
+    .btn-primary { background: var(--accent); color: #0a1628; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .btn-success { background: var(--accent2); color: #0a1628; }
+    .status { font-size: 0.78rem; color: var(--muted); margin-top: 0.45rem; }
+    .status.ok { color: var(--accent2); }
+    .status.err { color: var(--danger); }
+    .status.loading { color: var(--warn); }
+    .filters {
+      display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.6rem; align-items: end;
+    }
+    .filters > div { min-width: 100px; }
+    .table-wrap {
+      overflow-x: auto;
+      max-height: 58vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    th, td {
+      padding: 0.35rem 0.45rem;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    th {
+      background: rgba(0,0,0,0.3);
+      color: var(--muted);
+      font-weight: 600;
+      position: sticky; top: 0;
+      cursor: pointer;
+      user-select: none;
+      z-index: 1;
+    }
+    th:hover { color: var(--accent); }
+    th.text-left, td.text-left { text-align: left; }
+    tr:hover td { background: rgba(79,195,247,0.06); }
+    .type-badge {
+      display: inline-block;
+      padding: 0.08rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .cat-badge {
+      font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.35rem; border-radius: 4px;
+      letter-spacing: 0.03em;
+    }
+    .cat-phy { background: rgba(239, 83, 80, 0.2); color: #ef5350; }
+    .cat-spe { background: rgba(129, 199, 132, 0.2); color: #81c784; }
+    .kind-badge { font-size: 0.68rem; color: var(--muted); }
+    .dps-high { color: var(--accent2); font-weight: 600; }
+    .dps-mid { color: var(--warn); }
+    .evolved {
+      color: var(--pink);
+      font-weight: 600;
+      cursor: help;
+      border-bottom: 1px dotted var(--pink);
+    }
+    .evolved:hover { background: var(--pink-bg); }
+    .note-list {
+      margin: 0.15rem 0 0 1rem;
+      padding: 0;
+      list-style: disc;
+    }
+    .note-list li { margin: 0.12rem 0; }
+    .note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+      line-height: 1.55;
+    }
+    .ios-toggle-label {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.8rem; color: var(--text); cursor: pointer; user-select: none;
+    }
+    .ios-toggle {
+      position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0;
+    }
+    .ios-toggle input { opacity: 0; width: 0; height: 0; }
+    .ios-toggle-slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: var(--border); border-radius: 24px; transition: 0.2s;
+    }
+    .ios-toggle-slider:before {
+      content: ''; position: absolute; height: 18px; width: 18px;
+      left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.2s;
+    }
+    .ios-toggle input:checked + .ios-toggle-slider { background: var(--accent); }
+    .ios-toggle input:checked + .ios-toggle-slider:before { transform: translateX(18px); }
+    .poke-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 0.5rem;
+    }
+    .poke-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.65rem;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .poke-card:hover, .poke-card.selected {
+      border-color: var(--accent);
+    }
+    .poke-card .name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+    .poke-card .dex { color: var(--muted); font-size: 0.7rem; }
+    .poke-card .stats {
+      font-size: 0.72rem;
+      margin-top: 0.3rem;
+      color: var(--muted);
+    }
+    .poke-card .stats strong { color: var(--text); }
+    .poke-card .types { margin-top: 0.25rem; display: flex; gap: 0.25rem; flex-wrap: wrap; }
+    .combo-list { display: flex; flex-direction: column; gap: 0.45rem; }
+    .combo-row {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.7rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .combo-row .left { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+    .combo-row .score {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--accent2);
+    }
+    .combo-row .moves { font-size: 0.75rem; color: var(--muted); width: 100%; }
+    .rank {
+      width: 1.5rem; height: 1.5rem;
+      border-radius: 50%;
+      background: var(--border);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700;
+    }
+    .rank.top1 { background: #ffd54f; color: #333; }
+    .rank.top2 { background: #b0bec5; color: #333; }
+    .rank.top3 { background: #ff8a65; color: #333; }
+    td.tip {
+      cursor: help;
+      position: relative;
+    }
+    #tt {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      max-width: min(340px, 92vw);
+      background: #0d1520;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      font-size: 0.75rem;
+      line-height: 1.45;
+      color: var(--text);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.55);
+      pointer-events: none;
+      white-space: pre-wrap;
+    }
+    #tt .tt-title { color: var(--accent); font-weight: 700; margin-bottom: 0.35rem; }
+    #tt .tt-muted { color: var(--muted); }
+    #tt .tt-pink { color: var(--pink); font-weight: 600; }
+    #tt .tt-step { margin: 0.15rem 0; }
+    #tt .tt-result { color: var(--accent2); font-weight: 700; margin-top: 0.35rem; }
+    .item-row {
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.55rem 0.7rem; margin-bottom: 0.4rem;
+    }
+    .item-row .iname { font-weight: 600; }
+    .item-row .idesc { color: var(--muted); font-size: 0.8rem; margin-top: 0.15rem; }
+    .drop-rate { font-variant-numeric: tabular-nums; }
+    .slots-wrap { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.35rem; }
+    .slot-col {
+      background: #121a24; border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.35rem 0.5rem; min-width: 140px;
+    }
+    .slot-col.main { border-color: var(--accent); }
+    .slot-tag { font-size: 0.68rem; color: var(--muted); margin-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .slot-move {
+      font-size: 0.8rem; padding: 0.15rem 0; border-bottom: 1px solid #1e2836;
+    }
+    .slot-move:last-child { border-bottom: none; }
+    .slot-move.buff { color: var(--warn); }
+    .slot-dps { color: var(--muted); font-size: 0.75rem; float: right; }
+    tr.highlight-row td { background: rgba(79,195,247,0.18) !important; outline: 1px solid var(--accent); }
+    .calc-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .calc-grid th, .calc-grid td {
+      border: 1px solid var(--border); padding: 0.35rem; text-align: center;
+      vertical-align: middle; font-size: 0.78rem; height: 52px;
+    }
+    .calc-grid th { background: #121a24; color: var(--muted); font-weight: 500; }
+    .calc-grid td.cell {
+      cursor: pointer; background: var(--card);
+    }
+    .calc-grid td.cell:hover { border-color: var(--accent); }
+    .calc-grid td.cell.filled { background: #15202e; }
+    .calc-grid .cell-move { font-weight: 600; }
+    .calc-grid .cell-x {
+      float: right; cursor: pointer; color: var(--muted); font-size: 0.7rem; padding: 0 0.2rem;
+    }
+    .calc-picker {
+      margin-top: 0.5rem; max-height: 200px; overflow: auto;
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem;
+      display: flex; flex-wrap: wrap; gap: 0.3rem;
+    }
+    .calc-picker .pick {
+      padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid var(--border);
+      cursor: pointer; font-size: 0.75rem; background: #121a24;
+    }
+    .calc-picker .pick:hover { border-color: var(--accent); }
+    .size-tag {
+      display: inline-block; font-size: 0.65rem; padding: 0.1rem 0.35rem;
+      border-radius: 4px; margin-left: 0.25rem; font-weight: 600;
+    }
+    .size-tag.small { background: #37474f; color: #b0bec5; }
+    .size-tag.medium { background: #1b5e20; color: #a5d6a7; }
+    .size-tag.big { background: #e65100; color: #ffe0b2; }
+    .mult-super { color: #66bb6a; font-weight: 600; } /* beneficial */
+    .mult-weak { color: #ef5350; font-weight: 600; } /* detrimental */
+    .mult-neutral { color: var(--muted); }
+    #weakMatrixTable th, #weakMatrixTable td { font-size: 0.75rem; white-space: nowrap; }
+    #weakMatrixTable .avg-row td { border-top: 2px solid var(--accent); font-weight: 600; background: #121a24; }
+    #tt.pinned { pointer-events: auto; border-color: var(--warn); }
+    .poke-detail { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; }
+    tr.poke-sel td { background: rgba(79,195,247,0.12) !important; }
+    .mobbing-sub {
+      background: #121a24;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem 0.65rem;
+      margin: 0.35rem 0 0.55rem;
+    }
+    .mobbing-sub-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.35rem;
+    }
+    .global-poke-bar {
+      background: #15202e; border: 1px solid var(--accent); border-radius: 8px;
+      padding: 0.4rem 0.75rem; margin-bottom: 0.65rem; font-size: 0.85rem;
+    }
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9000;
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 0.85rem 1rem; max-width: 520px; width: 100%; max-height: 90vh; overflow: auto;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    }
+    .modal-card h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+    .type-chip.disabled { opacity: 0.35; pointer-events: none; }
+    .changelog-item { margin-bottom: 0.75rem; }
+    .changelog-item .ver { color: var(--accent); font-weight: 700; }
+    .changelog-item ul { margin: 0.25rem 0 0 1.1rem; color: var(--muted); font-size: 0.85rem; }
+    .size-stage {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      height: 520px;
+      margin: 0.75rem auto;
+      background: radial-gradient(circle at center, #15202e 0%, #0a1018 70%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .size-stage .ring {
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(79,195,247,0.35);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .size-stage .ring-label {
+      position: absolute; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem; color: var(--muted);
+      white-space: nowrap;
+    }
+    .size-stage .spr-wrap {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    .size-stage .hit-ring {
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      border: 2px solid rgba(244,143,177,0.9);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .type-chip {
+      display: inline-block; padding: 0.2rem 0.5rem; margin: 0.15rem;
+      border-radius: 999px; border: 1px solid var(--border);
+      font-size: 0.72rem; cursor: pointer; user-select: none;
+      background: var(--card); color: var(--muted);
+    }
+    .type-chip.on {
+      border-color: transparent; color: #111; font-weight: 600;
+    }
+    .poke-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+    .poke-table th.sortable:hover { color: var(--accent); }
+    .poke-table th .arrow { color: var(--accent); font-size: 0.7rem; margin-left: 0.15rem; }
+    .poke-spr {
+      width: 40px; height: 40px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      background-color: transparent;
+      flex-shrink: 0;
+    }
+    .poke-name-cell { display: flex; align-items: center; gap: 0.5rem; }
+    .poke-name-cell .pname { font-weight: 600; }
+    .poke-name-cell .pdex { color: var(--muted); font-size: 0.75rem; }
+    @media (max-width: 600px) {
+      body { padding: 0.5rem; font-size: 13px; }
+      h1 { font-size: 1.15rem; }
+      .table-wrap { max-height: 50vh; }
+      th, td { padding: 0.3rem 0.35rem; }
+    }
+
+/* Compact tables */
+table.compact th, table.compact td,
+.table-wrap.compact th, .table-wrap.compact td {
+  padding: 0.18rem 0.35rem;
+  font-size: 0.75rem;
+}
+.mech-groups { display: flex; flex-direction: column; gap: 0.65rem; }
+.mech-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
+}
+.mech-card h3 {
+  font-size: 0.88rem;
+  color: var(--accent);
+  margin-bottom: 0.35rem;
+}
+.mech-card ul { margin: 0.25rem 0 0 1.1rem; font-size: 0.8rem; color: var(--text); }
+.mech-card li { margin: 0.2rem 0; }
+.mech-card code { font-size: 0.78rem; color: var(--accent2); }
+.radar-axes { display: flex; flex-direction: column; gap: 0.35rem; }
+    .radar-axes-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.65rem; }
+    .radar-axes-label {
+      font-size: 0.68rem; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 0.04em; min-width: 2.6rem;
+    }
+    .radar-axes label { font-size: 0.75rem; color: var(--muted); cursor: pointer; }
+
+  
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .kind-chip {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #15202e;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      text-transform: lowercase;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .kind-chip:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .kind-chip.on {
+      background: rgba(79, 195, 247, 0.2);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    tr.dps-unusable { opacity: 0.38; }
+    tr.dps-unusable td { color: var(--muted) !important; }
+    tr.dps-unusable .type-badge,
+    tr.dps-unusable .kind-badge,
+    tr.dps-unusable .cat-badge { filter: grayscale(0.6); opacity: 0.7; }
+</style>
 </head>
 <body>
-PLACEHOLDER
+
+<div class="container">
+    <h1>⚡ PokéSurvivor Toolkit</h1>
+    <p class="subtitle">
+      Live data from
+      <a href="https://github.com/JPTER78/pokesurvivor" target="_blank" rel="noopener">JPTER78/pokesurvivor</a>
+      · DPS · Pokédex · Mechanics · <span id="verInline">v1.6.30</span>
+    </p>
+
+    <div id="globalPokeBar" class="global-poke-bar">
+      Selected Pokémon: <strong id="globalPokeName">None</strong>
+      <button class="btn-secondary" style="padding:0.15rem 0.45rem;font-size:0.72rem;margin-left:0.5rem" onclick="clearGlobalPoke()">Clear</button>
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="dps">DPS Table</div>
+      <div class="tab" data-tab="calc">Calculator</div>
+      <div class="tab" data-tab="pokedex">Pokédex</div>
+      <div class="tab" data-tab="combos">Best Combos</div>
+      <div class="tab" data-tab="multipliers">Multipliers</div>
+      <div class="tab" data-tab="size">Size Compare</div>
+      <div class="tab" data-tab="items">Items</div>
+      <div class="tab" data-tab="mechanics">Mechanics</div>
+      <div class="tab" data-tab="changelog">Changelog</div>
+      <div class="tab" data-tab="config">Config</div>
+    </div>
+
+    <div class="panel active" id="panel-dps">
+      <h2>DPS Table (Move Level 1 → 5)</h2>
+      <div class="filters" style="align-items:flex-end">
+        <div>
+          <label class="ios-toggle-label">
+            <span>Single</span>
+            <span class="ios-toggle">
+              <input type="checkbox" id="dpsMobbing" onchange="onDpsModeChange()" />
+              <span class="ios-toggle-slider"></span>
+            </span>
+            <span>Mobbing</span>
+          </label>
+        </div>
+      </div>
+      <div id="mobbingOpts" class="mobbing-sub" style="display:none">
+        <div class="mobbing-sub-title">Mobbing</div>
+        <div class="filters" style="margin:0;align-items:flex-end">
+          <div>
+            <label>Proj hit %</label>
+            <input type="number" id="projHitPct" value="70" min="1" max="100" step="1" style="width:4.2rem" onchange="recalcAll()" />
+          </div>
+          <div>
+            <label>Avg enemy r</label>
+            <input type="number" id="avgEnemyR" value="12" min="1" max="40" step="0.5" style="width:4.2rem" onchange="recalcAll()" />
+          </div>
+        </div>
+      </div>
+      <div class="filters" style="align-items:flex-end;margin-top:0.35rem">
+        <div style="flex:1;min-width:180px">
+          <label>Search</label>
+          <input type="text" id="searchMove" placeholder="prefix… or ~contains" oninput="renderDps()" />
+        </div>
+      </div>
+      <div class="filters" style="align-items:center;margin-top:0.35rem">
+        <div>
+          <label><input type="checkbox" id="useAvgType" checked onchange="recalcAll()" /> Spawn-normalised weakness multi</label>
+        </div>
+        <div>
+          <label><input type="checkbox" id="usePoison" onchange="recalcAll()" /> Include DoT (poison / burn)</label>
+        </div>
+      </div>
+      <div style="margin:0.35rem 0 0.5rem">
+        <label style="display:block;margin-bottom:0.2rem">Types</label>
+        <div id="dpsTypeChips" class="chip-row"></div>
+      </div>
+      <div style="margin:0.15rem 0 0.55rem">
+        <label style="display:block;margin-bottom:0.2rem">Kinds</label>
+        <div id="dpsKindChips" class="chip-row kind-chips"></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="text-left" data-sort="name">Move</th>
+              <th data-sort="type">Type</th>
+              <th data-sort="kind">Kind</th>
+              <th data-sort="cat" title="physical | special (game m.cat)">Cat</th>
+              <th data-sort="mult" title="dmg multi — species ATK side for this cat × type × weather">dmg multi</th>
+              <th data-sort="lv1">Lv1</th>
+              <th data-sort="lv2">Lv2</th>
+              <th data-sort="lv3">Lv3</th>
+              <th data-sort="lv4">Lv4</th>
+              <th data-sort="lv5">Lv5</th>
+              <th data-sort="evo">Evo</th>
+            </tr>
+          </thead>
+          <tbody id="dpsBody"></tbody>
+        </table>
+      </div>
+      <h2 style="margin-top:1.1rem">Buffs (level-up effects)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="text-left">Buff</th>
+              <th>Type</th>
+              <th>Lv1</th><th>Lv2</th><th>Lv3</th><th>Lv4</th><th>Lv5</th>
+              <th class="text-left">Max stage</th>
+            </tr>
+          </thead>
+          <tbody id="buffsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-pokedex">
+      <h2>Pokédex <span id="pokeCount" style="color:var(--muted);font-weight:400"></span></h2>
+      <div class="filters">
+        <div>
+          <label>Gen</label>
+          <select id="pokeGen" onchange="renderPokedex()">
+            <option value="">All</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:160px">
+          <label>Search</label>
+          <input type="text" id="searchPoke" placeholder="prefix… or ~contains" oninput="renderPokedex()" />
+        </div>
+      </div>
+      <div style="margin:0.35rem 0 0.5rem">
+        <label style="display:block;margin-bottom:0.25rem">Types (multi-select)</label>
+        <div id="pokeTypeChips"></div>
+        <button class="btn-secondary" style="margin-top:0.3rem;padding:0.25rem 0.55rem;font-size:0.75rem" onclick="clearPokeTypes()">Clear types</button>
+      </div>
+      <div class="filters" style="margin:0.35rem 0 0.5rem;align-items:flex-end">
+        <div>
+          <label>Baseline r</label>
+          <select id="dodgeMedianMode" onchange="onDodgeOptionsChange()">
+            <option value="pokemon" selected>All Pokémon r</option>
+            <option value="distinct">Distinct r values</option>
+          </select>
+        </div>
+        <div>
+          <label>Dodge formula</label>
+          <select id="dodgeCurve" onchange="onDodgeOptionsChange()">
+            <option value="linear">med/r</option>
+            <option value="power15" selected>(med/r)^1.5</option>
+            <option value="soft">½·(med/r)+½·(med/r)²</option>
+            <option value="area">(med/r)²</option>
+          </select>
+        </div>
+        <div class="note" id="enemySideMix" style="margin:0;width:100%"></div>
+        <div class="note" id="dodgeOptionsHint" style="margin:0;flex:1;min-width:160px"></div>
+      </div>
+      <div class="table-wrap">
+        <table class="poke-table">
+          <thead>
+            <tr>
+              <th class="sortable text-left" data-poke-sort="dex" data-col-help="National Pokédex number."># <span class="arrow"></span></th>
+              <th class="sortable text-left" data-poke-sort="name" data-col-help="Species name. Click the sprite to select.">Name <span class="arrow"></span></th>
+              <th class="text-left" data-col-help="Typing for weakness multi, weather multi, and defense mults.">Type</th>
+              <th class="sortable" data-poke-sort="pa" data-col-help="Physical attack multi (mon.pa). Used by physical moves.">PA <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="sa" data-col-help="Special attack multi (mon.sa). Used by special moves.">SA <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="df" data-col-help="Base Defense (mon.df). Soft guard vs physical: clamp((75/df)^0.35, 0.78–1.25).">DF <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="sd" data-col-help="Base Sp. Defense (mon.sd). Soft guard vs special: clamp((75/sd)^0.35, 0.78–1.25).">SD <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="hp" data-col-help="Species base HP (level gains not included).">HP <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="spd" data-col-help="Species base speed.">SPD <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="hit" data-col-help="Collision radius r. Rank #1 = smallest.">r <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="typeM" data-col-help="Weakness multi (offense): spawn-weighted soft type chart.">weakness multi <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="wxM" data-col-help="Weather multi (offense).">weather multi <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="phyM" data-col-help="Physical dmg multi = PA × weakness multi × weather multi.">phy multi <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="speM" data-col-help="Special dmg multi = SA × weakness multi × weather multi.">spe multi <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="phyDefM" data-col-help="Incoming vs physical = type def × weather def × guard(DF). Lower = tankier vs physical.">phy def multi <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="speDefM" data-col-help="Incoming vs special = type def × weather def × guard(SD). Lower = tankier vs special.">spe def multi <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="dr" data-col-help="Damage reduction multi (incoming). Spawn-weighted: type × weather × guard(DF|SD) by enemy strong side (pa≥sa → physical). Lower = take less. ehp = dodge / dr.">dr <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="dodge" data-col-help="Dodge factor from baseline r and formula.">dodge factor <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="ehp" data-col-help="ehp = dodge / dr. Higher = tankier.">ehp <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="score" data-col-help="score = √(off' × def') using max(phy,spe) multi and ehp, median-normalized.">score <span class="arrow"></span></th>
+              <th class="sortable" data-poke-sort="gen" data-col-help="Generation.">Gen <span class="arrow"></span></th>
+            </tr>
+          </thead>
+          <tbody id="pokeBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-calc">
+      <h2>DPS Calculator</h2>
+      <div class="filters" style="margin-bottom:0.55rem">
+        <div style="flex:1;min-width:180px">
+          <label>Pokémon</label>
+          <input type="text" id="calcPoke" list="calcPokeList" placeholder="Search Pokémon…" onchange="onCalcPokeChange()" oninput="onCalcPokeChange()" />
+          <datalist id="calcPokeList"></datalist>
+        </div>
+        <div id="calcPokeInfo" style="align-self:center;color:var(--muted);font-size:0.8rem"></div>
+        <div style="align-self:flex-end">
+          <button class="btn-secondary" onclick="calcClear()">Clear grid</button>
+        </div>
+      </div>
+      <div class="calc-grid-wrap">
+        <table class="calc-grid" id="calcGrid">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Slot 1 · Main</th>
+              <th>Slot 2</th>
+              <th>Slot 3</th>
+              <th>Slot 4</th>
+            </tr>
+          </thead>
+          <tbody id="calcGridBody"></tbody>
+        </table>
+      </div>
+      <div id="calcPicker" class="calc-picker" style="display:none"></div>
+      <div id="calcResult" class="item-row" style="margin-top:0.55rem">
+        <div class="iname">Effective DPS: —</div>
+        <div class="idesc">Select a Pokémon and fill the grid.</div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-combos">
+      <h2>Best Type Combos</h2>
+      <div class="filters" style="margin-bottom:0.55rem;align-items:flex-end">
+        <div>
+          <label for="bondSize">Bond size (moves in active slot)</label>
+          <input type="number" id="bondSize" value="4" min="1" max="4" step="1" onchange="calcCombos()" />
+        </div>
+        <div>
+          <label class="ios-toggle-label">
+            <span class="ios-toggle">
+              <input type="checkbox" id="preferSwitchSlots" onchange="calcCombos()" />
+              <span class="ios-toggle-slider"></span>
+            </span>
+            Prefer switching active slots
+          </label>
+          <div class="note" style="margin:0.15rem 0 0;font-size:0.7rem">Off = only buffs in the active slot count. On = buffs in any slot (uptime cost).</div>
+        </div>
+        <div>
+          <button class="btn-primary" onclick="calcCombos()">Recalculate</button>
+        </div>
+      </div>
+      <div class="combo-list" id="comboList"></div>
+    </div>
+
+    <div class="panel" id="panel-size">
+      <h2>Size / Range Compare</h2>
+      <div class="filters">
+        <div style="flex:1;min-width:180px">
+          <label>Pokémon</label>
+          <input type="text" id="sizePoke" list="sizePokeList" placeholder="Search…" onchange="renderSizeView()" oninput="renderSizeView()" />
+          <datalist id="sizePokeList"></datalist>
+        </div>
+        <div id="sizePokeMeta" style="align-self:center;color:var(--muted);font-size:0.8rem"></div>
+      </div>
+      <div style="margin:0.25rem 0 0.5rem">
+        <label style="display:block;margin-bottom:0.2rem">Types (filter list)</label>
+        <div id="sizeTypeChips"></div>
+        <button class="btn-secondary" style="margin-top:0.25rem;padding:0.2rem 0.5rem;font-size:0.72rem" onclick="clearSizeTypes()">Clear types</button>
+      </div>
+      <div id="sizeView" class="size-stage"></div>
+    </div>
+
+    <div class="panel" id="panel-mechanics">
+      <h2>Game Mechanics</h2>
+      <div id="mechanicsBody" class="mech-groups"></div>
+    </div>
+
+    <div class="panel" id="panel-multipliers">
+      <h2>Multipliers</h2>
+
+      <h3 style="font-size:0.95rem;margin:0.7rem 0 0.35rem">Section A — Type chart matrix (offense + def)</h3>
+      <div id="weakAtkChips" style="margin-bottom:0.35rem"></div>
+      <button class="btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.72rem;margin-bottom:0.5rem" onclick="clearWeakAtk()">Clear selection</button>
+      <div class="table-wrap compact" style="max-height:360px">
+        <table id="weakMatrixTable">
+          <thead id="weakMatrixHead"></thead>
+          <tbody id="weakMatrixBody"></tbody>
+        </table>
+      </div>
+
+      <h3 style="font-size:0.95rem;margin:1rem 0 0.35rem">Section B — Offense mults (per attack type)</h3>
+      <div class="table-wrap compact">
+        <table>
+          <thead>
+            <tr>
+              <th class="text-left">Attack type</th>
+              <th title="Spawn-weighted type multii">type multii</th>
+              <th title="Weather avg mult">weather multi</th>
+              <th title="type multii × weather multi">combined</th>
+            </tr>
+          </thead>
+          <tbody id="offenseTypeBody"></tbody>
+        </table>
+      </div>
+
+      <h3 style="font-size:0.95rem;margin:1rem 0 0.35rem">Section C — Defense mults (per your type)</h3>
+      <div class="table-wrap compact">
+        <table>
+          <thead>
+            <tr>
+              <th class="text-left">Your type(s)</th>
+              <th>type def</th>
+              <th>weather def</th>
+              <th title="type def × weather def">def multi</th>
+            </tr>
+          </thead>
+          <tbody id="defenseTypeBody"></tbody>
+        </table>
+      </div>
+
+      <h3 style="font-size:0.95rem;margin:1rem 0 0.35rem">Section C2 — Dodge factor (hitbox)</h3>
+      <div id="hitboxSummary" class="note" style="margin-top:0.25rem"></div>
+
+      <h3 style="font-size:0.95rem;margin:1rem 0 0.35rem">Section D — Enemy type weights</h3>
+      <div class="table-wrap compact">
+        <table>
+          <thead>
+            <tr>
+              <th class="text-left">Types</th>
+              <th>%</th>
+              <th class="text-left">Examples</th>
+            </tr>
+          </thead>
+          <tbody id="enemyTypeBody"></tbody>
+        </table>
+      </div>
+      <div id="weakMultiSummary" class="note" style="margin-top:0.4rem"></div>
+    </div>
+
+    <div class="panel" id="panel-items">
+      <h2>Item &amp; Ticket Drop Rates</h2>
+      <div class="table-wrap" style="max-height:none">
+        <table>
+          <thead>
+            <tr>
+              <th class="text-left">Source</th>
+              <th class="text-left">Equipable item</th>
+              <th class="text-left">Ticket ×1</th>
+              <th class="text-left">Ticket ×10</th>
+              <th class="text-left">Other</th>
+            </tr>
+          </thead>
+          <tbody id="dropBody"></tbody>
+        </table>
+      </div>
+      <h2 style="margin-top:1.1rem">Equipable items (11)</h2>
+      <div class="combo-list" id="itemList"></div>
+    </div>
+
+    <div class="panel" id="panel-changelog">
+      <h2>Changelog <span id="appVersionBadge" style="color:var(--muted);font-weight:400;font-size:0.9rem"></span></h2>
+      <div id="changelogList" class="combo-list"></div>
+    </div>
+
+    <div class="panel" id="panel-config">
+      <h2>Configuration</h2>
+      <div class="config-grid">
+        <div>
+          <label for="typeMult">Type Multiplier</label>
+          <input type="number" id="typeMult" value="1.00" min="0.3" max="2.4" step="0.1" />
+        </div>
+        <div>
+          <label for="weatherMult">Weather Multiplier (manual)</label>
+          <input type="number" id="weatherMult" value="1.00" min="0.5" max="1.5" step="0.1" />
+        </div>
+        <div>
+          <label><input type="checkbox" id="useWeatherAvg" onchange="recalcAll()" /> Use weather avg (~18% uptime, biome-weighted)</label>
+        </div>
+        <div>
+          <label for="coneHitCap">Cone/Nova same-target hit cap</label>
+          <input type="number" id="coneHitCap" value="3" min="1" max="20" step="1" />
+        </div>
+        <div>
+          <label for="trailTick">Trail patch tick (s)</label>
+          <input type="number" id="trailTick" value="0.5" min="0.1" max="2" step="0.05" />
+        </div>
+        <div>
+          <label for="refEnemyHp">Ref enemy HP (poison DoT)</label>
+          <input type="number" id="refEnemyHp" value="100" min="10" max="5000" step="10" />
+        </div>
+        <div>
+          <label for="refPlayerLvl">Ref player level (burn DoT)</label>
+          <input type="number" id="refPlayerLvl" value="20" min="1" max="100" step="1" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="recalcAll()">Recalculate</button>
+        <button class="btn-secondary" onclick="fetchAll(true)">Force reload from GitHub</button>
+      </div>
+      <div id="status" class="status">Ready. Loading data…</div>
+    </div>
+  </div>
+  <div id="tt"></div>
+  <div id="radarModal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)closeRadarModal()">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.4rem">
+        <h3 id="pokeDetailTitle" style="margin:0">Pokémon</h3>
+        <button class="btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.75rem" onclick="closeRadarModal()">Close</button>
+      </div>
+      <div class="filters" style="margin-bottom:0.45rem;flex-wrap:wrap">
+        <div><label><input type="checkbox" id="radarAllAvg" checked onchange="drawPokeRadar()" /> All avg</label></div>
+        <div><label><input type="checkbox" id="radarTypeAvg" checked onchange="drawPokeRadar()" /> Per-type avg</label></div>
+        <div style="width:100%;font-size:0.72rem;color:var(--muted);margin-top:0.2rem">Axes</div>
+        <div id="radarAxisToggles" class="radar-axes"></div>
+      </div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-start;justify-content:center">
+        <canvas id="pokeRadar" width="260" height="260" style="background:#0a1018;border-radius:12px;border:1px solid var(--border)"></canvas>
+        <div id="pokeStatList" style="font-size:0.82rem;line-height:1.65;min-width:140px"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+const APP_VERSION = '1.6.30';
+    const CHANGELOG = [
+      { v: '1.6.30', date: '2026-10-20', items: [
+        'Combo tab: with mon selected, only its learnable skills; DPS uses PA/SA by move category',
+        'DPS + Combo both use selected Pokémon PA (physical) / SA (special)'
+      ]},
+      { v: '1.6.29', date: '2026-10-20', items: [
+        'Pokédex: multiplier cells show calculation-step tooltips (n (desc) * n (desc) = n)'
+      ]},
+      { v: '1.6.28', date: '2026-10-20', items: [
+        'Ranks: competition style 1,1,1,4,5,5,7,8 (ties share min rank, then skip)'
+      ]},
+      { v: '1.6.27', date: '2026-10-20', items: [
+        'Perf: cache all Pokédex mults/scores/ranks; recompute only when data or dodge options change',
+        'Ranks: equal values share the same rank (dense ranking)'
+      ]},
+      { v: '1.6.26', date: '2026-10-20', items: [
+        'Enemy distribution live from enemies.js TIERS + spawner.js rate/DENSITY (cached 1h)'
+      ]},
+      { v: '1.6.25', date: '2026-10-20', items: [
+        'Fix radar: radarStatsFor omitted dr/phy/spe/def multis so those axes always sat at outer ring'
+      ]},
+      { v: '1.6.24', date: '2026-10-20', items: [
+        'Pokédex: sprite click = select; row click = radar',
+        'Radar defaults: HP, SPD, phy/spe multi, phy/spe def multi, dodge',
+        'Fix def multis stale/missing DF/SD — always recompute; hover shows type×wx×guard(DF/SD)'
+      ]},
+      { v: '1.6.23', date: '2026-10-20', items: [
+        'DPS: with mon selected, gray out non-learnable moves (Normal + its types)',
+        'DPS uses mon PA for physical / SA for special moves'
+      ]},
+      { v: '1.6.22', date: '2026-10-20', items: [
+        'Fix kinds multi-select: pill chips CSS + DOM build (no raw text concat)'
+      ]},
+      { v: '1.6.21', date: '2026-10-20', items: [
+        'Radar axes: 2 rows (raw PA/SA/DF/SD/HP/SPD/r + calculated multis); each togglable',
+        'Removed ATK from radar and Pokédex (use PA/SA; game uses side-specific attack)'
+      ]},
+      { v: '1.6.20', date: '2026-10-20', items: [
+        'Fix: type/kind chip builders tolerate missing args (tabs no longer crash on load)'
+      ]},
+      { v: '1.6.19', date: '2026-10-20', items: [
+        'Pokédex: dr column — spawn-weighted incoming (type × weather × guard by enemy phy/spe side)',
+        'ehp = dodge / dr; enemy physical/special mix shown from sideOf(pa/sa)'
+      ]},
+      { v: '1.6.18', date: '2026-10-20', items: [
+        'Moves: physical/special cat column; new kinds (homing, bounce, charge, spin, quake, vortex, shove, stun)',
+        'Pokédex: PA/SA/DF/SD; phy/spe dmg multi; phy/spe def multi via Stats.guard',
+        'DPS uses mon PA or SA when a Pokémon is selected'
+      ]},
+      { v: '1.6.17', date: '2026-10-19', items: [
+        'Pokédex: score composite, baseline r + formula defaults, weakness multi rename, sprite select, col-header help, r rank smallest first',
+        'DPS: Single/Mobbing row, search row, checkboxes row; kind multi-select pills; Alt-pin freezes tip',
+        'Remove outside-table bullet notes; Multipliers type chips on load'
+      ]},
+      { v: '1.6.16', date: '2026-10-18', items: [
+        'Notes: calculation meaning only, bullet lists (no UI control prose)'
+      ]},
+      { v: '1.6.15', date: '2026-10-18', items: [
+        'Remove UI control hints; mobbing settings in sub-section row',
+        'Projectile/chain/meteor DPS uses mob hit estimate directly (dmg × hits / cd)'
+      ]},
+      { v: '1.6.14', date: '2026-10-18', items: [
+        'Mobbing configs only when Mobbing on; avg enemy r prefilled from spawn×hitbox',
+        'Aura mobbing: ½-disk minus self r (selected mon or mean)',
+        'Meteor: game aim = 1 meteor per nearby enemy (reach 340), limited splash; less overrated',
+        'Selected Pokémon bar always above tabs'
+      ]},
+      { v: '1.6.13', date: '2026-10-18', items: [
+        'DPS: Single/Mobbing toggle; proj hit %; pierce/chain if primary hits; aura ½-circle, orbit ring, meteor disk estimates',
+        'DoT (poison/burn) off by default'
+      ]},
+      { v: '1.6.12', date: '2026-10-18', items: [
+        'Pokédex: dodge median (all vs distinct r) + curve (area/linear/soft/1.5) live options'
+      ]},
+      { v: '1.6.11', date: '2026-10-18', items: [
+        'Section B/C: hover steps on every mult column (type, weather, combined/def)'
+      ]},
+      { v: '1.6.10', date: '2026-10-18', items: [
+        'Multipliers B/C: steps on combined/def multi hover; short explanations above tables'
+      ]},
+      { v: '1.6.9', date: '2026-10-18', items: [
+        'ehp again higher-is-better: dodge / (type def × weather def)',
+        'Green = beneficial (high offense / low defense mult / high ehp & dodge)'
+      ]},
+      { v: '1.6.8', date: '2026-10-18', items: [
+        'Type matrix: per-type offense columns + one def column',
+        'ehp = type def × weather def × exposure (product of 3 defensive mults)'
+      ]},
+      { v: '1.6.7', date: '2026-10-18', items: [
+        'ehp = dodge / (type def × weather def) — no species HP (level HP is unbounded)'
+      ]},
+      { v: '1.6.6', date: '2026-10-18', items: [
+        'ehp = HP / (type def × weather def × exposure) — higher when you dodge more',
+        'Buff table: plain language (+% ATK/stack, max stacks, duration) instead of amt/digits'
+      ]},
+      { v: '1.6.5', date: '2026-10-18', items: [
+        'Fix EFFECT_HELP missing (DPS level hover crash)',
+        'dodge factor = median r² / r² (median=1; +10% r → 1/1.21)',
+        'ehp = type def × weather def × (r/median)²'
+      ]},
+      { v: '1.6.4', date: '2026-10-18', items: [
+        'dodge factor uses r² / median r² (area ratio)',
+        'DPS table: dmg multi hover uses tip panel; harden level tooltips'
+      ]},
+      { v: '1.6.3', date: '2026-10-18', items: [
+        'Rename hit multi → dodge factor, tank multi → ehp'
+      ]},
+      { v: '1.6.2', date: '2026-10-18', items: [
+        'dodge factor = median r² / r²',
+        'ehp = type def × weather def × dodge factor',
+        'Radar defaults use ehp'
+      ]},
+      { v: '1.6.1', date: '2026-10-18', items: [
+        'dmg multi uses species ATK mult (e.g. 1.61), not ATK/mean',
+        'Step format: 1.610 (ATK) * 1.011 (type multii) * 1.092 (weather multi) = …',
+        'Multipliers tab split into clear sections A–D'
+      ]},
+      { v: '1.6.0', date: '2026-10-16', items: [
+        'Rename: type multii / weather multi / dmg multi; add def multi (incoming)',
+        'Weakness tab → Multipliers with offense & defense tables + steps',
+        'Radar defaults: HP, SPD, dmg multi, def multi, hitbox',
+        'Defense model from player.hurt: Types.mult × Weather.mult'
+      ]},
+      { v: '1.5.1', date: '2026-10-16', items: [
+        'Pokédex: Wx (weather avg) + Mult (ATK × Cov × Wx) columns',
+        'DPS Mult always shows ATK × Cov × Wx with hover breakdown',
+        'Single-file index.html only on GitHub Pages'
+      ]},
+      { v: '1.5.0', date: '2026-10-16', items: [
+        'Mechanics tab (combat / weather / slots / hitbox from game source)',
+        'Size tab type multii-select filter; radar axis toggles',
+        'Compact tables; cleaned unused files; versions/latest snapshot'
+      ]},
+      { v: '1.4.0', date: '2026-10-16', items: [
+        'MVC layout: js/model.js (data/calc), js/view.js (render), js/controller.js (events)',
+        'Pre-MVC backup in versions/v1.3.1/',
+        'Mult column, buffs table, prefer-switch combo toggle'
+      ]},
+      { v: '1.3.1', date: '2026-10-16', items: [
+        'DPS Mult column (ATK × type × weather)',
+        'Buffs table under DPS (per-level upgrades + max stage)',
+        'Combo: buffs share move slots; prefer-switch toggle (iOS-style)',
+        'Modern toggle component for A/B preferences'
+      ]},
+      { v: '1.3.0', date: '2026-10-16', items: [
+        'Client cache (localStorage) with 1 h recheck interval — no fetch on every refresh',
+        'Weather avg multipliers from biome weights + 30-min occupancy (config + column)',
+        'Damage mult column (ATK × type × weather); compact tables',
+        'README keeps current feature list only'
+      ]},
+      { v: '1.2.0', date: '2026-10-16', items: [
+        'Radar: min–max scale (last rank → 0, best → max); per-type averages',
+        'Pokédex radar moved to popup; Use button sets global Pokémon',
+        'Type multi-select only allows real Pokémon type combos; chips always colored',
+        'Size tab sprite centering fix; Changelog tab; version history'
+      ]},
+      { v: '1.1.0', date: '2026-10-16', items: [
+        'Weakness matrix with Best / Avg-split columns',
+        'Pokédex Cov stat, ranks, radar diagram',
+        'Poison + burn DoT in DPS; special effects in tooltips',
+        'Strict prefix search (~ for contains); Size Compare tab',
+        'Calculator 4×4 grid; multi-select type filters'
+      ]},
+      { v: '1.0.0', date: '2026-10-15', items: [
+        'Initial toolkit: live GitHub data, DPS table, Pokédex, combos, items, config'
+      ]}
+    ];
+
+    let RAW = [];
+    let ALL_MOVES = [];
+    let DAMAGE_MOVES = [];
+    let globalPoke = null; // shared selection across Calc / Size / Weakness
+    let VALID_TYPE_SET = null; // Set of sorted type-combo keys from DEX
+
+    let LADDERS = {};
+    let EVO = {};
+    let EVO_MODS = {};
+    let DEX = [];
+    let ITEMS = [];
+    let SPRITE_META = {};
+    let dpsResults = [];
+    let pokeSortKey = 'dex';
+    let pokeSortDir = 1;
+    let pokeTypeSel = new Set();
+    let dpsTypeSel = new Set();
+    let dpsKindSel = new Set();
+    let sizeTypeSel = new Set();
+    let weakAtkSel = new Set();
+    let radarAxes = {
+      // raw
+      pa: false, sa: false, df: false, sd: false, hp: true, spd: true, hit: false,
+      // calculated — 4 multis + dodge
+      typeM: false, wxM: false, phyM: true, speM: true, phyDefM: true, speDefM: true, dr: false, dodge: true, ehp: false, score: false
+    };
+    let sortKey = 'lv5';
+    let TYPE_CHART = null;
+    let ENEMY_WEIGHTS = []; // [{key, types, weight, pct, examples}]
+    let AVG_TYPE_MULT = {}; // attackType -> average mult
+    let calcPoke = null; // selected mon
+    let calcPickCell = null; // {slot, row}
+    let tipPinned = false;
+
+    let sortDir = -1;
+
+    const MULT_KEYS = ['dmg','cd','speed','radius','dur','amount','arc','width','spread','life','size','rate'];
+    const ADD_KEYS = ['count','pierce','stacks'];
+
+    const TYPE_COLORS = {
+      normal:'#A8A878', fire:'#F08030', water:'#6890F0', grass:'#78C850',
+      electric:'#F8D030', ice:'#98D8D8', fighting:'#C03028', poison:'#A040A0',
+      ground:'#E0C068', flying:'#A890F0', psychic:'#F85888', bug:'#A8B820',
+      rock:'#B8A038', ghost:'#705898', dragon:'#7038F8', dark:'#705848',
+      steel:'#B8B8D0', fairy:'#EE99AC'
+    };
+
+    // Soft chart from game types.js (2→1.6, 0.5→0.6, 0→0.3)
+    const RAW_CHART = {
+      normal:   { rock: .5, ghost: 0, steel: .5 },
+      fire:     { fire: .5, water: .5, grass: 2, ice: 2, bug: 2, rock: .5, dragon: .5, steel: 2 },
+      water:    { fire: 2, water: .5, grass: .5, ground: 2, rock: 2, dragon: .5 },
+      electric: { water: 2, electric: .5, grass: .5, ground: 0, flying: 2, dragon: .5 },
+      grass:    { fire: .5, water: 2, grass: .5, poison: .5, ground: 2, flying: .5, bug: .5, rock: 2, dragon: .5, steel: .5 },
+      ice:      { fire: .5, water: .5, grass: 2, ice: .5, ground: 2, flying: 2, dragon: 2, steel: .5 },
+      fighting: { normal: 2, ice: 2, poison: .5, flying: .5, psychic: .5, bug: .5, rock: 2, ghost: 0, dark: 2, steel: 2, fairy: .5 },
+      poison:   { grass: 2, poison: .5, ground: .5, rock: .5, ghost: .5, steel: 0, fairy: 2 },
+      ground:   { fire: 2, electric: 2, grass: .5, poison: 2, flying: 0, bug: .5, rock: 2, steel: 2 },
+      flying:   { electric: .5, grass: 2, fighting: 2, bug: 2, rock: .5, steel: .5 },
+      psychic:  { fighting: 2, poison: 2, psychic: .5, dark: 0, steel: .5 },
+      bug:      { fire: .5, grass: 2, fighting: .5, poison: .5, flying: .5, psychic: 2, ghost: .5, dark: 2, steel: .5, fairy: .5 },
+      rock:     { fire: 2, ice: 2, fighting: .5, ground: .5, flying: 2, bug: 2, steel: .5 },
+      ghost:    { normal: 0, psychic: 2, ghost: 2, dark: .5 },
+      dragon:   { dragon: 2, steel: .5, fairy: 0 },
+      dark:     { fighting: .5, psychic: 2, ghost: 2, dark: .5, fairy: .5 },
+      steel:    { fire: .5, water: .5, electric: .5, ice: 2, rock: 2, steel: .5, fairy: 2 },
+      fairy:    { fire: .5, fighting: 2, poison: .5, dragon: 2, dark: 2, steel: .5 }
+    };
+    const SOFT = { 2: 1.6, 0.5: 0.6, 0: 0.3 };
+    function typeMult(atk, defTypes) {
+      const row = RAW_CHART[atk];
+      if (!row || !defTypes) return 1;
+      let m = 1;
+      for (const t of defTypes) if (row[t] != null) m *= SOFT[row[t]];
+      return Math.max(0.3, Math.min(2.4, m));
+    }
+
+    let TIERS_BST = [
+      { from: 0,   to: 70,  bst: [180, 330], cast: 7 },
+      { from: 70,  to: 160, bst: [300, 405], cast: 7 },
+      { from: 160, to: 260, bst: [385, 465], cast: 7 },
+      { from: 260, to: 380, bst: [445, 515], cast: 7 },
+      { from: 380, to: 500, bst: [495, 560], cast: 7 },
+      { from: 500, to: 1800, bst: [530, 620], cast: 7 }
+    ];
+    let SPAWN_DENSITY = 0.24;
+    let SPAWN_RATE_FN = null;
+    let RUN_END_SEC = 1800;
+
+    function spawnRate(t) {
+      if (typeof SPAWN_RATE_FN === 'function') {
+        try { return SPAWN_RATE_FN(t); } catch (e) { /* fall through */ }
+      }
+      return (1.6 + t * 0.028 + Math.pow(t / 60, 1.6) * 0.5) * SPAWN_DENSITY;
+    }
+    function tierSpawnWeight(tier) {
+      let w = 0;
+      const step = 2;
+      const t0 = +tier.from || 0;
+      const t1 = tier.to != null ? +tier.to : RUN_END_SEC;
+      for (let t = t0; t < t1; t += step) w += spawnRate(t) * step;
+      return w;
+    }
+
+    function parseEnemyTiers(src) {
+      if (!src) return null;
+      const m = src.match(/const TIERS\s*=\s*(\[[\s\S]*?\n  \]);/);
+      if (!m) return null;
+      try {
+        const raw = (0, eval)(m[1]);
+        if (!Array.isArray(raw) || !raw.length) return null;
+        return raw.map((tr, i) => ({
+          from: tr.from | 0,
+          to: i + 1 < raw.length ? (raw[i + 1].from | 0) : RUN_END_SEC,
+          bst: tr.bst,
+          cast: tr.cast != null ? tr.cast : 7
+        }));
+      } catch (e) {
+        console.warn('parseEnemyTiers', e);
+        return null;
+      }
+    }
+
+    function parseSpawnRate(src) {
+      if (!src) return false;
+      const dM = src.match(/const DENSITY\s*=\s*([0-9.]+)/);
+      if (dM) SPAWN_DENSITY = parseFloat(dM[1]) || SPAWN_DENSITY;
+      const rM = src.match(/function rate\(t\)\s*\{\s*return\s*([^;]+);/);
+      if (rM) {
+        const expr = rM[1].replace(/DENSITY/g, String(SPAWN_DENSITY));
+        try {
+          const fn = new Function('t', 'return (' + expr + ');');
+          if (fn(0) > 0) { SPAWN_RATE_FN = fn; return true; }
+        } catch (e) { console.warn('parseSpawnRate', e); }
+      }
+      return false;
+    }
+
+    function applyLiveSpawnData(enemiesSrc, spawnerSrc) {
+      const tiers = parseEnemyTiers(enemiesSrc);
+      if (tiers && tiers.length) TIERS_BST = tiers;
+      parseSpawnRate(spawnerSrc);
+    }
+
+    function sizeClass(hit) {
+      if (hit < 18) return 'small';
+      if (hit < 28) return 'medium';
+      return 'big';
+    }
+
+    /** Strict prefix search; leading ~ = contains. */
+    function matchSearch(text, query) {
+      if (!query) return true;
+      const t = String(text || '').toLowerCase();
+      const q = String(query).trim().toLowerCase();
+      if (!q) return true;
+      if (q.startsWith('~')) return t.includes(q.slice(1).trim());
+      return t.startsWith(q);
+    }
+
+    /** Selection is valid if some Pokémon has all selected types. */
+    function typesSelectionOk(selSet) {
+      if (!selSet.size) return true;
+      if (!VALID_TYPE_SET || !VALID_TYPE_SET.size) {
+        return DEX.some(p => [...selSet].every(t => p.types.includes(t)));
+      }
+      return VALID_TYPE_SET.has([...selSet].sort().join('+'));
+    }
+
+    function canToggleType(selSet, type) {
+      const next = new Set(selSet);
+      if (next.has(type)) next.delete(type);
+      else next.add(type);
+      return typesSelectionOk(next);
+    }
+
+
+    // Spanish → English (from lang-en.js). Fallback: title-case the move id.
+    let MOVE_EN = {};
+    function enName(spanishOrId, id) {
+      if (spanishOrId && MOVE_EN[spanishOrId]) return MOVE_EN[spanishOrId];
+      if (id && MOVE_EN[id]) return MOVE_EN[id];
+      if (id) return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      return spanishOrId || '?';
+    }
+
+    /** Collision radius (px world): clamp(Idle.w * 0.22, 5, 26) * PX(2) */
+    function bodyRadius(dex) {
+      const m = SPRITE_META[dex];
+      const w = (m && m.a && m.a.Idle && m.a.Idle.w) ? m.a.Idle.w : 32;
+      const base = Math.max(5, Math.min(26, w * 0.22));
+      return Math.round(base * 2 * 10) / 10; // one decimal
+    }
+
+    /** Hitbox radius for a dex entry (prefers cached p.hit). */
+    function pokeHit(p) {
+      if (p.hit != null) return p.hit;
+      return bodyRadius(p.dex);
+    }
+
+    /** Median hitbox radius across the loaded dex. */
+    function getDodgeMedianMode() {
+      const el = document.getElementById('dodgeMedianMode');
+      return (el && el.value) || 'pokemon';
+    }
+    function getDodgeCurve() {
+      const el = document.getElementById('dodgeCurve');
+      return (el && el.value) || 'power15';
+    }
+
+    function medianHitRadius() {
+      if (!DEX.length) return 1;
+      let rs = DEX.map(pokeHit).filter(r => r > 0);
+      if (getDodgeMedianMode() === 'distinct') {
+        rs = [...new Set(rs.map(r => +Number(r).toFixed(4)))];
+      }
+      rs.sort((a, b) => a - b);
+      if (!rs.length) return 1;
+      const mid = Math.floor(rs.length / 2);
+      return rs.length % 2 ? rs[mid] : (rs[mid - 1] + rs[mid]) / 2;
+    }
+
+    /**
+     * Dodge factor: higher = smaller hitbox = better.
+     * Curve options: area (med/r)², linear med/r, soft blend, (med/r)^1.5
+     */
+    function hitMulti(p) {
+      const med = medianHitRadius();
+      const r = pokeHit(p);
+      if (!med || !r) return 1;
+      const ratio = med / r;
+      const curve = getDodgeCurve();
+      if (curve === 'linear') return ratio;
+      if (curve === 'power15') return Math.pow(ratio, 1.5);
+      if (curve === 'soft') return 0.5 * ratio + 0.5 * ratio * ratio;
+      return ratio * ratio; // area
+    }
+
+    /** Exposure = 1/dodge (higher = more likely hit). */
+    function hitExposure(p) {
+      const d = hitMulti(p);
+      return d ? 1 / d : 1;
+    }
+
+    function onDodgeOptionsChange() {
+      invalidatePokeCache();
+      const med = medianHitRadius();
+      const hint = document.getElementById('dodgeOptionsHint');
+      if (hint) hint.textContent = 'baseline = ' + med.toFixed(2);
+      const sel = document.getElementById('dodgeMedianMode');
+      if (sel) {
+        const optP = sel.querySelector('option[value="pokemon"]');
+        const optD = sel.querySelector('option[value="distinct"]');
+        // temporary switch to compute both medians for labels
+        const mode = sel.value;
+        if (optP) {
+          sel.value = 'pokemon';
+          optP.textContent = 'All Pokémon r (' + medianHitRadius().toFixed(1) + ')';
+        }
+        if (optD) {
+          sel.value = 'distinct';
+          optD.textContent = 'Distinct r (' + medianHitRadius().toFixed(1) + ')';
+        }
+        sel.value = mode;
+      }
+      renderPokedex();
+      if (typeof drawPokeRadar === 'function') drawPokeRadar();
+      if (typeof renderMultipliers === 'function') renderMultipliers();
+    }
+
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        const panel = document.getElementById('panel-' + t.dataset.tab);
+        if (panel) panel.classList.add('active');
+        if (t.dataset.tab === 'mechanics' && typeof renderMechanics === 'function') renderMechanics();
+        if (t.dataset.tab === 'combos' && typeof calcCombos === 'function') calcCombos();
+      });
+    });
+
+    // Species/upgrade ATK ignored — presets removed
+
+    function applyMods(s, m) {
+      for (const k in m) {
+        if (MULT_KEYS.includes(k) && s[k] != null) s[k] *= m[k];
+        else if (ADD_KEYS.includes(k)) s[k] = (s[k] || 0) + m[k];
+        else s[k] = m[k];
+      }
+    }
+
+    function instance(def, lvl, evolved) {
+      const s = Object.assign({}, def, { lvl, evolved: false, cat: def.cat || (def.kind === 'buff' ? null : moveCat(def)) });
+      const ups = LADDERS[def.kind] || [];
+      for (let i = 0; i < lvl - 1 && i < ups.length; i++) applyMods(s, ups[i].m);
+      if (evolved && EVO[def.id] && EVO_MODS[def.kind] && lvl >= 5) {
+        applyMods(s, EVO_MODS[def.kind].m);
+        s.evolved = true;
+        s.preName = def.name;
+        s.name = EVO[def.id][0];
+      }
+      return s;
+    }
+
+    /**
+     * Pure single-target DPS approximation + a one-line expression string.
+     * Turret: max concurrent count × dmg / fire-rate (summon CD is not the attack interval).
+     * Orbit: each orb rehits every max(0.12, cd) → count × dmg / rehit.
+     * Aura: pulse every cd → dmg / cd.
+     * Trail patch: ticks every 0.5s while enemy stands in it → dmg / 0.5 (one patch).
+     */
+    // Weather avg multipliers (30 min game, biome every 240s, weather from 2:00 @ 18%/60s, ~65s dur → ~18% uptime)
+    // Derived from BIOME_W weights in weather.js; overall = (1-p_on) + p_on * E[mult|on]
+    const WEATHER_AVG_MULT = {
+      normal: 1.000, fire: 1.003, water: 0.997, electric: 1.006, grass: 1.000,
+      ice: 1.012, fighting: 1.000, poison: 1.000, ground: 1.011, flying: 1.000,
+      psychic: 1.015, bug: 1.000, rock: 1.011, ghost: 1.015, dragon: 1.000,
+      dark: 1.000, steel: 1.011, fairy: 1.015
+    };
+
+    
+    /**
+     * Mobbing hit estimate.
+     * - projectile/beam/dash/melee: hitPct × count × (1+pierce); chain: hitPct × count (all jumps if primary hits)
+     * - aura: half-disk area / enemy footprint
+     * - orbit: ring (R+size)²−(R−size)² × π / footprint
+     * - meteor/nova/mine: full disk / footprint (× count for multi-meteor)
+     */
+    function estimateMobHits(s, cfg) {
+      const kind = s.kind;
+      const p = (cfg.projHitPct != null ? cfg.projHitPct : 70) / 100;
+      const rE = cfg.avgEnemyR || 12;
+      const foot = Math.PI * rE * rE;
+      const count = Math.max(1, s.count | 0);
+      const pierce = Math.max(0, s.pierce | 0);
+      let n = 1;
+      let detail = '1 target';
+
+      if (kind === 'projectile' || kind === 'homing' || kind === 'beam' || kind === 'dash' || kind === 'melee') {
+        n = p * count * (1 + pierce);
+        detail = (cfg.projHitPct || 70) + '% hit × ' + count + ' proj × (1+' + pierce + ' pierce) = ' + n.toFixed(2);
+      } else if (kind === 'boomerang') {
+        n = p * count * 2 * (1 + pierce);
+        detail = (cfg.projHitPct || 70) + '% × ' + count + ' × 2 passes × (1+' + pierce + ' pierce) = ' + n.toFixed(2);
+      } else if (kind === 'bounce') {
+        const bounces = Math.max(0, s.bounce | 0);
+        n = p * count * (1 + bounces);
+        detail = (cfg.projHitPct || 70) + '% × ' + count + ' × (1+' + bounces + ' bounce) = ' + n.toFixed(2);
+      } else if (kind === 'chain') {
+        n = p * count;
+        detail = (cfg.projHitPct || 70) + '% primary × ' + count + ' chain (all jumps if primary hits) = ' + n.toFixed(2);
+      } else if (kind === 'aura') {
+        const R = +(s.radius || 50);
+        const rSelf = selfRadius();
+        const R2 = Math.max(0, R * R - rSelf * rSelf);
+        const area = 0.5 * Math.PI * R2; // half-disk minus self body
+        n = Math.max(1, area / foot);
+        detail = '½π(R²−r_self²) R=' + R + ' r_self=' + rSelf.toFixed(1) + ' → ' + n.toFixed(2) + ' foes';
+      } else if (kind === 'orbit') {
+        const R = +(s.radius || 60);
+        const sz = +(s.size || 8);
+        const Rout = R + sz, Rin = Math.max(0, R - sz);
+        const area = Math.PI * (Rout * Rout - Rin * Rin);
+        n = Math.max(1, area / foot);
+        detail = 'ring π(' + Rout.toFixed(0) + '²−' + Rin.toFixed(0) + '²) / πr² → ' + n.toFixed(2) + ' foes';
+      } else if (kind === 'meteor') {
+        // Game: queryCircle(player, reach=340), shuffle, assign 1 meteor per enemy up to count.
+        // Leftover meteors if fewer foes land randomly (often miss). Splash blast(r) at impact.
+        const reach = 340;
+        const R = +(s.radius || 50);
+        // Engaged density: only a fraction of the full reach disk is occupied in real fights
+        const capacity = (Math.PI * reach * reach) / foot;
+        const engaged = Math.max(1, capacity * 0.08); // ~8% fill of reach disk
+        const primaries = Math.min(count, engaged);
+        // Splash extras: theoretical πR²/foot − 1, but targets are distinct + jitter → low realized overlap
+        const splashIdeal = Math.max(0, (Math.PI * R * R) / foot - 1);
+        const splashFactor = 0.25; // overlaps / same-target waste
+        n = primaries * (1 + splashIdeal * splashFactor);
+        detail = 'meteor aim: min(' + count + ', ~' + engaged.toFixed(1) + ' near) × (1+' +
+          (splashIdeal * splashFactor).toFixed(2) + ' splash) = ' + n.toFixed(2) +
+          ' (game: 1 meteor/enemy, reach 340, random if short)';
+      } else if (kind === 'nova' || kind === 'mine' || kind === 'shove' || kind === 'spin' || kind === 'quake' || kind === 'vortex' || kind === 'stun') {
+        const R = +(s.radius || 50);
+        const area = Math.PI * R * R;
+        n = Math.max(1, area / foot);
+        detail = 'πR²(' + R + ') / πr² → ' + n.toFixed(2) + ' foes';
+      } else if (kind === 'cone') {
+        n = Math.min(count, cfg.coneHitCap || 3);
+        detail = 'cone cap ' + n + ' hits';
+      } else if (kind === 'turret') {
+        n = p;
+        detail = 'turret × ' + (cfg.projHitPct || 70) + '% hit = ' + n.toFixed(2) + '× vs ST';
+      } else if (kind === 'trail') {
+        const R = +(s.radius || s.width || 40);
+        const area = Math.PI * R * R * 0.5;
+        n = Math.max(1, area / foot);
+        detail = 'trail ~' + n.toFixed(2) + ' foes';
+      } else {
+        n = 1;
+        detail = '1 target (no mob model)';
+      }
+      return { n: Math.max(0.05, n), detail };
+    }
+
+function dpsBreakdown(s, cfg) {
+      cfg = cfg || getConfig();
+      // typeM: manual; if useAvgType, multiply by AVG_TYPE_MULT[moveType]
+      let typeFactor = cfg.typeM;
+      if (cfg.useAvgType && s.type && AVG_TYPE_MULT[s.type] != null) {
+        typeFactor = cfg.typeM * AVG_TYPE_MULT[s.type];
+      }
+      let weatherFactor = cfg.weatherM;
+      if (cfg.useWeatherAvg && s.type && WEATHER_AVG_MULT[s.type] != null) {
+        weatherFactor = WEATHER_AVG_MULT[s.type];
+      }
+      let atkUse = cfg.atk;
+      if (cfg.mon && s.cat) {
+        atkUse = (s.cat === 'special' ? (cfg.mon.sa != null ? cfg.mon.sa : cfg.mon.atk) : (cfg.mon.pa != null ? cfg.mon.pa : cfg.mon.atk)) || cfg.atk;
+      }
+      const mult = atkUse * typeFactor * weatherFactor * (1 + cfg.powerBonus);
+      const dmg = +s.dmg;
+      const cd = +s.cd;
+      const kind = s.kind;
+      const count = Math.max(1, s.count | 0);
+      const parts = [];
+      let dps = 0;
+      let poisonDps = 0;
+
+      function push(val, label) {
+        parts.push(fmt(val) + ' ' + label);
+      }
+      function expr() {
+        return parts.join(' × ').replace(' × / ', ' / ');
+      }
+
+      if (kind === 'turret') {
+        const rate = +(s.rate || 0.6);
+        dps = (count * dmg * mult) / rate;
+        push(dmg, 'dmg');
+        if (count > 1) push(count, 'turrets');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(rate) + ' rate');
+      } else if (kind === 'orbit') {
+        // Angular speed (rad/s). Stationary enemy on the ring: orbs pass sequentially.
+        // Hit interval ≈ 2π / (count × speed). One orb contributes at a time.
+        const speed = +(s.speed || 2.5);
+        const interval = (2 * Math.PI) / (count * speed);
+        dps = (dmg * mult) / interval;
+        push(dmg, 'dmg');
+        push(count, 'orbs');
+        push(speed, 'rad/s');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ 2π');
+        // rewrite cleaner expr
+        parts.length = 0;
+        push(dmg, 'dmg');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(interval) + 's (2π/(n·ω))');
+      } else if (kind === 'aura') {
+        dps = (dmg * mult) / cd;
+        push(dmg, 'dmg');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cd) + ' cd');
+      } else if (kind === 'trail') {
+        const tick = cfg.trailTick || 0.5;
+        dps = (dmg * mult) / tick;
+        push(dmg, 'dmg');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(tick) + ' tick');
+      } else if (kind === 'boomerang') {
+        const hits = 2 * count;
+        dps = (dmg * hits * mult) / cd;
+        push(dmg, 'dmg');
+        push(count, 'count');
+        push(2, 'hit');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cd) + ' cd');
+      } else if (kind === 'cone' || kind === 'nova') {
+        const hits = Math.min(count, cfg.coneHitCap || 3);
+        dps = (dmg * hits * mult) / cd;
+        push(dmg, 'dmg');
+        push(hits, 'hit');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cd) + ' cd');
+      } else if (kind === 'chain' || kind === 'meteor' || kind === 'mine') {
+        dps = (dmg * mult) / cd;
+        push(dmg, 'dmg');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cd) + ' cd');
+      } else if (kind === 'homing') {
+        dps = (dmg * count * mult) / cd;
+        push(dmg, 'dmg');
+        if (count > 1) push(count, 'count');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cd) + ' cd');
+      } else if (kind === 'bounce') {
+        const bounces = Math.max(0, s.bounce | 0);
+        const hits = count * (1 + bounces);
+        dps = (dmg * hits * mult) / cd;
+        push(dmg, 'dmg');
+        push(hits, 'hits');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cd) + ' cd');
+      } else if (kind === 'charge') {
+        const ch = +(s.charge || 0);
+        const cycle = Math.max(0.05, cd + ch);
+        dps = (dmg * mult) / cycle;
+        push(dmg, 'dmg');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cycle) + 's (cd+charge)');
+      } else if (kind === 'spin' || kind === 'quake') {
+        dps = (dmg * count * mult) / cd;
+        push(dmg, 'dmg');
+        push(count, kind === 'spin' ? 'spins' : 'waves');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cd) + ' cd');
+      } else if (kind === 'vortex' || kind === 'shove' || kind === 'stun') {
+        // AoE pulse around self / zone: treat as dmg/cd (one proc per cast)
+        dps = (dmg * mult) / cd;
+        push(dmg, 'dmg');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cd) + ' cd');
+      } else {
+        // projectile, dash, melee, beam
+        dps = (dmg * count * mult) / cd;
+        push(dmg, 'dmg');
+        if (count > 1) push(count, 'count');
+        if (mult !== 1) push(mult, 'mult');
+        parts.push('/ ' + fmt(cd) + ' cd');
+      }
+
+      // Mobbing: apply estimated hits (absolute for proj/chain; ×n for per-target AoE)
+      let mobInfo = { n: 1, detail: 'single target' };
+      if (cfg.mobbing && kind !== 'buff') {
+        mobInfo = estimateMobHits(s, cfg);
+        const hits = mobInfo.n;
+        if (kind === 'projectile' || kind === 'homing' || kind === 'bounce' || kind === 'beam' || kind === 'dash' || kind === 'melee' || kind === 'chain') {
+          // ST used count as hits; replace with mob estimate (includes hit% × count × pierce)
+          dps = (dmg * hits * mult) / Math.max(0.05, cd);
+          parts.length = 0;
+          push(dmg, 'dmg');
+          push(hits, 'hits');
+          if (mult !== 1) push(mult, 'mult');
+          parts.push('/ ' + fmt(cd) + ' cd');
+        } else if (kind === 'boomerang') {
+          dps = (dmg * hits * mult) / Math.max(0.05, cd);
+          parts.length = 0;
+          push(dmg, 'dmg');
+          push(hits, 'hits');
+          if (mult !== 1) push(mult, 'mult');
+          parts.push('/ ' + fmt(cd) + ' cd');
+        } else if (kind === 'turret') {
+          const rate = +(s.rate || 0.6);
+          // hits is hit% scale; still × turret count / rate
+          dps = (count * dmg * mult * hits) / rate;
+          parts.length = 0;
+          push(dmg, 'dmg');
+          if (count > 1) push(count, 'turrets');
+          push(hits, 'hit%');
+          if (mult !== 1) push(mult, 'mult');
+          parts.push('/ ' + fmt(rate) + ' rate');
+        } else if (kind === 'orbit' || kind === 'aura' || kind === 'trail') {
+          // ST was per one enemy in range — multiply by estimated foes
+          dps *= hits;
+          parts.push('× ' + fmt(hits) + ' foes');
+        } else if (kind === 'meteor' || kind === 'nova' || kind === 'mine') {
+          dps = (dmg * hits * mult) / Math.max(0.05, cd);
+          parts.length = 0;
+          push(dmg, 'dmg');
+          push(hits, 'hits');
+          if (mult !== 1) push(mult, 'mult');
+          parts.push('/ ' + fmt(cd) + ' cd');
+        } else if (kind === 'cone') {
+          dps = (dmg * hits * mult) / Math.max(0.05, cd);
+          parts.length = 0;
+          push(dmg, 'dmg');
+          push(hits, 'hits');
+          if (mult !== 1) push(mult, 'mult');
+          parts.push('/ ' + fmt(cd) + ' cd');
+        } else {
+          dps *= hits;
+          parts.push('× ' + fmt(hits) + ' mob');
+        }
+      }
+
+      // Apps/sec helper for DoT stack building
+      function appsPerSec() {
+        let a = 1 / Math.max(0.05, cd);
+        if (kind === 'orbit') {
+          const speed = +(s.speed || 2.5);
+          a = (count * speed) / (2 * Math.PI);
+        } else if (kind === 'boomerang') a = (2 * count) / cd;
+        else if (kind === 'cone' || kind === 'nova') a = Math.min(count, cfg.coneHitCap || 3) / cd;
+        else if (kind === 'turret') a = count / (s.rate || 0.6);
+        else if (kind === 'projectile' || kind === 'melee' || kind === 'dash' || kind === 'beam') a = count / cd;
+        return a;
+      }
+
+      // Poison DoT: stacks max 8, dur 4s, tick 0.6s → maxHp*0.012*stacks + 1
+      let burnDps = 0;
+      const poisonStacks = +(s.poison || 0);
+      if (cfg.usePoison && poisonStacks > 0 && kind !== 'buff') {
+        const refHp = cfg.refEnemyHp || 100;
+        const sustained = Math.min(8, Math.max(poisonStacks, Math.floor(appsPerSec() * 4) * poisonStacks));
+        poisonDps = (refHp * 0.012 * sustained + 1) / 0.6;
+        dps += poisonDps;
+      }
+      // Burn DoT: stacks max 8, dur 3s, tick 0.5s → 1.6 * stacks * (1 + level*0.06)
+      const burnStacks = +(s.burn || 0);
+      if (cfg.usePoison && burnStacks > 0 && kind !== 'buff') {
+        const lvl = cfg.refPlayerLvl || 20;
+        const sustained = Math.min(8, Math.max(burnStacks, Math.floor(appsPerSec() * 3) * burnStacks));
+        burnDps = (1.6 * sustained * (1 + lvl * 0.06)) / 0.5;
+        dps += burnDps;
+      }
+
+      let e = expr();
+      if (poisonDps > 0) e += ' + poison ' + Math.round(poisonDps);
+      if (burnDps > 0) e += ' + burn ' + Math.round(burnDps);
+      return {
+        dps, expr: e, poisonDps, burnDps, radius: s.radius, mobHits: mobInfo.n, mobDetail: mobInfo.detail,
+        effects: {
+          poison: poisonStacks, burn: burnStacks,
+          slow: s.slow || 0, knock: s.knock || 0,
+          homing: s.homing || 0, hex: s.hex || 0
+        }
+      };
+    }
+
+    function singleTargetDPS(s, cfg) {
+      return dpsBreakdown(s, cfg).dps;
+    }
+
+    /** Compact props line: count, pierce, rate, dur, etc. */
+    function propsLine(s) {
+      const bits = [];
+      if (s.count != null && s.count > 0) bits.push('count ' + s.count);
+      if (s.pierce != null && s.pierce > 0) bits.push('pierce ' + s.pierce);
+      if (s.rate != null) bits.push('rate ' + fmt(s.rate) + 's');
+      if (s.dur != null) bits.push('dur ' + fmt(s.dur) + 's');
+      if (s.radius != null && ['melee','aura','orbit','dash','mine','meteor','trail'].includes(s.kind))
+        bits.push('r ' + Math.round(s.radius));
+      if (s.width != null) bits.push('w ' + Math.round(s.width));
+      if (s.arc != null && s.kind === 'melee') bits.push('arc ' + fmt(s.arc));
+      return bits.length ? bits.join(' · ') : '';
+    }
+
+    function ladderText(kind, index) {
+      const ups = LADDERS[kind] || [];
+      if (index < 0 || index >= ups.length) return null;
+      const t = ups[index].t;
+      return MOVE_EN[t] || t;
+    }
+
+    const EFFECT_HELP = {
+      poison: 'DoT ≈ % of ref enemy HP per tick (config Ref enemy HP).',
+      burn: 'DoT scales with player level (config Ref player level).',
+      slow: 'Reduces enemy move speed while active.',
+      knock: 'Knockback on hit; higher values push farther.',
+      homing: 'Projectiles track targets; improves hit reliability.',
+      hex: 'Extra damage multiplier vs affected targets.'
+    };
+
+    function buildLevelTooltip(def, lvl, cfg) {
+      if (!def) return '';
+      const s = instance(def, lvl, false);
+      if (!s) return '';
+      let bd;
+      try { bd = dpsBreakdown(s, cfg); } catch (err) { return '<div class="tt-title">Error</div><div class="tt-muted">' + err.message + '</div>'; }
+      const lines = [];
+      lines.push('<div class="tt-title">' + enName(def.name, def.id) + ' · Lv' + lvl + '</div>');
+      const props = propsLine(s);
+      if (props) lines.push('<div class="tt-muted">' + props + '</div>');
+      if (lvl > 1) {
+        const txt = ladderText(def.kind, lvl - 2);
+        if (txt) lines.push('<div class="tt-step">Lv' + lvl + ': ' + txt + '</div>');
+      }
+      lines.push('<div class="tt-result">' + bd.expr + ' = ' + Math.round(bd.dps) + '</div>');
+      if (bd.mobDetail && cfg.mobbing) {
+        lines.push('<div class="tt-muted">Mob hits: ' + bd.mobDetail + '</div>');
+      }
+      // Effect explanations
+      const eff = bd.effects || {};
+      const notes = [];
+      if (eff.poison) notes.push('<b>poison ' + eff.poison + '</b>: ' + EFFECT_HELP.poison);
+      if (eff.burn) notes.push('<b>burn ' + eff.burn + '</b>: ' + EFFECT_HELP.burn);
+      if (eff.slow) notes.push('<b>slow ' + eff.slow + '</b>: ' + EFFECT_HELP.slow);
+      if (eff.knock) notes.push('<b>knock ' + eff.knock + '</b>: ' + EFFECT_HELP.knock);
+      if (eff.homing) notes.push('<b>homing ' + eff.homing + '</b>: ' + EFFECT_HELP.homing);
+      if (eff.hex) notes.push('<b>hex ×' + eff.hex + '</b>: ' + EFFECT_HELP.hex);
+      if (notes.length) {
+        lines.push('<div class="tt-muted" style="margin-top:0.35rem;border-top:1px solid #1e2836;padding-top:0.3rem">' +
+          notes.map(n => '<div style="margin:0.15rem 0">' + n + '</div>').join('') + '</div>');
+      }
+      lines.push('<div class="tt-muted" style="margin-top:0.25rem;font-size:0.65rem">Hold Alt to pin · Esc to close</div>');
+      return lines.join('');
+    }
+
+
+    function buildEvoTooltip(def, cfg) {
+      if (!EVO[def.id] || !EVO_MODS[def.kind]) return '';
+      const evoName = enName(EVO[def.id][0], def.id);
+      const s = instance(def, 5, true);
+      const bd = dpsBreakdown(s, cfg);
+      const evoTxt = MOVE_EN[EVO_MODS[def.kind].t] || EVO_MODS[def.kind].t;
+      const lines = [];
+      lines.push('<div class="tt-title tt-pink">' + evoName + '</div>');
+      const props = propsLine(s);
+      if (props) lines.push('<div class="tt-muted">' + props + '</div>');
+      lines.push('<div class="tt-step">' + evoTxt + '</div>');
+      lines.push('<div class="tt-result">' + bd.expr + ' = ' + Math.round(bd.dps) + '</div>');
+      if (bd.mobDetail && cfg.mobbing) {
+        lines.push('<div class="tt-muted">Mob hits: ' + bd.mobDetail + '</div>');
+      }
+      return lines.join('');
+    }
+
+    function fmt(n) {
+      if (n == null || isNaN(n)) return '?';
+      return (Math.round(n * 100) / 100).toString();
+    }
+
+    // Tooltip positioning
+    const ttEl = () => document.getElementById('tt');
+    function showTip(html, x, y) {
+      const el = ttEl();
+      el.innerHTML = html;
+      el.style.display = 'block';
+      if (tipPinned) return; // keep pinned screen position
+      const pad = 12;
+      let left = x + pad, top = y + pad;
+      requestAnimationFrame(() => {
+        if (tipPinned) return;
+        const r = el.getBoundingClientRect();
+        if (left + r.width > window.innerWidth - 8) left = x - r.width - pad;
+        if (top + r.height > window.innerHeight - 8) top = y - r.height - pad;
+        if (left < 8) left = 8;
+        if (top < 8) top = 8;
+        el.style.left = left + 'px';
+        el.style.top = top + 'px';
+      });
+    }
+    function hideTip(force) {
+      if (tipPinned && !force) return;
+      tipPinned = false;
+      const el = ttEl();
+      el.style.display = 'none';
+      el.classList.remove('pinned');
+    }
+    document.addEventListener('scroll', () => hideTip(true), true);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Alt') {
+        tipPinned = true;
+        const el = ttEl();
+        if (el.style.display === 'block') el.classList.add('pinned');
+      }
+      if (e.key === 'Escape') hideTip(true);
+    });
+    document.addEventListener('click', e => {
+      if (tipPinned && !ttEl().contains(e.target)) hideTip(true);
+      else if (!tipPinned) hideTip(true);
+    });
+
+    function getConfig() {
+      const bondEl = document.getElementById('bondSize');
+      const bondSize = Math.max(1, Math.min(4, parseInt(bondEl && bondEl.value, 10) || 4));
+      const useAvg = document.getElementById('useAvgType');
+      const usePoi = document.getElementById('usePoison');
+      const refHp = document.getElementById('refEnemyHp');
+      const mon = (typeof globalPoke !== 'undefined' && globalPoke) || (typeof calcPoke !== 'undefined' && calcPoke) || null;
+      // atk fallback = max(PA, SA); dpsBreakdown picks PA or SA by move cat
+      let atkFallback = 1;
+      if (mon) {
+        const pa = mon.pa != null ? +mon.pa : (mon.atk || 1);
+        const sa = mon.sa != null ? +mon.sa : (mon.atk || 1);
+        atkFallback = Math.max(pa, sa) || 1;
+      }
+      return {
+        atk: atkFallback,
+        mon: mon,
+        typeM: parseFloat(document.getElementById('typeMult').value) || 1,
+        weatherM: parseFloat(document.getElementById('weatherMult').value) || 1,
+        powerBonus: 0,
+        coneHitCap: Math.max(1, parseInt(document.getElementById('coneHitCap').value, 10) || 3),
+        trailTick: Math.max(0.05, parseFloat(document.getElementById('trailTick').value) || 0.5),
+        bondSize,
+        numSlots: 4,
+        useAvgType: !!(useAvg && useAvg.checked),
+        usePoison: !!(usePoi && usePoi.checked),
+        useWeatherAvg: !!(document.getElementById('useWeatherAvg') && document.getElementById('useWeatherAvg').checked),
+        refEnemyHp: refHp ? (parseFloat(refHp.value) || 100) : 100,
+        refPlayerLvl: parseFloat((document.getElementById('refPlayerLvl') || {}).value) || 20,
+        mobbing: !!(document.getElementById('dpsMobbing') && document.getElementById('dpsMobbing').checked),
+        projHitPct: Math.max(1, Math.min(100, parseFloat((document.getElementById('projHitPct') || {}).value) || 70)),
+        avgEnemyR: Math.max(1, parseFloat((document.getElementById('avgEnemyR') || {}).value) || 12)
+      };
+    }
+
+    function onDpsModeChange() {
+      const mob = document.getElementById('dpsMobbing');
+      const on = !!(mob && mob.checked);
+      const opts = document.getElementById('mobbingOpts');
+      if (opts) opts.style.display = on ? 'block' : 'none';
+      if (on) prefillAvgEnemyR();
+      recalcAll();
+    }
+
+    /** Spawn-weighted mean hitbox of dex mons matching each enemy type combo. */
+    function prefillAvgEnemyR() {
+      const el = document.getElementById('avgEnemyR');
+      if (!el || !DEX.length) return;
+      let sum = 0, wsum = 0;
+      const weights = ENEMY_WEIGHTS.length ? ENEMY_WEIGHTS : [{ types: ['normal'], pct: 100 }];
+      for (const e of weights) {
+        const types = e.types || [];
+        const mons = DEX.filter(p => {
+          if (!types.length) return true;
+          // match if mon shares any type with the spawn combo
+          return types.some(t => (p.types || []).includes(t));
+        });
+        const rs = mons.map(pokeHit).filter(r => r > 0);
+        if (!rs.length) continue;
+        const avg = rs.reduce((a, b) => a + b, 0) / rs.length;
+        const w = e.pct || 1;
+        sum += w * avg;
+        wsum += w;
+      }
+      if (!wsum) {
+        const all = DEX.map(pokeHit).filter(r => r > 0);
+        if (all.length) {
+          sum = all.reduce((a, b) => a + b, 0);
+          wsum = all.length;
+        }
+      }
+      if (wsum) el.value = (sum / wsum).toFixed(1);
+    }
+
+    function meanPokeRadius() {
+      if (!DEX.length) return 12;
+      const rs = DEX.map(pokeHit).filter(r => r > 0);
+      return rs.length ? rs.reduce((a, b) => a + b, 0) / rs.length : 12;
+    }
+
+    function selfRadius() {
+      const p = globalPoke || calcPoke;
+      if (p) return pokeHit(p);
+      return meanPokeRadius();
+    }
+
+    // Calculator state: 4 slots, each an array of {id, evolved}
+    let calcSlotsState = [[], [], [], []];
+
+    // Client-side cache (localStorage) with recheck interval — avoids refetching the repo on every refresh
+    const CACHE_KEY = 'pstk_data_v1';
+    const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+    function loadCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || !obj.ts || !obj.movesSrc || !obj.dexSrc) return null;
+        return obj;
+      } catch (e) { return null; }
+    }
+    function saveCache(data) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ ...data, ts: Date.now() }));
+      } catch (e) { /* quota */ }
+    }
+
+    async function fetchAll(force = false) {
+      const status = document.getElementById('status');
+      status.className = 'status loading';
+
+      const cached = !force ? loadCache() : null;
+      const age = cached ? (Date.now() - cached.ts) : Infinity;
+      const useCache = cached && age < CACHE_TTL_MS;
+
+      if (useCache) {
+        status.textContent = 'Loaded from cache (' + Math.round(age / 60000) + ' min old). Recheck every 1 h.';
+      } else {
+        status.textContent = force ? 'Force-refreshing from GitHub…' : 'Fetching moves, pokedex, enemies, spawner…';
+      }
+
+      try {
+        let movesSrc, dexSrc, langSrc, itemsSrc, metaSrc, enemiesSrc = '', spawnerSrc = '';
+        if (useCache) {
+          movesSrc = cached.movesSrc;
+          dexSrc = cached.dexSrc;
+          langSrc = cached.langSrc || '';
+          itemsSrc = cached.itemsSrc || '';
+          metaSrc = cached.metaSrc || '';
+          enemiesSrc = cached.enemiesSrc || '';
+          spawnerSrc = cached.spawnerSrc || '';
+        } else {
+          const ts = Date.now();
+          const [movesRes, dexRes, langRes, itemsRes, metaRes] = await Promise.all([
+            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/moves.js?' + ts),
+            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/pokedex.js?' + ts),
+            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/lang-en.js?' + ts),
+            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/items.js?' + ts),
+            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/sprites-meta.js?' + ts)
+          ]);
+          if (!movesRes.ok) throw new Error('moves.js HTTP ' + movesRes.status);
+          if (!dexRes.ok) throw new Error('pokedex.js HTTP ' + dexRes.status);
+
+          movesSrc = await movesRes.text();
+          dexSrc = await dexRes.text();
+          langSrc = langRes.ok ? await langRes.text() : '';
+          itemsSrc = itemsRes.ok ? await itemsRes.text() : '';
+          metaSrc = metaRes.ok ? await metaRes.text() : '';
+          enemiesSrc = (typeof enemiesRes !== 'undefined' && enemiesRes.ok) ? await enemiesRes.text() : '';
+          spawnerSrc = (typeof spawnerRes !== 'undefined' && spawnerRes.ok) ? await spawnerRes.text() : '';
+          saveCache({ movesSrc, dexSrc, langSrc, itemsSrc, metaSrc, enemiesSrc, spawnerSrc });
+        }
+
+        // Build Spanish → English map from lang-en.js
+        MOVE_EN = {};
+        if (langSrc) {
+          const re = /'([^'\\]*(?:\\.[^'\\]*)*)':\s*'([^'\\]*(?:\\.[^'\\]*)*)'/g;
+          let m;
+          while ((m = re.exec(langSrc)) !== null) {
+            MOVE_EN[m[1]] = m[2].replace(/\\'/g, "'");
+          }
+        }
+
+        // Items
+        ITEMS = [];
+        if (itemsSrc) {
+          const listMatch = itemsSrc.match(/const LIST\s*=\s*(\[[\s\S]*?\]);/);
+          if (listMatch) {
+            try {
+              // Strip on/off function bodies for safe eval of id/name/desc only
+              const cleaned = listMatch[1]
+                .replace(/on:\s*[^,}]*(?:,|\})/g, '')
+                .replace(/off:\s*[^,}]*(?:,|\})/g, '')
+                .replace(/,\s*}/g, '}')
+                .replace(/,\s*]/g, ']');
+              // Manual parse: { id: '...', name: '...', desc: '...' }
+              const itemRe = /\{\s*id:\s*'([^']+)'\s*,\s*name:\s*'([^']+)'\s*,\s*desc:\s*'([^']*)'/g;
+              let im;
+              while ((im = itemRe.exec(itemsSrc)) !== null) {
+                ITEMS.push({ id: im[1], name: MOVE_EN[im[2]] || im[2], desc: MOVE_EN[im[3]] || im[3], rawName: im[2] });
+              }
+            } catch (e) { console.warn('items parse', e); }
+          }
+        }
+
+        // Sprite meta: only Idle widths for hitbox (full object is huge)
+        SPRITE_META = {};
+        if (metaSrc) {
+          // Each entry starts with `N: {"s":...,"a":{"Idle":{"w":WW,...`
+          const wr = /(\d+):\s*\{"s":\d+,"a":\{"Idle":\{"w":(\d+),"h":(\d+),"n":(\d+)/g;
+          let wm;
+          while ((wm = wr.exec(metaSrc)) !== null) {
+            SPRITE_META[+wm[1]] = { a: { Idle: { w: +wm[2], h: +wm[3], n: +wm[4] } } };
+          }
+          if (!Object.keys(SPRITE_META).length) {
+            const wr2 = /(\d+):\s*\{[\s\S]*?"Idle":\{"w":(\d+),"h":(\d+)/g;
+            while ((wm = wr2.exec(metaSrc)) !== null) {
+              if (!SPRITE_META[+wm[1]]) SPRITE_META[+wm[1]] = { a: { Idle: { w: +wm[2], h: +wm[3], n: 1 } } };
+            }
+          }
+        }
+
+        const laddersMatch = movesSrc.match(/const LADDERS\s*=\s*(\{[\s\S]*?\n  \});/);
+        if (!laddersMatch) throw new Error('LADDERS not found');
+        const rawStart = movesSrc.indexOf('const RAW = [');
+        const rawEnd = movesSrc.indexOf('];', movesSrc.indexOf('hex:'));
+        if (rawStart < 0 || rawEnd < 0) throw new Error('RAW not found');
+        const rawStr = movesSrc.slice(rawStart + 'const RAW = '.length, rawEnd + 1);
+
+        const evoMatch = movesSrc.match(/const EVO\s*=\s*(\{[\s\S]*?\n  \});/);
+        const evoModsMatch = movesSrc.match(/const EVO_MODS\s*=\s*(\{[\s\S]*?\n  \});/);
+
+        LADDERS = (0, eval)('(' + laddersMatch[1] + ')');
+        const R = (0, eval)(rawStr);
+        EVO = evoMatch ? (0, eval)('(' + evoMatch[1] + ')') : {};
+        EVO_MODS = evoModsMatch ? (0, eval)('(' + evoModsMatch[1] + ')') : {};
+
+        // Physical move set from game moves.js (rest are special; buffs null)
+        let PHYSICAL = new Set();
+        const physMatch = movesSrc.match(/PHYSICAL\s*=\s*new Set\(\[([\s\S]*?)\]\)/);
+        if (physMatch) {
+          const ids = physMatch[1].match(/'([^']+)'/g) || [];
+          PHYSICAL = new Set(ids.map(s => s.slice(1, -1)));
+        }
+        for (const m of R) {
+          m.cat = m.kind === 'buff' ? null : (PHYSICAL.has(m.id) ? 'physical' : 'special');
+          if (m.kind !== 'melee') continue;
+          m.dmg = Math.round(m.dmg * 1.2);
+          if (m.radius) m.radius = Math.round(m.radius * 1.25);
+          if (m.arc) m.arc = Math.min(3, +(m.arc * 1.25).toFixed(2));
+        }
+        RAW = R.filter(m => m && m.id);
+        ALL_MOVES = RAW.slice();
+        // DPS table uses damaging moves; buffs still available for calculator/combos
+        DAMAGE_MOVES = RAW.filter(m => m.kind !== 'buff' && m.dmg != null);
+
+        const dexMatch = dexSrc.match(/G\.DEX\s*=\s*(\[[\s\S]*?\]);/);
+        if (!dexMatch) throw new Error('G.DEX not found');
+        DEX = (0, eval)(dexMatch[1]);
+
+        status.className = 'status ok';
+        // Attach hitbox + size class
+        for (const p of DEX) {
+          p.hit = bodyRadius(p.dex);
+          p.size = sizeClass(p.hit);
+          // numeric coerce defense stats (pokedex.js: df / sd)
+          if (p.df != null) p.df = +p.df;
+          if (p.sd != null) p.sd = +p.sd;
+          if (p.pa != null) p.pa = +p.pa;
+          if (p.sa != null) p.sa = +p.sa;
+        }
+        buildEnemyWeights();
+        ensureEnemyAttackProfile(true);
+        invalidatePokeCache();
+        const mixEl = document.getElementById('enemySideMix');
+        if (mixEl) {
+          mixEl.textContent = 'Enemy mix (live tiers×spawn rate): physical ' +
+            (100 * ENEMY_PHY_WEIGHT).toFixed(1) + '% · special ' +
+            (100 * ENEMY_SPE_WEIGHT).toFixed(1) + '% · ' +
+            TIERS_BST.length + ' tiers · density ' + SPAWN_DENSITY;
+        }
+        for (const p of DEX) {
+          p.cov = coverageScore(p.types);
+        }
+        // ranks for stats (1 = best)
+        function rankBy(key, higherBetter) {
+          const sorted = [...DEX].sort((a, b) => higherBetter ? (b[key] - a[key]) : (a[key] - b[key]));
+          const map = new Map();
+          sorted.forEach((p, i) => map.set(p.dex, i + 1));
+          return map;
+        }
+        const rAtk = rankBy('atk', true), rHp = rankBy('hp', true), rSpd = rankBy('spd', true);
+        const rHit = rankBy('hit', false), rCov = rankBy('cov', true); // hit: #1 = smallest
+        for (const p of DEX) {
+          p.ranks = { atk: rAtk.get(p.dex), hp: rHp.get(p.dex), spd: rSpd.get(p.dex), hit: rHit.get(p.dex), cov: rCov.get(p.dex) };
+        }
+        VALID_TYPE_SET = new Set();
+        for (const p of DEX) {
+          const ts = [...p.types].sort();
+          // all non-empty subsets of the mon's types are "reachable" selections
+          const n = ts.length;
+          for (let mask = 1; mask < (1 << n); mask++) {
+            const sub = [];
+            for (let i = 0; i < n; i++) if (mask & (1 << i)) sub.push(ts[i]);
+            VALID_TYPE_SET.add(sub.join('+'));
+          }
+        }
+        status.textContent = 'Loaded ' + RAW.length + ' moves · ' + DEX.length + ' Pokémon · ' + ITEMS.length + ' items · EN · ' + new Date().toLocaleTimeString();
+
+        populateFilters();
+        recalcAll();
+      } catch (err) {
+        console.error(err);
+        status.className = 'status err';
+        status.textContent = 'Fetch failed: ' + err.message;
+      }
+    }
+
+    function populateFilters() {
+      const types = [...new Set(RAW.map(m => m.type))].sort();
+      const kinds = [...new Set((DAMAGE_MOVES.length ? DAMAGE_MOVES : RAW).map(m => m.kind).filter(k => k !== 'buff'))].sort();
+      const gens = [...new Set(DEX.map(p => p.gen))].sort((a,b)=>a-b);
+      const allTypes = [...new Set(DEX.flatMap(p => p.types))].sort();
+
+      function fill(id, opts, allLabel) {
+        const sel = document.getElementById(id);
+        sel.innerHTML = '<option value="">' + allLabel + '</option>';
+        opts.forEach(v => {
+          const o = document.createElement('option');
+          o.value = v; o.textContent = v;
+          sel.appendChild(o);
+        });
+      }
+      buildDpsKindChips(kinds);
+      fill('pokeGen', gens, 'All gens');
+      buildPokeTypeChips(allTypes);
+      buildDpsTypeChips(types);
+      buildSizeTypeChips(allTypes);
+    }
+
+    function styleTypeChip(el, t, selected) {
+      const c = TYPE_COLORS[t] || '#888';
+      el.style.setProperty('--tc', c);
+      if (selected) {
+        el.classList.add('on');
+        el.style.background = c;
+        el.style.color = '#111';
+        el.style.borderColor = c;
+      } else {
+        el.classList.remove('on');
+        el.style.background = c + '33';
+        el.style.color = c;
+        el.style.borderColor = c + '66';
+      }
+    }
+
+    function refreshChipDisabled(box, selSet) {
+      if (!box) return;
+      box.querySelectorAll('.type-chip').forEach(el => {
+        const t = el.dataset.type;
+        const ok = canToggleType(selSet, t);
+        el.classList.toggle('disabled', !ok && !selSet.has(t));
+      });
+    }
+
+    function buildPokeTypeChips(allTypes) {
+      const box = document.getElementById('pokeTypeChips');
+      if (!box) return;
+      if (!allTypes || !allTypes.length) allTypes = Object.keys(TYPE_COLORS || {});
+      box.innerHTML = allTypes.map(t => {
+        const c = TYPE_COLORS[t] || '#888';
+        return '<span class="type-chip" data-type="' + t + '">' + t + '</span>';
+      }).join('');
+      box.querySelectorAll('.type-chip').forEach(el => {
+        const t = el.dataset.type;
+        styleTypeChip(el, t, pokeTypeSel.has(t));
+        el.addEventListener('click', () => {
+          if (!canToggleType(pokeTypeSel, t) && !pokeTypeSel.has(t)) return;
+          if (pokeTypeSel.has(t)) pokeTypeSel.delete(t);
+          else pokeTypeSel.add(t);
+          styleTypeChip(el, t, pokeTypeSel.has(t));
+          refreshChipDisabled(box, pokeTypeSel);
+          renderPokedex();
+        });
+      });
+      refreshChipDisabled(box, pokeTypeSel);
+    }
+
+    function clearPokeTypes() {
+      pokeTypeSel.clear();
+      document.querySelectorAll('#pokeTypeChips .type-chip').forEach(el => {
+        el.classList.remove('on');
+        el.style.background = '';
+        el.style.color = '';
+      });
+      renderPokedex();
+    }
+
+    function buildDpsTypeChips(types) {
+      const box = document.getElementById('dpsTypeChips');
+      if (!box) return;
+      if (!types || !types.length) types = Object.keys(TYPE_COLORS || {});
+      box.innerHTML = types.map(t => '<span class="type-chip" data-type="' + t + '">' + t + '</span>').join('');
+      box.querySelectorAll('.type-chip').forEach(el => {
+        const t = el.dataset.type;
+        styleTypeChip(el, t, dpsTypeSel.has(t));
+        el.addEventListener('click', () => {
+          // Move types are independent — no combo restriction on DPS filter
+          if (dpsTypeSel.has(t)) dpsTypeSel.delete(t);
+          else dpsTypeSel.add(t);
+          styleTypeChip(el, t, dpsTypeSel.has(t));
+          renderDps();
+        });
+      });
+    }
+
+    function buildDpsKindChips(kinds) {
+      const box = document.getElementById('dpsKindChips');
+      if (!box) return;
+      let list = Array.isArray(kinds) ? kinds.filter(Boolean) : [];
+      if (!list.length && typeof RAW !== 'undefined' && RAW.length) {
+        list = [...new Set(RAW.map(m => m.kind).filter(k => k && k !== 'buff'))].sort();
+      }
+      box.innerHTML = '';
+      list.forEach(k => {
+        const el = document.createElement('span');
+        el.className = 'kind-chip' + (dpsKindSel.has(k) ? ' on' : '');
+        el.dataset.kind = k;
+        el.textContent = k;
+        el.addEventListener('click', () => {
+          if (dpsKindSel.has(k)) dpsKindSel.delete(k); else dpsKindSel.add(k);
+          el.classList.toggle('on', dpsKindSel.has(k));
+          renderDps();
+        });
+        box.appendChild(el);
+      });
+    }
+
+    function clearDpsTypes() {
+      dpsTypeSel.clear();
+      document.querySelectorAll('#dpsTypeChips .type-chip').forEach(el => {
+        el.classList.remove('on');
+        el.style.background = '';
+        el.style.color = '';
+      });
+      renderDps();
+    }
+
+    function buildSizeTypeChips(allTypes) {
+      const box = document.getElementById('sizeTypeChips');
+      if (!box) return;
+      if (!allTypes || !allTypes.length) allTypes = Object.keys(TYPE_COLORS || {});
+      box.innerHTML = '';
+      allTypes.forEach(t => {
+        const el = document.createElement('span');
+        el.className = 'type-chip';
+        el.textContent = t;
+        el.dataset.type = t;
+        styleTypeChip(el, t, sizeTypeSel.has(t));
+        el.addEventListener('click', () => {
+          if (!canToggleType(sizeTypeSel, t) && !sizeTypeSel.has(t)) return;
+          if (sizeTypeSel.has(t)) sizeTypeSel.delete(t);
+          else sizeTypeSel.add(t);
+          styleTypeChip(el, t, sizeTypeSel.has(t));
+          refreshChipDisabled(box, sizeTypeSel);
+          renderSizeView();
+        });
+        box.appendChild(el);
+      });
+      refreshChipDisabled(box, sizeTypeSel);
+    }
+
+    function clearSizeTypes() {
+      sizeTypeSel.clear();
+      document.querySelectorAll('#sizeTypeChips .type-chip').forEach(el => {
+        el.classList.remove('on');
+        el.style.background = '';
+        el.style.color = '';
+      });
+      const box = document.getElementById('sizeTypeChips');
+      if (box) refreshChipDisabled(box, sizeTypeSel);
+      renderSizeView();
+    }
+
+    function spriteUrl(dex) {
+      return 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/assets/pokemon/' + dex + '/Idle.png';
+    }
+
+    function spriteStyle(dex, boxPx) {
+      const m = SPRITE_META[dex];
+      const w = (m && m.a && m.a.Idle && m.a.Idle.w) ? m.a.Idle.w : 32;
+      const h = (m && m.a && m.a.Idle && m.a.Idle.h) ? m.a.Idle.h : 32;
+      const n = (m && m.a && m.a.Idle && m.a.Idle.n) ? m.a.Idle.n : 3;
+      const box = boxPx || 40;
+      // Scale so the larger frame dimension fits in the box; crop to frame 0, row 0 (Down)
+      const scale = box / Math.max(w, h);
+      const fw = w * scale, fh = h * scale;
+      const bgW = n * w * scale;
+      const bgH = 8 * h * scale;
+      // Center the frame in the box
+      const ox = (box - fw) / 2;
+      const oy = (box - fh) / 2;
+      return 'width:' + box + 'px;height:' + box + 'px;' +
+        'background-image:url(\'' + spriteUrl(dex) + '\');' +
+        'background-size:' + bgW.toFixed(1) + 'px ' + bgH.toFixed(1) + 'px;' +
+        'background-position:' + ox.toFixed(1) + 'px ' + oy.toFixed(1) + 'px;' +
+        'background-repeat:no-repeat;';
+    }
+
+    function buildEnemyWeights() {
+      // Live expected distribution over many runs:
+      // each tier is active [from, next.from); spawn intensity = ∫ rate(t) dt (from spawner.js).
+      // Each run picks `cast` mons from the tier pool; long-run each candidate gets
+      // equal share → weight = tierIntensity / |candidates|.
+      const comboW = new Map();
+      for (const tier of TIERS_BST) {
+        const tw = tierSpawnWeight(tier);
+        const cands = DEX.filter(p => (p.rarity == null || p.rarity < 5) && !p.leg &&
+          p.bst >= tier.bst[0] && p.bst <= tier.bst[1]);
+        if (!cands.length) continue;
+        const per = tw / cands.length;
+        for (const p of cands) {
+          const types = [...p.types].sort();
+          const key = types.join('+');
+          if (!comboW.has(key)) comboW.set(key, { types, weight: 0, examples: new Set() });
+          const e = comboW.get(key);
+          e.weight += per;
+          if (e.examples.size < 4) e.examples.add(p.name);
+        }
+      }
+      const total = [...comboW.values()].reduce((a, x) => a + x.weight, 0) || 1;
+      ENEMY_WEIGHTS = [...comboW.values()]
+        .map(x => ({
+          key: x.types.join('+'),
+          types: x.types,
+          weight: x.weight,
+          pct: (x.weight / total) * 100,
+          examples: [...x.examples]
+        }))
+        .sort((a, b) => b.pct - a.pct);
+
+      // Average type multi for each attack type
+      const atkTypes = Object.keys(TYPE_COLORS);
+      AVG_TYPE_MULT = {};
+      for (const at of atkTypes) {
+        let sum = 0;
+        for (const e of ENEMY_WEIGHTS) sum += (e.pct / 100) * typeMult(at, e.types);
+        AVG_TYPE_MULT[at] = sum;
+      }
+    }
+
+    /** Offense: high mult = green (beneficial). */
+    function multClass(m) {
+      if (m > 1.05) return 'mult-super';
+      if (m < 0.95) return 'mult-weak';
+      return 'mult-neutral';
+    }
+    /** Defense / incoming: low mult = green (take less damage). */
+    function multClassDef(m) {
+      if (m < 0.95) return 'mult-super';
+      if (m > 1.05) return 'mult-weak';
+      return 'mult-neutral';
+    }
+
+    function buildWeakAtkChips() {
+      const box = document.getElementById('weakAtkChips');
+      if (!box) return;
+      const types = Object.keys(TYPE_COLORS);
+      box.innerHTML = types.map(t => '<span class="type-chip" data-type="' + t + '">' + t + '</span>').join('');
+      box.querySelectorAll('.type-chip').forEach(el => {
+        const t = el.dataset.type;
+        styleTypeChip(el, t, weakAtkSel.has(t));
+        el.addEventListener('click', () => {
+          if (!canToggleType(weakAtkSel, t) && !weakAtkSel.has(t)) return;
+          if (weakAtkSel.has(t)) weakAtkSel.delete(t);
+          else weakAtkSel.add(t);
+          styleTypeChip(el, t, weakAtkSel.has(t));
+          refreshChipDisabled(box, weakAtkSel);
+          renderWeakMatrix();
+          // refresh multi summary via renderEnemies partial
+          const sumEl = document.getElementById('weakMultiSummary');
+          if (sumEl) {
+            const sel = [...weakAtkSel];
+            if (sel.length >= 2) {
+              const split = coverageScore(sel);
+              let sumBest = 0;
+              const tot = ENEMY_WEIGHTS.reduce((a, e) => a + e.pct, 0) || 100;
+              for (const e of ENEMY_WEIGHTS) {
+                sumBest += (e.pct / 100) * Math.max(...sel.map(tt => typeMult(tt, e.types)));
+              }
+              sumEl.innerHTML = 'Selection <b>' + sel.join('+') + '</b>: equal-split ×' +
+                split.toFixed(3) + ' · best-of ×' + (sumBest * 100 / tot).toFixed(3);
+            } else sumEl.textContent = '';
+          }
+        });
+      });
+      refreshChipDisabled(box, weakAtkSel);
+    }
+
+    function clearWeakAtk() {
+      weakAtkSel.clear();
+      buildWeakAtkChips();
+      renderWeakMatrix();
+    }
+
+    function renderWeakMatrix() {
+      const head = document.getElementById('weakMatrixHead');
+      const body = document.getElementById('weakMatrixBody');
+      if (!head || !body) return;
+      // Selected types = your mon's types (offense columns per type; one shared def column)
+      let yourTypes = [...weakAtkSel];
+      if (!yourTypes.length) yourTypes = ['normal'];
+      yourTypes.sort();
+      const multi = yourTypes.length >= 2;
+
+      // Defense vs one enemy row: equal-split over enemy attack types into your types
+      function rowDefMult(enemyTypes) {
+        const atkTypes = enemyTypes && enemyTypes.length ? enemyTypes : ['normal'];
+        return atkTypes.reduce((a, t) => a + typeMult(t, yourTypes), 0) / atkTypes.length;
+      }
+
+      head.innerHTML = '<tr><th class="text-left">Enemy types</th><th>%</th>' +
+        yourTypes.map(t => {
+          const c = TYPE_COLORS[t] || '#888';
+          return '<th title="Offense: you attack as ' + t + '">off ' +
+            '<span class="type-badge" style="background:' + c + '33;color:' + c + '">' + t + '</span></th>';
+        }).join('') +
+        (multi
+          ? '<th title="max offense among your types">Best off</th><th title="mean offense (equal split)">Avg off</th>'
+          : '') +
+        '<th title="Defense: damage taken from this enemy (equal-split their types → you)">def</th>' +
+        '</tr>';
+
+      const rows = ENEMY_WEIGHTS.slice();
+      const tot = rows.reduce((a, e) => a + e.pct, 0) || 100;
+
+      body.innerHTML = rows.map(e => {
+        const badges = e.types.map(t => {
+          const c = TYPE_COLORS[t] || '#888';
+          return '<span class="type-badge" style="background:' + c + '33;color:' + c + '">' + t + '</span>';
+        }).join(' ');
+        const mults = yourTypes.map(at => typeMult(at, e.types));
+        const cells = mults.map(m =>
+          '<td class="' + multClass(m) + '">×' + m.toFixed(2) + '</td>'
+        ).join('');
+        let extra = '';
+        if (multi) {
+          const best = Math.max(...mults);
+          const avg = mults.reduce((a, b) => a + b, 0) / mults.length;
+          extra = '<td class="' + multClass(best) + '">×' + best.toFixed(2) + '</td>' +
+                  '<td class="' + multClass(avg) + '">×' + avg.toFixed(2) + '</td>';
+        }
+        const defM = rowDefMult(e.types);
+        const defCell = '<td class="' + multClassDef(defM) + '">×' + defM.toFixed(2) + '</td>';
+        return '<tr><td class="text-left">' + badges + '</td><td>' + e.pct.toFixed(2) + '%</td>' + cells + extra + defCell + '</tr>';
+      }).join('');
+
+      // Spawn-weighted averages
+      const avgCells = yourTypes.map(at => {
+        let sum = 0;
+        for (const e of rows) sum += (e.pct / 100) * typeMult(at, e.types);
+        const avg = sum * (100 / tot);
+        return '<td class="' + multClass(avg) + '">×' + avg.toFixed(3) + '</td>';
+      }).join('');
+      let avgExtra = '';
+      if (multi) {
+        let sumBest = 0, sumSplit = 0;
+        for (const e of rows) {
+          const mults = yourTypes.map(at => typeMult(at, e.types));
+          sumBest += (e.pct / 100) * Math.max(...mults);
+          sumSplit += (e.pct / 100) * (mults.reduce((a, b) => a + b, 0) / mults.length);
+        }
+        const b = sumBest * (100 / tot), s = sumSplit * (100 / tot);
+        avgExtra = '<td class="' + multClass(b) + '">×' + b.toFixed(3) + '</td>' +
+                   '<td class="' + multClass(s) + '">×' + s.toFixed(3) + '</td>';
+      }
+      let sumDef = 0;
+      for (const e of rows) sumDef += (e.pct / 100) * rowDefMult(e.types);
+      const avgDef = sumDef * (100 / tot);
+      const avgDefCell = '<td class="' + multClassDef(avgDef) + '">×' + avgDef.toFixed(3) + '</td>';
+      body.innerHTML += '<tr class="avg-row"><td class="text-left">Average (spawn-weighted)</td><td>100%</td>' + avgCells + avgExtra + avgDefCell + '</tr>';
+    }
+
+    /** Spawn-weighted equal-split coverage for a list of attack types. */
+    function coverageScore(types) {
+      if (!types || !types.length || !ENEMY_WEIGHTS.length) return 1;
+      const tot = ENEMY_WEIGHTS.reduce((a, e) => a + e.pct, 0) || 100;
+      let sum = 0;
+      for (const e of ENEMY_WEIGHTS) {
+        const mults = types.map(t => typeMult(t, e.types));
+        const avg = mults.reduce((a, b) => a + b, 0) / mults.length;
+        sum += (e.pct / 100) * avg;
+      }
+      return sum * (100 / tot);
+    }
+
+    /** Offense weather multi: mean WEATHER_AVG_MULT for types as attacker. */
+    function weatherScore(types) {
+      if (!types || !types.length) return 1;
+      let s = 0, n = 0;
+      for (const t of types) {
+        if (WEATHER_AVG_MULT[t] != null) { s += WEATHER_AVG_MULT[t]; n++; }
+      }
+      return n ? s / n : 1;
+    }
+
+    /** Relative ATK vs dex mean (1.0 = average). */
+    function atkRel(p) {
+      if (!DEX.length) return 1;
+      const mean = DEX.reduce((a, x) => a + (x.atk || 0), 0) / DEX.length;
+      if (!mean) return 1;
+      return (p.atk || 0) / mean;
+    }
+
+    /**
+     * Defense type multii: spawn-weighted avg of typeMult(enemyAtkType → you).
+     * Game: player.hurt applies Types.mult(atkType, mon.types). Lower = tankier.
+     */
+    function typeDefScore(defTypes) {
+      if (!defTypes || !defTypes.length || !ENEMY_WEIGHTS.length) return 1;
+      let sum = 0, wsum = 0;
+      for (const e of ENEMY_WEIGHTS) {
+        const atkTypes = e.types && e.types.length ? e.types : ['normal'];
+        // equal-split over enemy types as possible attack types
+        const m = atkTypes.reduce((a, t) => a + typeMult(t, defTypes), 0) / atkTypes.length;
+        sum += e.pct * m;
+        wsum += e.pct;
+      }
+      return wsum ? sum / wsum : 1;
+    }
+
+    /**
+     * Defense weather multi: spawn-weighted avg of weather avg on enemy attack types.
+     * Game: amount *= Weather.mult(atkType) on hurt.
+     */
+    function weatherDefScore() {
+      if (!ENEMY_WEIGHTS.length) return 1;
+      let sum = 0, wsum = 0;
+      for (const e of ENEMY_WEIGHTS) {
+        const atkTypes = e.types && e.types.length ? e.types : ['normal'];
+        const m = atkTypes.reduce((a, t) => a + (WEATHER_AVG_MULT[t] != null ? WEATHER_AVG_MULT[t] : 1), 0) / atkTypes.length;
+        sum += e.pct * m;
+        wsum += e.pct;
+      }
+      return wsum ? sum / wsum : 1;
+    }
+
+    /** Combined incoming multi ≈ typeDef × weatherDef (before reduction/melee). */
+    function defMulti(p) {
+      const td = typeDefScore(p.types);
+      const wd = weatherDefScore();
+      return td * wd;
+    }
+
+    
+    /** Soft defense mult from base DF/SD (game Stats.guard). REF=75, EXP=0.35, clamp [0.78, 1.25]. */
+    function guardDef(def) {
+      const REF = 75, EXP = 0.35, LO = 0.78, HI = 1.25;
+      const d = (def != null && def !== '' && !isNaN(+def)) ? +def : REF;
+      const g = Math.pow(REF / Math.max(5, d), EXP);
+      return Math.min(HI, Math.max(LO, g));
+    }
+    /** Move category: physical | special | null (buff). Mirrors moves.js PHYSICAL set. */
+    function moveCat(m) {
+      if (!m || m.kind === 'buff') return null;
+      if (m.cat) return m.cat;
+      return 'special';
+    }
+    /** Species fit for a move category (pa or sa / atk). */
+    function fitAtk(p, cat) {
+      if (!p || !cat) return 1;
+      const atk = p.atk > 0 ? p.atk : 1;
+      if (cat === 'special') return (p.sa != null ? p.sa : atk) / atk;
+      return (p.pa != null ? p.pa : atk) / atk;
+    }
+
+    function pokeOffenseMults(p) {
+      // atk = max(pa, sa); pa/sa are physical/special attack mults from pokedex.
+      const atkM = (p.atk != null && p.atk > 0) ? p.atk : 1;
+      const paM = (p.pa != null && p.pa > 0) ? p.pa : atkM;
+      const saM = (p.sa != null && p.sa > 0) ? p.sa : atkM;
+      const typeM = p.cov != null ? p.cov : coverageScore(p.types);
+      const wxM = weatherScore(p.types);
+      const dmgM = atkM * typeM * wxM;           // legacy: strongest side
+      const phyM = paM * typeM * wxM;             // physical dmg multi
+      const speM = saM * typeM * wxM;             // special dmg multi
+      return { typeM, wxM, atkM, paM, saM, dmgM, phyM, speM };
+    }
+
+    function pokeDefenseMults(p) {
+      const typeDefM = typeDefScore(p.types);
+      const wxDefM = weatherDefScore();
+      const dodge = hitMulti(p);
+      const exposure = hitExposure(p);
+      const dfG = guardDef(p.df);
+      const sdG = guardDef(p.sd);
+      const defM = typeDefM * wxDefM;
+      const phyDefM = typeDefM * wxDefM * dfG;
+      const speDefM = typeDefM * wxDefM * sdG;
+      // Damage reduction (dr): spawn-weighted incoming factor.
+      // Each enemy uses sideOf (sa > pa → special else physical) and atkType = types[0].
+      const dr = damageReductionScore(p);
+      const ehp = dr > 0 ? dodge / dr : dodge;
+      return {
+        typeDefM, wxDefM, hitM: dodge, defM, phyDefM, speDefM, dfG, sdG,
+        dr, tankM: ehp, dodge, ehp, exposure
+      };
+    }
+
+    /**
+     * Spawn-weighted expected incoming damage multi vs this mon.
+     * Per enemy candidate (same tier weights as ENEMY_WEIGHTS):
+     *   typeMult(atkType→you) × weather(atkType) × guard(df|sd by enemy side)
+     */
+    function damageReductionScore(p) {
+      if (!p || !DEX.length) return 1;
+      ensureEnemyAttackProfile();
+      if (!ENEMY_ATK_PROFILE.length) {
+        // fallback: equal phy/spe mix of type×weather×guards
+        const typeDefM = typeDefScore(p.types);
+        const wxDefM = weatherDefScore();
+        return typeDefM * wxDefM * (guardDef(p.df) + guardDef(p.sd)) / 2;
+      }
+      let sum = 0, wsum = 0;
+      for (const e of ENEMY_ATK_PROFILE) {
+        const tMult = typeMult(e.atkType, p.types);
+        const wMult = (typeof WEATHER_AVG_MULT !== 'undefined' && WEATHER_AVG_MULT[e.atkType] != null)
+          ? WEATHER_AVG_MULT[e.atkType] : 1;
+        const g = e.cat === 'special' ? guardDef(p.sd) : guardDef(p.df);
+        sum += e.weight * tMult * wMult * g;
+        wsum += e.weight;
+      }
+      return wsum > 0 ? sum / wsum : 1;
+    }
+
+    /** [{ weight, atkType, cat, name }] spawn-intensity weighted enemy attackers. */
+    let ENEMY_ATK_PROFILE = [];
+    let ENEMY_PHY_WEIGHT = 0.5, ENEMY_SPE_WEIGHT = 0.5;
+
+    function ensureEnemyAttackProfile(force) {
+      if (!force && ENEMY_ATK_PROFILE.length) return;
+      if (!DEX.length) return;
+      ENEMY_ATK_PROFILE = [];
+      // Mirror buildEnemyWeights tier share, but keep each species (for pa/sa side)
+      const rows = [];
+      if (typeof TIERS_BST === 'undefined' || !TIERS_BST.length) {
+        // flat fallback
+        for (const mon of DEX) {
+          if (mon.rarity >= 5 || mon.leg) continue;
+          const cat = (mon.sa != null && mon.pa != null && mon.sa > mon.pa) ? 'special' : 'physical';
+          const atkType = (mon.types && mon.types[0]) || 'normal';
+          rows.push({ weight: 1, atkType, cat, name: mon.name });
+        }
+      } else {
+        for (const tier of TIERS_BST) {
+          const tw = tierSpawnWeight(tier);
+          const cands = DEX.filter(mon => (mon.rarity == null || mon.rarity < 5) && !mon.leg &&
+            mon.bst >= tier.bst[0] && mon.bst <= tier.bst[1]);
+          if (!cands.length) continue;
+          const per = tw / cands.length;
+          for (const mon of cands) {
+            const cat = (mon.sa != null && mon.pa != null && mon.sa > mon.pa) ? 'special' : 'physical';
+            const atkType = (mon.types && mon.types[0]) || 'normal';
+            rows.push({ weight: per, atkType, cat, name: mon.name, dex: mon.dex });
+          }
+        }
+      }
+      ENEMY_ATK_PROFILE = rows;
+      let phy = 0, spe = 0;
+      for (const e of rows) {
+        if (e.cat === 'special') spe += e.weight;
+        else phy += e.weight;
+      }
+      const t = phy + spe || 1;
+      ENEMY_PHY_WEIGHT = phy / t;
+      ENEMY_SPE_WEIGHT = spe / t;
+    }
+
+
+    /** Format: {n} ({desc}) * {n} ({desc}) = {n} */
+    function fmtStep(parts, result) {
+      // parts: [{n, desc}, ...]
+      const left = parts.map(p => Number(p.n).toFixed(3) + ' (' + p.desc + ')').join(' * ');
+      return left + ' = ' + Number(result).toFixed(3);
+    }
+
+    /** Steps for dmg multi (uses species ATK mult, not mean-relative). */
+    function multStepsOffense(p) {
+      const o = pokeOffenseMults(p);
+      return fmtStep(
+        [{ n: o.atkM, desc: 'ATK' }, { n: o.typeM, desc: 'type multii' }, { n: o.wxM, desc: 'weather multi' }],
+        o.dmgM
+      );
+    }
+    function multStepsDefense(p) {
+      const d = pokeDefenseMults(p);
+      return fmtStep(
+        [{ n: d.typeDefM, desc: 'type def' }, { n: d.wxDefM, desc: 'weather def' }],
+        d.defM
+      );
+    }
+    function multStepsTank(p) {
+      const d = pokeDefenseMults(p);
+      return Number(d.dodge).toFixed(3) + ' (dodge factor) / (' +
+        Number(d.typeDefM).toFixed(3) + ' (type def) * ' +
+        Number(d.wxDefM).toFixed(3) + ' (weather def)) = ' +
+        Number(d.ehp).toFixed(3);
+    }
+    function multStepsHit(p) {
+      const r = pokeHit(p);
+      const med = medianHitRadius();
+      const dodge = hitMulti(p);
+      const ratio = med / r;
+      const curve = getDodgeCurve();
+      if (curve === 'linear') {
+        return Number(med).toFixed(3) + ' (median r) / ' + Number(r).toFixed(3) + ' (r) = ' + Number(dodge).toFixed(3);
+      }
+      if (curve === 'power15') {
+        return '(' + Number(med).toFixed(3) + '/' + Number(r).toFixed(3) + ')^1.5 = ' + Number(dodge).toFixed(3);
+      }
+      if (curve === 'soft') {
+        return '0.5×' + ratio.toFixed(3) + ' + 0.5×' + (ratio*ratio).toFixed(3) + ' = ' + Number(dodge).toFixed(3);
+      }
+      return Number(med*med).toFixed(3) + ' (median r²) / ' + Number(r*r).toFixed(3) + ' (r²) = ' + Number(dodge).toFixed(3);
+    }
+    function multStepsOffenseType(t) {
+      const typeM = AVG_TYPE_MULT[t] != null ? AVG_TYPE_MULT[t] : 1;
+      const wxM = WEATHER_AVG_MULT[t] != null ? WEATHER_AVG_MULT[t] : 1;
+      const comb = typeM * wxM;
+      return {
+        typeM, wxM, comb,
+        steps: fmtStep([{ n: typeM, desc: 'type multii' }, { n: wxM, desc: 'weather multi' }], comb)
+      };
+    }
+    function multStepsDefenseType(t) {
+      const td = typeDefScore([t]);
+      const wd = weatherDefScore();
+      const defM = td * wd;
+      return {
+        td, wd, defM,
+        steps: fmtStep([{ n: td, desc: 'type def' }, { n: wd, desc: 'weather def' }], defM)
+      };
+    }
+
+    function renderEnemies() { renderMultipliers(); }
+
+        function renderMultipliers() {
+      if (typeof renderWeakMatrix === 'function') renderWeakMatrix();
+
+      // --- Section: Offense (per attack type) ---
+      const offBody = document.getElementById('offenseTypeBody');
+      if (offBody) {
+        const rows = Object.keys(TYPE_COLORS).map(t => {
+          const r = multStepsOffenseType(t);
+          return { t, ...r };
+        }).sort((a, b) => b.comb - a.comb);
+        offBody.innerHTML = rows.map(r => {
+          const c = TYPE_COLORS[r.t];
+          const tipType = r.typeM.toFixed(3) + ' (type multii) = spawn-weighted soft chart as ' + r.t + ' attacker';
+          const tipWx = r.wxM.toFixed(3) + ' (weather multi) = long-run weather avg for ' + r.t;
+          const tipComb = r.steps;
+          return '<tr><td class="text-left"><span class="type-badge" style="background:' + c + '33;color:' + c + '">' +
+            r.t + '</span></td>' +
+            '<td style="cursor:help" title="' + tipType + '">' + r.typeM.toFixed(3) + '</td>' +
+            '<td style="cursor:help" title="' + tipWx + '">' + r.wxM.toFixed(3) + '</td>' +
+            '<td class="' + multClass(r.comb) + '" style="font-weight:600;cursor:help" title="' + tipComb + '">' + r.comb.toFixed(3) + '</td></tr>';
+        }).join('');
+      }
+
+      // --- Section: Defense (per your type) ---
+      const defBody = document.getElementById('defenseTypeBody');
+      if (defBody) {
+        const rows = Object.keys(TYPE_COLORS).map(t => {
+          const r = multStepsDefenseType(t);
+          return { t, ...r };
+        }).sort((a, b) => a.defM - b.defM);
+        defBody.innerHTML = rows.map(r => {
+          const c = TYPE_COLORS[r.t];
+          const tipTd = r.td.toFixed(3) + ' (type def) = spawn-weighted incoming type multi if you are ' + r.t;
+          const tipWd = r.wd.toFixed(3) + ' (weather def) = spawn-weighted weather avg on enemy attack types';
+          const tipDef = r.steps;
+          return '<tr><td class="text-left"><span class="type-badge" style="background:' + c + '33;color:' + c + '">' +
+            r.t + '</span></td>' +
+            '<td class="' + multClassDef(r.td) + '" style="cursor:help" title="' + tipTd + '">' + r.td.toFixed(3) + '</td>' +
+            '<td class="' + multClassDef(r.wd) + '" style="cursor:help" title="' + tipWd + '">' + r.wd.toFixed(3) + '</td>' +
+            '<td class="' + multClassDef(r.defM) + '" style="font-weight:600;cursor:help" title="' + tipDef + '">' + r.defM.toFixed(3) + '</td></tr>';
+        }).join('');
+      }
+
+      // --- Section: Enemy spawn weights ---
+      const body = document.getElementById('enemyTypeBody');
+      if (body) {
+        body.innerHTML = ENEMY_WEIGHTS.slice().sort((a, b) => b.pct - a.pct).map(e => {
+          const badges = e.types.map(t => {
+            const c = TYPE_COLORS[t] || '#888';
+            return '<span class="type-badge" style="background:' + c + '33;color:' + c + '">' + t + '</span>';
+          }).join(' ');
+          const ex = (e.examples || []).slice(0, 3).join(', ');
+          return '<tr><td class="text-left">' + badges + '</td><td>' + e.pct.toFixed(1) +
+            '</td><td class="text-left" style="color:var(--muted)">' + (ex || '—') + '</td></tr>';
+        }).join('');
+      }
+
+      const avgBody = document.getElementById('avgTypeBody');
+      if (avgBody) avgBody.innerHTML = '';
+
+      const hs = document.getElementById('hitboxSummary');
+      if (hs && DEX.length) {
+        const med = medianHitRadius();
+        const rs = DEX.map(pokeHit).sort((a,b)=>a-b);
+        hs.innerHTML = 'Median hitbox r = <strong>' + med.toFixed(2) + '</strong> · range ' +
+          rs[0].toFixed(1) + '–' + rs[rs.length-1].toFixed(1) +
+          ' · dodge factor = median r² / r² · ehp = dodge / (type def × weather def) (higher better)';
+      }
+    }
+
+    /** Game poolFor: Normal + the mon's types. */
+    function monCanLearn(mon, move) {
+      if (!mon || !move) return true;
+      if (move.type === 'normal') return true;
+      return (mon.types || []).indexOf(move.type) >= 0;
+    }
+
+    function recalcDps() {
+      if (!RAW.length) return;
+      const cfg = getConfig();
+      dpsResults = (DAMAGE_MOVES.length ? DAMAGE_MOVES : RAW.filter(m => m.kind !== 'buff' && m.dmg != null)).map(def => {
+        const cat = def.cat || (def.kind === 'buff' ? null : 'special');
+        const mon = globalPoke || calcPoke;
+        // PA for physical moves, SA for special; pure move DPS uses 1 when no mon
+        let sideAtk = 1;
+        if (mon && cat) {
+          sideAtk = (cat === 'special'
+            ? (mon.sa != null ? mon.sa : mon.atk)
+            : (mon.pa != null ? mon.pa : mon.atk)) || 1;
+        }
+        const cfgMove = Object.assign({}, cfg, { atk: sideAtk, mon: mon || null });
+        const dps = [];
+        for (let lvl = 1; lvl <= 5; lvl++) {
+          const s = instance(def, lvl, false);
+          dps.push(Math.round(singleTargetDPS(s, cfgMove)));
+        }
+        let evoDps = null, evoName = null;
+        if (EVO[def.id] && EVO_MODS[def.kind]) {
+          const se = instance(def, 5, true);
+          evoDps = Math.round(singleTargetDPS(se, cfgMove));
+          evoName = EVO[def.id][0];
+        }
+        const atkM = sideAtk;
+        const covM = (def.type && AVG_TYPE_MULT[def.type] != null) ? AVG_TYPE_MULT[def.type] : 1;
+        const wxM = (def.type && WEATHER_AVG_MULT[def.type] != null) ? WEATHER_AVG_MULT[def.type] : 1;
+        const mult = +(atkM * covM * wxM).toFixed(4);
+        return {
+          id: def.id,
+          name: enName(def.name, def.id),
+          type: def.type, kind: def.kind, cat,
+          mult, atkM, covM, wxM,
+          lv1: dps[0], lv2: dps[1], lv3: dps[2], lv4: dps[3], lv5: dps[4],
+          evo: evoDps,
+          evoName: evoName ? enName(evoName, def.id) : null,
+          rawName: def.name
+        };
+      });
+      renderDps();
+      renderBuffsTable();
+    }
+
+    function renderDps() {
+      /* kind multi-select via dpsKindSel */
+      const search = document.getElementById('searchMove').value.trim().toLowerCase();
+      const cfg = getConfig();
+
+      let rows = dpsResults.filter(r => {
+        if (dpsTypeSel.size && !dpsTypeSel.has(r.type)) return false;
+        if (dpsKindSel.size && !dpsKindSel.has(r.kind)) return false;
+        if (search) {
+          const ok = matchSearch(r.name, search) || matchSearch(r.id, search) || matchSearch(r.evoName || '', search);
+          if (!ok) return false;
+        }
+        return true;
+      });
+
+      rows.sort((a, b) => {
+        let av = a[sortKey], bv = b[sortKey];
+        if (sortKey === 'evo') { av = av ?? -1; bv = bv ?? -1; }
+        if (typeof av === 'string') return sortDir * av.localeCompare(bv);
+        return sortDir * ((av||0) - (bv||0));
+      });
+
+      // Thresholds for pure move DPS (atk=1)
+      const cls = v => v >= 150 ? 'dps-high' : v >= 70 ? 'dps-mid' : '';
+      const mon = globalPoke || calcPoke;
+      document.getElementById('dpsBody').innerHTML = rows.map(r => {
+        const color = TYPE_COLORS[r.type] || '#888';
+        const def = RAW.find(m => m.id === r.id);
+        const usable = !mon || monCanLearn(mon, def || r);
+        const evoCell = r.evo != null
+          ? '<span class="evolved tip" data-tip="evo" data-id="' + r.id + '">' + r.evo + '</span>'
+          : '—';
+        const lv = (n, v) => '<td class="tip ' + cls(v) + '" data-tip="lv" data-id="' + r.id + '" data-lv="' + n + '">' + v + '</td>';
+        const catLabel = r.cat === 'physical' ? 'PHY' : (r.cat === 'special' ? 'SPE' : '—');
+        const catCls = r.cat === 'physical' ? 'cat-phy' : (r.cat === 'special' ? 'cat-spe' : '');
+        return '<tr data-move-id="' + r.id + '" class="' + (usable ? '' : 'dps-unusable') + '" title="' +
+          (usable ? '' : 'Not learnable by selected Pokémon (pool = Normal + its types)') + '">' +
+          '<td class="text-left">' + r.name + '</td>' +
+          '<td class="text-left"><span class="type-badge" style="background:' + color + '33;color:' + color + '">' + r.type + '</span></td>' +
+          '<td class="text-left"><span class="kind-badge">' + r.kind + '</span></td>' +
+          '<td class="text-left"><span class="cat-badge ' + catCls + '">' + catLabel + '</span></td>' +
+          '<td class="tip" data-tip="mult" data-id="' + r.id + '" style="font-weight:600;color:var(--accent2);cursor:help">' + (r.mult != null ? r.mult.toFixed(3) : '—') + '</td>' +
+          lv(1, r.lv1) + lv(2, r.lv2) + lv(3, r.lv3) + lv(4, r.lv4) + lv(5, r.lv5) +
+          '<td class="' + cls(r.evo||0) + '">' + evoCell + '</td>' +
+          '</tr>';
+      }).join('');
+
+      // Bind tooltips
+      document.querySelectorAll('#dpsBody .tip').forEach(el => {
+        el.addEventListener('mouseenter', e => {
+          const id = el.dataset.id;
+          const def = RAW.find(m => m.id === id);
+          if (!def) return;
+          const cfg2 = getConfig();
+          let htmlTip = '';
+          if (el.dataset.tip === 'evo') {
+            htmlTip = buildEvoTooltip(def, cfg2);
+          } else if (el.dataset.tip === 'mult') {
+            const row = dpsResults.find(x => x.id === id);
+            const atk = row && row.atkM != null ? row.atkM : 1;
+            const cov = row && row.covM != null ? row.covM : 1;
+            const wx = row && row.wxM != null ? row.wxM : 1;
+            const mult = row && row.mult != null ? row.mult : atk * cov * wx;
+            htmlTip = '<div class="tt-title">dmg multi</div>' +
+              '<div class="tt-result">' +
+              atk.toFixed(3) + ' (ATK) * ' + cov.toFixed(3) + ' (type multii) * ' +
+              wx.toFixed(3) + ' (weather multi) = ' + Number(mult).toFixed(3) +
+              '</div>';
+          } else {
+            htmlTip = buildLevelTooltip(def, parseInt(el.dataset.lv, 10), cfg2);
+          }
+          if (htmlTip) showTip(htmlTip, e.clientX, e.clientY);
+        });
+        el.addEventListener('mousemove', e => {
+          if (tipPinned) return; // Alt-pin: freeze position
+          const eltt = ttEl();
+          if (eltt.style.display === 'block') {
+            const r = eltt.getBoundingClientRect();
+            let left = e.clientX + 12, top = e.clientY + 12;
+            if (left + r.width > window.innerWidth - 8) left = e.clientX - r.width - 12;
+            if (top + r.height > window.innerHeight - 8) top = e.clientY - r.height - 12;
+            eltt.style.left = Math.max(8, left) + 'px';
+            eltt.style.top = Math.max(8, top) + 'px';
+          }
+        });
+        el.addEventListener('mouseleave', () => { if (!tipPinned) hideTip(true); });
+      });
+    }
+
+    /** Buffs table: list buff moves with per-level upgrade text and max-stage summary. */
+    const STAT_LABEL = { atk: 'ATK', spd: 'SPD', def: 'DEF', regen: 'regen' };
+
+    function describeBuffLevel(def, lvl) {
+      const s = instance(def, lvl, false);
+      const prev = lvl > 1 ? instance(def, lvl - 1, false) : null;
+      const stat = s.stat || def.stat;
+      const statName = STAT_LABEL[stat] || stat || 'stat';
+      const amount = s.amount != null ? s.amount : def.amount;
+      const stacks = s.stacks != null ? s.stacks : def.stacks;
+      const dur = s.dur != null ? s.dur : def.dur;
+      const cd = s.cd != null ? s.cd : def.cd;
+
+      if (lvl === 1) {
+        // Base: what the buff does
+        const bits = [];
+        if (amount != null && stat) {
+          if (stat === 'regen') bits.push('+' + Number(amount).toFixed(1) + ' ' + statName + '/stack');
+          else bits.push('+' + Math.round(amount * 100) + '% ' + statName + '/stack');
+        }
+        if (stacks != null) bits.push('max ' + stacks + ' stacks');
+        if (dur != null) bits.push(dur + 's duration');
+        if (cd != null) bits.push(cd + 's CD');
+        return bits.join(' · ') || 'buff';
+      }
+
+      // Level-up: show what improved vs previous level
+      const changes = [];
+      const ups = LADDERS[def.kind] || [];
+      const mod = ups[lvl - 2] && ups[lvl - 2].m;
+      if (mod) {
+        for (const k of Object.keys(mod)) {
+          const v = mod[k];
+          if (k === 'amount' && typeof v === 'number') {
+            if (stat === 'regen') changes.push('stack strength +' + Number(v).toFixed(2));
+            else if (v > 0 && v < 1) changes.push('stack strength +' + Math.round(v * 100) + '%');
+            else changes.push('stack strength ×' + v);
+          } else if (k === 'stacks' && typeof v === 'number') {
+            changes.push(v > 0 ? '+' + v + ' max stacks' : 'stacks ' + v);
+          } else if (k === 'dur' && typeof v === 'number') {
+            changes.push(v > 0 && v < 5 ? '+' + v + 's duration' : 'duration ×' + v);
+          } else if (k === 'cd' && typeof v === 'number') {
+            changes.push(v < 1 ? 'CD ×' + v : 'CD ' + v + 's');
+          } else if (typeof v === 'number') {
+            changes.push(k + ' ' + v);
+          }
+        }
+      }
+      // Fallback: diff prev vs current key fields
+      if (!changes.length && prev) {
+        if (amount != null && prev.amount != null && amount !== prev.amount) {
+          if (stat === 'regen') changes.push('+' + Number(amount).toFixed(1) + ' ' + statName + '/stack (was ' + Number(prev.amount).toFixed(1) + ')');
+          else changes.push('+' + Math.round(amount * 100) + '% ' + statName + '/stack (was ' + Math.round(prev.amount * 100) + '%)');
+        }
+        if (stacks != null && prev.stacks != null && stacks !== prev.stacks) changes.push('max ' + stacks + ' stacks (was ' + prev.stacks + ')');
+        if (dur != null && prev.dur != null && dur !== prev.dur) changes.push(dur + 's duration (was ' + prev.dur + 's)');
+        if (cd != null && prev.cd != null && cd !== prev.cd) changes.push(cd + 's CD (was ' + prev.cd + 's)');
+      }
+      return changes.join(' · ') || '—';
+    }
+
+    function describeBuffMax(def) {
+      const s = instance(def, 5, false);
+      const stat = s.stat || def.stat;
+      const statName = STAT_LABEL[stat] || stat || 'stat';
+      const amount = s.amount != null ? s.amount : 0;
+      const stacks = s.stacks != null ? s.stacks : 1;
+      const dur = s.dur;
+      const total = amount * stacks;
+      const bits = [];
+      if (stat === 'regen') {
+        bits.push('+' + Number(total).toFixed(1) + ' ' + statName + ' at full stacks');
+      } else if (stat) {
+        // additive stack model as in move data: amount per stack
+        bits.push('+' + Math.round(total * 100) + '% ' + statName + ' at full stacks (' + stacks + '×' + Math.round(amount * 100) + '%)');
+      }
+      if (dur != null) bits.push(dur + 's duration');
+      if (s.cd != null) bits.push(s.cd + 's CD');
+      return bits.join(' · ') || 'Lv5';
+    }
+
+    function renderBuffsTable() {
+      const body = document.getElementById('buffsBody');
+      if (!body) return;
+      const buffs = RAW.filter(m => m.kind === 'buff');
+      if (!buffs.length) {
+        body.innerHTML = '<tr><td colspan="8" class="note">No buffs loaded.</td></tr>';
+        return;
+      }
+      body.innerHTML = buffs.map(def => {
+        const color = TYPE_COLORS[def.type] || '#888';
+        const name = enName(def.name, def.id);
+        const cells = [];
+        for (let lvl = 1; lvl <= 5; lvl++) {
+          cells.push('<td style="font-size:0.72rem;white-space:normal;max-width:9rem">' + describeBuffLevel(def, lvl) + '</td>');
+        }
+        return '<tr>' +
+          '<td class="text-left">' + name + '</td>' +
+          '<td><span class="type-badge" style="background:' + color + '33;color:' + color + '">' + (def.type || '—') + '</span></td>' +
+          cells.join('') +
+          '<td class="text-left" style="font-weight:600;color:var(--warn);white-space:normal">' + describeBuffMax(def) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    
+    
+    let POKE_CACHE_DIRTY = true;
+    let POKE_CACHE_GEN = 0; // bump when dodge options / data change
+
+    /**
+     * Competition ranking ("1224" style): ties share the min rank;
+     * next distinct rank skips by group size → 1,1,1,4,5,5,7,8.
+     */
+    function rankByTied(list, key, higherBetter) {
+      const sorted = [...list].sort((a, b) => {
+        const av = a[key] != null ? +a[key] : 0;
+        const bv = b[key] != null ? +b[key] : 0;
+        if (av === bv) return 0;
+        return higherBetter ? (bv - av) : (av - bv);
+      });
+      const map = new Map();
+      let rank = 1;
+      let prev = null;
+      for (let i = 0; i < sorted.length; i++) {
+        const v = sorted[i][key] != null ? +sorted[i][key] : 0;
+        if (i === 0) {
+          rank = 1;
+          prev = v;
+        } else if (v !== prev) {
+          rank = i + 1; // skip over the size of the previous tie group
+          prev = v;
+        }
+        map.set(sorted[i].dex, rank);
+      }
+      return map;
+    }
+
+    function invalidatePokeCache() {
+      POKE_CACHE_DIRTY = true;
+      POKE_CACHE_GEN++;
+    }
+
+    function escTip(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
+    function fmtMultStep(parts, result) {
+      // parts: [{n, label}, ...] → "n (label) * n (label) = result"
+      const left = parts.map(p => {
+        const n = typeof p.n === 'number' ? (+p.n).toFixed(3) : String(p.n);
+        return n + ' (' + p.label + ')';
+      }).join(' * ');
+      const r = typeof result === 'number' ? (+result).toFixed(3) : String(result);
+      return left + ' = ' + r;
+    }
+
+    function ensurePokeMults(p) {
+      if (!p) return p;
+      if (p._cacheGen === POKE_CACHE_GEN && p.dr != null && p.phyM != null) return p;
+      const o = pokeOffenseMults(p);
+      const d = pokeDefenseMults(p);
+      p.typeM = o.typeM; p.wxM = o.wxM; p.dmgM = o.dmgM;
+      p.phyM = o.phyM; p.speM = o.speM;
+      p.defM = d.defM; p.phyDefM = d.phyDefM; p.speDefM = d.speDefM;
+      p.dfG = d.dfG; p.sdG = d.sdG; p.typeDefM = d.typeDefM; p.wxDefM = d.wxDefM;
+      p.dr = d.dr; p.hitM = d.hitM; p.tankM = d.tankM; p.dodge = d.dodge; p.ehp = d.ehp;
+      p.cov = o.typeM; p.wx = o.wxM; p.mult = o.dmgM;
+      if (p.hit == null) p.hit = bodyRadius(p.dex);
+
+      // Precompute tooltip calculation steps
+      const med = medianHitRadius();
+      const r = p.hit || pokeHit(p);
+      const curve = (typeof getDodgeCurve === 'function') ? getDodgeCurve() : 'power15';
+      const expLabel = curve === 'linear' ? 'r¹' : (curve === 'power15' ? 'r¹·⁵' : (curve === 'soft' ? 'soft' : 'r²'));
+      p._tip = {
+        typeM: 'spawn-weighted offensive coverage avg = ' + o.typeM.toFixed(3),
+        wxM: (p.types || []).map(t => {
+          const w = (WEATHER_AVG_MULT[t] != null) ? WEATHER_AVG_MULT[t] : 1;
+          return w.toFixed(3) + ' (' + t + ')';
+        }).join(' avg ') + (p.types && p.types.length > 1 ? ' → ' + o.wxM.toFixed(3) : ' = ' + o.wxM.toFixed(3)),
+        phyM: fmtMultStep([
+          { n: o.paM, label: 'PA' },
+          { n: o.typeM, label: 'weakness multi' },
+          { n: o.wxM, label: 'weather multi' }
+        ], o.phyM),
+        speM: fmtMultStep([
+          { n: o.saM, label: 'SA' },
+          { n: o.typeM, label: 'weakness multi' },
+          { n: o.wxM, label: 'weather multi' }
+        ], o.speM),
+        phyDefM: fmtMultStep([
+          { n: d.typeDefM, label: 'type def' },
+          { n: d.wxDefM, label: 'weather def' },
+          { n: d.dfG, label: 'guard DF ' + (p.df != null ? p.df : '?') }
+        ], d.phyDefM),
+        speDefM: fmtMultStep([
+          { n: d.typeDefM, label: 'type def' },
+          { n: d.wxDefM, label: 'weather def' },
+          { n: d.sdG, label: 'guard SD ' + (p.sd != null ? p.sd : '?') }
+        ], d.speDefM),
+        dr: 'spawn-weighted incoming (type × weather × guard by enemy PA/SA side) = ' + d.dr.toFixed(3),
+        dodge: fmtMultStep([
+          { n: med, label: 'baseline r' },
+          { n: r, label: 'this r' }
+        ], d.dodge).replace(' * ', ' / ').replace(' = ', ' → (' + expLabel + ') = ')
+          || ((med / Math.max(0.01, r)).toFixed(3) + ' (baseline/r) ^ curve = ' + d.dodge.toFixed(3)),
+        ehp: fmtMultStep([
+          { n: d.dodge, label: 'dodge' },
+          { n: d.dr, label: 'dr' }
+        ], d.ehp).replace(' * ', ' / ')
+      };
+      // Fix dodge tip cleanly
+      {
+        const ratio = med / Math.max(0.01, r);
+        let step = ratio.toFixed(3) + ' (baseline ' + med.toFixed(2) + ' / r ' + (+r).toFixed(2) + ')';
+        if (curve === 'linear') p._tip.dodge = step + ' = ' + d.dodge.toFixed(3);
+        else if (curve === 'power15') p._tip.dodge = step + ' ^ 1.5 = ' + d.dodge.toFixed(3);
+        else if (curve === 'area') p._tip.dodge = step + ' ^ 2 = ' + d.dodge.toFixed(3);
+        else p._tip.dodge = step + ' (soft mix) = ' + d.dodge.toFixed(3);
+      }
+      // Fix ehp tip: division
+      p._tip.ehp = d.dodge.toFixed(3) + ' (dodge) / ' + d.dr.toFixed(3) + ' (dr) = ' + d.ehp.toFixed(3);
+
+      p._cacheGen = POKE_CACHE_GEN;
+      return p;
+    }
+
+    /**
+     * One-shot: fill mults, score, ranks for all DEX. Skip if still valid.
+     */
+    function recomputeCompositeScores(force) {
+      if (!DEX.length) return;
+      if (!force && !POKE_CACHE_DIRTY) return;
+
+      ensureEnemyAttackProfile();
+      for (const p of DEX) {
+        p._cacheGen = -1; // force refresh
+        ensurePokeMults(p);
+      }
+
+      const offs = DEX.map(p => Math.max(p.phyM || 0, p.speM || 0, p.dmgM || 0)).filter(x => x > 0).sort((a, b) => a - b);
+      const defs = DEX.map(p => p.ehp || 0).filter(x => x > 0).sort((a, b) => a - b);
+      function med(arr) {
+        if (!arr.length) return 1;
+        const m = Math.floor(arr.length / 2);
+        return arr.length % 2 ? arr[m] : (arr[m - 1] + arr[m]) / 2;
+      }
+      const medOff = med(offs) || 1;
+      const medDef = med(defs) || 1;
+      for (const p of DEX) {
+        const off = Math.max(p.phyM || 0, p.speM || 0, p.dmgM || 0);
+        p.score = Math.sqrt(Math.max(0, off / medOff) * Math.max(0, (p.ehp || 0) / medDef));
+      }
+
+      const higher = true, lower = false;
+      const keysHi = ['atk','pa','sa','df','sd','hp','spd','typeM','wxM','phyM','speM','dodge','ehp','score','cov','dmgM'];
+      const keysLo = ['hit','phyDefM','speDefM','dr','defM'];
+      const maps = {};
+      for (const k of keysHi) maps[k] = rankByTied(DEX, k, higher);
+      for (const k of keysLo) maps[k] = rankByTied(DEX, k, lower);
+
+      for (const p of DEX) {
+        p.ranks = p.ranks || {};
+        for (const k of Object.keys(maps)) {
+          p.ranks[k] = maps[k].get(p.dex);
+        }
+      }
+
+      POKE_CACHE_DIRTY = false;
+    }
+
+
+    
+    function bindPokeColHelp() {
+      document.querySelectorAll('.poke-table th[data-col-help]').forEach(th => {
+        th.style.cursor = 'help';
+        th.addEventListener('mouseenter', e => {
+          showTip('<div class="tt-title">' + th.textContent.replace(/[▲▼]/g, '').trim() + '</div><div class="tt-muted">' + th.dataset.colHelp + '</div>', e.clientX, e.clientY);
+        });
+        th.addEventListener('mousemove', e => { if (!tipPinned) showTip(document.getElementById('tt') ? document.getElementById('tt').innerHTML : '', e.clientX, e.clientY); });
+        th.addEventListener('mouseleave', () => { if (!tipPinned) hideTip(); });
+      });
+    }
+
+    function renderPokedex() {
+      recomputeCompositeScores();
+      const genF = document.getElementById('pokeGen').value;
+      const search = document.getElementById('searchPoke').value.trim().toLowerCase();
+
+      let list = DEX.filter(p => {
+        if (pokeTypeSel.size) {
+          // Multi-select: Pokémon must have ALL selected types (AND)
+          for (const t of pokeTypeSel) if (!p.types.includes(t)) return false;
+        }
+        if (genF && String(p.gen) !== genF) return false;
+        if (search) {
+          const ok = matchSearch(p.name, search) || matchSearch(String(p.dex), search);
+          if (!ok) return false;
+        }
+        return true;
+      });
+
+      list.sort((a, b) => {
+        const dir = pokeSortDir;
+        if (pokeSortKey === 'name') return dir * a.name.localeCompare(b.name);
+        if (pokeSortKey === 'dex') return dir * (a.dex - b.dex);
+        if (pokeSortKey === 'gen') return dir * ((a.gen || 0) - (b.gen || 0));
+        if (pokeSortKey === 'hit') return dir * ((a.hit || 0) - (b.hit || 0));
+        if (pokeSortKey === 'size') {
+          const order = { small: 0, medium: 1, big: 2 };
+          return dir * ((order[a.size] || 0) - (order[b.size] || 0));
+        }
+        if (pokeSortKey === 'typeM' || pokeSortKey === 'cov') return dir * ((a.typeM ?? a.cov ?? 0) - (b.typeM ?? b.cov ?? 0));
+        if (pokeSortKey === 'wxM' || pokeSortKey === 'wx') return dir * ((a.wxM ?? a.wx ?? 0) - (b.wxM ?? b.wx ?? 0));
+        if (pokeSortKey === 'dmgM' || pokeSortKey === 'mult') return dir * ((a.dmgM ?? a.mult ?? 0) - (b.dmgM ?? b.mult ?? 0));
+        if (pokeSortKey === 'defM') return dir * ((a.defM ?? 0) - (b.defM ?? 0));
+        if (pokeSortKey === 'dodge' || pokeSortKey === 'hitM') return dir * ((a.dodge ?? a.hitM ?? 0) - (b.dodge ?? b.hitM ?? 0));
+        if (pokeSortKey === 'ehp' || pokeSortKey === 'tankM') return dir * ((a.ehp ?? a.tankM ?? 0) - (b.ehp ?? b.tankM ?? 0));
+        if (pokeSortKey === 'score') return dir * ((a.score ?? 0) - (b.score ?? 0));
+        if (['pa','sa','df','sd','phyM','speM','phyDefM','speDefM','dr'].includes(pokeSortKey))
+          return dir * ((a[pokeSortKey] ?? 0) - (b[pokeSortKey] ?? 0));
+        return dir * ((a[pokeSortKey] || 0) - (b[pokeSortKey] || 0));
+      });
+
+      // Header arrows
+      document.querySelectorAll('.poke-table th.sortable').forEach(th => {
+        const k = th.dataset.pokeSort;
+        const arrow = th.querySelector('.arrow');
+        if (!arrow) return;
+        arrow.textContent = k === pokeSortKey ? (pokeSortDir > 0 ? '▲' : '▼') : '';
+      });
+
+      const countEl = document.getElementById('pokeCount');
+      if (countEl) countEl.textContent = '(' + list.length + ')';
+      bindPokeColHelp();
+      const body = document.getElementById('pokeBody');
+      if (!body) return;
+      body.innerHTML = list.map(p => {
+        const badges = p.types.map(t => {
+          const c = TYPE_COLORS[t] || '#888';
+          return '<span class="type-badge" style="background:' + c + '33;color:' + c + '">' + t + '</span>';
+        }).join(' ');
+        ensurePokeMults(p);
+        const hit = p.hit != null ? p.hit : bodyRadius(p.dex);
+        const o = { typeM: p.typeM, wxM: p.wxM, phyM: p.phyM, speM: p.speM, paM: p.pa != null ? p.pa : p.atk, saM: p.sa != null ? p.sa : p.atk, dmgM: p.dmgM };
+        const d = { phyDefM: p.phyDefM, speDefM: p.speDefM, dr: p.dr, dodge: p.dodge, ehp: p.ehp, typeDefM: p.typeM, wxDefM: p.wxM, dfG: p.dfG, sdG: p.sdG };
+        const rk = p.ranks || {};
+        function st(val, rank, digits) {
+          const v = typeof val === 'number' ? (digits != null ? val.toFixed(digits) : val) : val;
+          return v + (rank ? ' <span style="color:var(--muted);font-size:0.7rem">#' + rank + '</span>' : '');
+        }
+        const score = p.score != null ? p.score : 0;
+        return '<tr data-dex="' + p.dex + '" onclick="selectPokeDetail(' + p.dex + ')" style="cursor:pointer">' +
+          '<td class="text-left">' + p.dex + '</td>' +
+          '<td class="text-left"><div class="poke-name-cell">' +
+            '<div class="poke-spr poke-spr-btn" style="' + spriteStyle(p.dex, 40) + '" onclick="event.stopPropagation();useGlobalPoke(' + p.dex + ')" title="Select ' + p.name + '"></div>' +
+            '<div><div class="pname">' + p.name + '</div></div></div></td>' +
+          '<td class="text-left">' + badges + '</td>' +
+          '<td>' + st(o.paM, rk.pa, 2) + '</td>' +
+          '<td>' + st(o.saM, rk.sa, 2) + '</td>' +
+          '<td>' + st(p.df != null ? p.df : '—', rk.df) + '</td>' +
+          '<td>' + st(p.sd != null ? p.sd : '—', rk.sd) + '</td>' +
+          '<td>' + st(p.hp, rk.hp) + '</td>' +
+          '<td>' + st(p.spd, rk.spd) + '</td>' +
+          '<td>' + st(Number(hit).toFixed(1), rk.hit) + '</td>' +
+          '<td class="' + multClass(o.typeM) + '" title="' + escTip(p._tip && p._tip.typeM) + '">' + o.typeM.toFixed(3) + '</td>' +
+          '<td title="' + escTip(p._tip && p._tip.wxM) + '">' + o.wxM.toFixed(3) + '</td>' +
+          '<td class="' + multClass(o.phyM) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.phyM) + '">' + o.phyM.toFixed(3) + '</td>' +
+          '<td class="' + multClass(o.speM) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.speM) + '">' + o.speM.toFixed(3) + '</td>' +
+          '<td class="' + multClassDef(d.phyDefM) + '" title="' + escTip(p._tip && p._tip.phyDefM) + '">' + d.phyDefM.toFixed(3) + '</td>' +
+          '<td class="' + multClassDef(d.speDefM) + '" title="' + escTip(p._tip && p._tip.speDefM) + '">' + d.speDefM.toFixed(3) + '</td>' +
+          '<td class="' + multClassDef(d.dr) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.dr) + '">' + d.dr.toFixed(3) + '</td>' +
+          '<td class="' + multClass(d.dodge) + '" title="' + escTip(p._tip && p._tip.dodge) + '">' + d.dodge.toFixed(3) + '</td>' +
+          '<td class="' + multClass(d.ehp) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.ehp) + '">' + d.ehp.toFixed(3) + '</td>' +
+          '<td style="font-weight:600;color:var(--accent2)">' + st(score, rk.score, 3) + '</td>' +
+          '<td>' + (p.gen || '—') + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    let selectedPokeDex = null;
+
+    function selectPokeDetail(dex) {
+      selectedPokeDex = dex;
+      document.querySelectorAll('#pokeBody tr').forEach(tr => {
+        tr.classList.toggle('poke-sel', +tr.dataset.dex === dex);
+      });
+      const p = DEX.find(x => x.dex === dex);
+      if (!p) return;
+      const modal = document.getElementById('radarModal');
+      if (modal) modal.style.display = 'flex';
+      document.getElementById('pokeDetailTitle').innerHTML =
+        '<div class="poke-spr" style="display:inline-block;vertical-align:middle;margin-right:0.45rem;' + spriteStyle(p.dex, 48) + '"></div>' +
+        p.name + ' <span style="color:var(--muted);font-weight:400">#' + p.dex + ' · ' + p.types.join('/') + '</span>';
+      drawPokeRadar();
+    }
+
+    function closeRadarModal() {
+      const modal = document.getElementById('radarModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function avgStats(list) {
+      if (!list || !list.length) {
+        return {
+          pa: 0, sa: 0, df: 75, sd: 75, hp: 0, spd: 0, hit: 0,
+          typeM: 1, wxM: 1, phyM: 1, speM: 1, phyDefM: 1, speDefM: 1,
+          dr: 1, dodge: 1, ehp: 1, score: 0
+        };
+      }
+      recomputeCompositeScores();
+      const n = list.length;
+      const avg = (fn) => list.reduce((a, p) => a + fn(p), 0) / n;
+      return {
+        pa: avg(p => p.pa != null ? p.pa : (p.atk || 0)),
+        sa: avg(p => p.sa != null ? p.sa : (p.atk || 0)),
+        df: avg(p => p.df != null ? p.df : 75),
+        sd: avg(p => p.sd != null ? p.sd : 75),
+        hp: avg(p => p.hp || 0),
+        spd: avg(p => p.spd || 0),
+        hit: avg(p => p.hit || pokeHit(p) || 0),
+        typeM: avg(p => p.typeM != null ? p.typeM : 1),
+        wxM: avg(p => p.wxM != null ? p.wxM : 1),
+        phyM: avg(p => p.phyM != null ? p.phyM : 1),
+        speM: avg(p => p.speM != null ? p.speM : 1),
+        phyDefM: avg(p => p.phyDefM != null ? p.phyDefM : 1),
+        speDefM: avg(p => p.speDefM != null ? p.speDefM : 1),
+        dr: avg(p => p.dr != null ? p.dr : 1),
+        dodge: avg(p => p.dodge != null ? p.dodge : 1),
+        ehp: avg(p => p.ehp != null ? p.ehp : 1),
+        score: avg(p => p.score != null ? p.score : 0)
+      };
+    }
+
+    function ensureRadarAxisToggles() {
+      const box = document.getElementById('radarAxisToggles');
+      if (!box) return;
+      // Always rebuild so new axes appear after updates
+      const rawLabs = [
+        ['pa', 'PA'], ['sa', 'SA'], ['df', 'DF'], ['sd', 'SD'],
+        ['hp', 'HP'], ['spd', 'SPD'], ['hit', 'r']
+      ];
+      const calcLabs = [
+        ['typeM', 'weakness multi'], ['wxM', 'weather multi'],
+        ['phyM', 'phy multi'], ['speM', 'spe multi'],
+        ['phyDefM', 'phy def multi'], ['speDefM', 'spe def multi'],
+        ['dr', 'dr'], ['dodge', 'dodge'], ['ehp', 'ehp'], ['score', 'score']
+      ];
+      function row(labs) {
+        return labs.map(([k, lab]) =>
+          '<label><input type="checkbox" data-axis="' + k + '"' +
+          (radarAxes[k] ? ' checked' : '') +
+          ' onchange="radarAxes[this.dataset.axis]=this.checked;drawPokeRadar()" /> ' + lab + '</label>'
+        ).join('');
+      }
+      box.innerHTML =
+        '<div class="radar-axes-row"><span class="radar-axes-label">Raw</span>' + row(rawLabs) + '</div>' +
+        '<div class="radar-axes-row"><span class="radar-axes-label">Multi</span>' + row(calcLabs) + '</div>';
+    }
+
+    
+    function radarStatsFor(p) {
+      ensurePokeMults(p);
+      return {
+        pa: p.pa != null ? +p.pa : (p.atk || 0),
+        sa: p.sa != null ? +p.sa : (p.atk || 0),
+        df: p.df != null ? +p.df : 75,
+        sd: p.sd != null ? +p.sd : 75,
+        hp: p.hp || 0,
+        spd: p.spd || 0,
+        hit: p.hit != null ? +p.hit : pokeHit(p),
+        typeM: p.typeM != null ? p.typeM : 1,
+        wxM: p.wxM != null ? p.wxM : 1,
+        phyM: p.phyM != null ? p.phyM : 1,
+        speM: p.speM != null ? p.speM : 1,
+        phyDefM: p.phyDefM != null ? p.phyDefM : 1,
+        speDefM: p.speDefM != null ? p.speDefM : 1,
+        dr: p.dr != null ? p.dr : 1,
+        dodge: p.dodge != null ? p.dodge : 1,
+        ehp: p.ehp != null ? p.ehp : 1,
+        score: p.score != null ? p.score : 0,
+        cov: p.typeM || 1, dmgM: p.dmgM || 1, defM: p.defM || 1
+      };
+    }
+
+    function drawPokeRadar() {
+      const canvas = document.getElementById('pokeRadar');
+      const listEl = document.getElementById('pokeStatList');
+      if (!canvas || selectedPokeDex == null) return;
+      const p = DEX.find(x => x.dex === selectedPokeDex);
+      if (!p) return;
+      ensureRadarAxisToggles();
+      // ensure mults for scale
+      DEX.forEach(ensurePokeMults);
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height, cx = W / 2, cy = H / 2, R = 95;
+      ctx.clearRect(0, 0, W, H);
+
+      const allKeys = ['pa', 'sa', 'df', 'sd', 'hp', 'spd', 'hit',
+        'typeM', 'wxM', 'phyM', 'speM', 'phyDefM', 'speDefM', 'dr', 'dodge', 'ehp', 'score'];
+      const allLabels = {
+        pa: 'PA', sa: 'SA', df: 'DF', sd: 'SD', hp: 'HP', spd: 'SPD', hit: 'r',
+        typeM: 'weakness', wxM: 'weather', phyM: 'phy multi', speM: 'spe multi',
+        phyDefM: 'phy def', speDefM: 'spe def', dr: 'dr', dodge: 'dodge', ehp: 'ehp', score: 'score'
+      };
+      // lower-is-better on radar → invert so outer = better
+      const invertKeys = new Set(['hit', 'phyDefM', 'speDefM', 'dr', 'defM']);
+      const keys = allKeys.filter(k => radarAxes[k]);
+      const labels = keys.map(k => allLabels[k]);
+      if (keys.length < 3) {
+        ctx.fillStyle = '#9aa4b2';
+        ctx.font = '12px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('Select at least 3 axes', cx, cy);
+        return;
+      }
+      // Min–max scale: rank-last (min) → 0, rank-first (max) → 1
+      const mins = {}, maxes = {};
+      recomputeCompositeScores(); // no-op if cache warm
+      for (const k of keys) {
+        const vals = [];
+        for (const x of DEX) {
+          const s = radarStatsFor(x);
+          const v = s[k];
+          if (v != null && !isNaN(+v)) vals.push(+v);
+        }
+        if (!vals.length) { mins[k] = 0; maxes[k] = 1; }
+        else { mins[k] = Math.min(...vals); maxes[k] = Math.max(...vals); }
+      }
+      function norm(stats, k) {
+        const lo = mins[k], hi = maxes[k];
+        if (hi <= lo) return 0.5;
+        const raw = stats[k] != null ? +stats[k] : lo;
+        let t = (raw - lo) / (hi - lo);
+        if (invertKeys.has(k)) t = 1 - t; // outer = better (low dr / small r / low def multi)
+        return Math.max(0, Math.min(1, t));
+      }
+      function poly(stats, color, fill, width) {
+        ctx.beginPath();
+        keys.forEach((k, i) => {
+          const ang = -Math.PI / 2 + i * (2 * Math.PI / keys.length);
+          const v = norm(stats, k);
+          const x = cx + Math.cos(ang) * R * v;
+          const y = cy + Math.sin(ang) * R * v;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+        ctx.strokeStyle = color; ctx.lineWidth = width || 2; ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#1e2836'; ctx.lineWidth = 1;
+      for (let g = 1; g <= 4; g++) {
+        ctx.beginPath();
+        for (let i = 0; i < keys.length; i++) {
+          const ang = -Math.PI / 2 + i * (2 * Math.PI / keys.length);
+          const x = cx + Math.cos(ang) * R * (g / 4);
+          const y = cy + Math.sin(ang) * R * (g / 4);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.closePath(); ctx.stroke();
+      }
+      keys.forEach((k, i) => {
+        const ang = -Math.PI / 2 + i * (2 * Math.PI / keys.length);
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(ang) * R, cy + Math.sin(ang) * R);
+        ctx.stroke();
+        ctx.fillStyle = '#9aa4b2';
+        ctx.font = '11px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[i], cx + Math.cos(ang) * (R + 16), cy + Math.sin(ang) * (R + 16) + 3);
+      });
+
+      const TYPE_LINE = ['#ffb74d', '#ce93d8', '#80cbc4', '#ef9a9a', '#90caf9'];
+      const showAll = document.getElementById('radarAllAvg')?.checked;
+      const showType = document.getElementById('radarTypeAvg')?.checked;
+      if (showAll) poly(avgStats(DEX), '#78909c', 'rgba(120,144,156,0.12)', 1.5);
+      const typeLegend = [];
+      if (showType) {
+        p.types.forEach((t, idx) => {
+          const pool = DEX.filter(x => x.types.includes(t));
+          const col = TYPE_COLORS[t] || TYPE_LINE[idx % TYPE_LINE.length];
+          poly(avgStats(pool), col, null, 1.5);
+          typeLegend.push({ t, col, n: pool.length });
+        });
+      }
+      poly(radarStatsFor(p), '#4fc3f7', 'rgba(79,195,247,0.22)', 2.5);
+
+      const rk = p.ranks || {};
+      if (listEl) {
+        let leg = '<div><span style="color:#4fc3f7">●</span> This Pokémon</div>';
+        if (showAll) leg += '<div><span style="color:#78909c">●</span> All avg</div>';
+        typeLegend.forEach(x => {
+          leg += '<div><span style="color:' + x.col + '">●</span> ' + x.t + ' avg (' + x.n + ')</div>';
+        });
+        ensurePokeMults(p);
+      recomputeCompositeScores();
+      const fmtV = (k) => {
+        const v = p[k];
+        if (v == null) return '—';
+        if (k === 'hp' || k === 'spd') return String(v);
+        if (k === 'hit') return Number(v).toFixed(1);
+        if (k === 'atk') return Number(v).toFixed(2);
+        return Number(v).toFixed(3);
+      };
+      const rankOf = (k) => {
+        const map = { atk: 'atk', hp: 'hp', spd: 'spd', hit: 'hit', cov: 'cov', typeM: 'cov', dmgM: 'dmgM', dodge: 'dodge', ehp: 'ehp', score: 'score' };
+        const rkKey = map[k] || k;
+        return (p.ranks && p.ranks[rkKey]) ? '#' + p.ranks[rkKey] : '';
+      };
+      const rows = keys.map(k =>
+        '<div>' + labels[keys.indexOf(k)] + ' <b>' + fmtV(k) + '</b> <span style="color:var(--muted)">' + rankOf(k) + '</span></div>'
+      ).join('');
+      listEl.innerHTML = leg +
+          '<hr style="border-color:var(--border);margin:0.45rem 0">' +
+          rows +
+          '<div style="margin-top:0.35rem">score <b>' + (p.score != null ? p.score.toFixed(3) : '—') + '</b> <span style="color:var(--muted)">' + rankOf('score') + '</span></div>' +
+          '<div style="margin-top:0.4rem"><button class="btn-primary" style="padding:0.25rem 0.6rem;font-size:0.75rem" onclick="useGlobalPoke(' + p.dex + ');closeRadarModal()">Select</button></div>';
+      }
+    }
+
+    function useGlobalPoke(dex) {
+      const p = DEX.find(x => x.dex === dex);
+      if (!p) return;
+      globalPoke = p;
+      const bar = document.getElementById('globalPokeBar');
+      const nameEl = document.getElementById('globalPokeName');
+      if (nameEl) nameEl.textContent = p.name + ' (#' + p.dex + ') · r ' + pokeHit(p).toFixed(1);
+
+      // Calculator
+      calcPoke = p;
+      const cinp = document.getElementById('calcPoke');
+      if (cinp) cinp.value = p.name;
+      calcClear();
+      renderCalc();
+
+      // Size
+      const sinp = document.getElementById('sizePoke');
+      if (sinp) { sinp.value = p.name; renderSizeView(); }
+
+      // Weakness: select this mon's types (+ normal stays optional)
+      weakAtkSel = new Set(p.types);
+      if (typeof buildWeakAtkChips === 'function') buildWeakAtkChips();
+      if (typeof onDodgeOptionsChange === 'function' && DEX.length) { try { const med = medianHitRadius(); const hint = document.getElementById('dodgeOptionsHint'); if (hint) hint.textContent = 'baseline = ' + med.toFixed(2); } catch (e) {} }
+      if (typeof renderWeakMatrix === 'function') renderWeakMatrix();
+      if (typeof renderEnemies === 'function') {
+        // refresh summary only
+        const sumEl = document.getElementById('weakMultiSummary');
+        if (sumEl && weakAtkSel.size >= 2) {
+          const sel = [...weakAtkSel];
+          const split = coverageScore(sel);
+          sumEl.innerHTML = 'Using <b>' + p.name + '</b> types ' + sel.join('+') + ': equal-split ×' + split.toFixed(3);
+        }
+      }
+      if (typeof recalcDps === 'function') recalcDps();
+      if (typeof calcCombos === 'function') calcCombos();
+    }
+
+    function clearGlobalPoke() {
+      globalPoke = null;
+      calcPoke = null;
+      const nameEl = document.getElementById('globalPokeName');
+      if (nameEl) nameEl.textContent = 'None';
+      const cinp = document.getElementById('calcPoke');
+      if (cinp) cinp.value = '';
+      if (typeof renderCalc === 'function') renderCalc();
+      if (typeof recalcAll === 'function') recalcAll();
+    }
+
+
+
+    function renderItems() {
+      const drops = [
+        { src: 'Normal chest (breakable)', item: '8%', t1: '—', t10: '—', other: '4–7 coins · heal or magnet 50% · XP 20' },
+        { src: 'Locked chest (stand 3.5s)', item: '50%', t1: '1–3 guaranteed', t10: '15%', other: '9× coins · full level XP' },
+        { src: 'Boss (non-legend)', item: '100% (1 item)', t1: '—', t10: '1/3 (33%)', other: '10 coin bursts · heal + magnet · big XP' },
+        { src: 'Crack legendary', item: '—', t1: '3 guaranteed', t10: '50% via boss XP path', other: '10 coin bursts' },
+        { src: 'Normal wild faint', item: '—', t1: '1/400 (0.25%)', t10: '—', other: 'heal 1.2% · magnet 0.8% · bomb 0.6%' },
+        { src: 'Treasure goblin (Meowth / Gholdengo)', item: '—', t1: '—', t10: 'Gholdengo always', other: 'Many coins; Gholdengo also ticket ×10' }
+      ];
+      const body = document.getElementById('dropBody');
+      if (body) {
+        body.innerHTML = drops.map(d =>
+          '<tr class="drop-rate">' +
+          '<td class="text-left">' + d.src + '</td>' +
+          '<td class="text-left">' + d.item + '</td>' +
+          '<td class="text-left">' + d.t1 + '</td>' +
+          '<td class="text-left">' + d.t10 + '</td>' +
+          '<td class="text-left" style="color:var(--muted);font-size:0.78rem">' + d.other + '</td>' +
+          '</tr>'
+        ).join('');
+      }
+      const list = document.getElementById('itemList');
+      if (list) {
+        list.innerHTML = (ITEMS.length ? ITEMS : []).map(it =>
+          '<div class="item-row"><div class="iname">' + it.name +
+          ' <span style="color:var(--muted);font-weight:400;font-size:0.75rem">(' + it.id + ')</span></div>' +
+          '<div class="idesc">' + it.desc + '</div></div>'
+        ).join('') || '<div class="status">No items loaded yet — open Config and Reload from GitHub.</div>';
+      }
+    }
+
+    function selectPoke(dex) {
+      const p = DEX.find(x => x.dex === dex);
+      if (!p) return;
+      document.querySelectorAll('.poke-card').forEach(c => c.classList.toggle('selected', +c.dataset.dex === dex));
+      const hit = p.hit != null ? p.hit : bodyRadius(p.dex);
+      document.getElementById('status').textContent = 'Selected ' + p.name + ' (ATK ×' + p.atk.toFixed(2) +
+        ', HP ' + p.hp + ', SPD ' + p.spd + ', r ' + hit + ') — ATK not applied to DPS.';
+      document.getElementById('status').className = 'status ok';
+    }
+
+    function poolForTypes(types, mon) {
+      const ids = new Set(RAW.filter(m => m.type === 'normal').map(m => m.id));
+      for (const t of types || []) {
+        RAW.filter(m => m.type === t).forEach(m => ids.add(m.id));
+      }
+      let pool = [...ids].map(id => RAW.find(m => m.id === id)).filter(Boolean);
+      // Selected mon: only moves it can actually learn (Normal + its types)
+      if (mon) pool = pool.filter(m => monCanLearn(mon, m));
+      return pool;
+    }
+
+    function bestDamageMoves(types, cfg) {
+      const byId = new Map();
+      const mon = cfg && cfg.mon;
+      for (const def of poolForTypes(types, mon)) {
+        if (def.kind === 'buff') continue;
+        // Ensure cat for PA/SA side selection in dpsBreakdown
+        if (!def.cat && def.kind !== 'buff') def.cat = moveCat(def);
+        const pre = enName(def.name, def.id);
+        const s5 = instance(def, 5, false);
+        if (!s5.cat) s5.cat = def.cat;
+        let best = { dps: Math.round(singleTargetDPS(s5, cfg)), pre, tier: 'Lv5', evolved: false, kind: def.kind, id: def.id, type: def.type, cat: def.cat };
+        if (EVO[def.id] && EVO_MODS[def.kind]) {
+          const se = instance(def, 5, true);
+          if (!se.cat) se.cat = def.cat;
+          const de = Math.round(singleTargetDPS(se, cfg));
+          if (de > best.dps) best = { dps: de, pre, tier: 'Evo', evolved: true, kind: def.kind, id: def.id, type: def.type, cat: def.cat };
+        }
+        byId.set(def.id, best);
+      }
+      return [...byId.values()].sort((a, b) => b.dps - a.dps);
+    }
+
+    function bestAtkBuff(types, mon) {
+      const pool = poolForTypes(types, mon);
+      if (pool.some(m => m.id === 'dragon-dance')) {
+        return { id: 'dragon-dance', pre: 'Dragon Dance', amount: 0.11, stacks: 5, cd: 0.7, dur: 7 };
+      }
+      if (pool.some(m => m.id === 'swords-dance')) {
+        return { id: 'swords-dance', pre: 'Swords Dance', amount: 0.13, stacks: 5, cd: 0.85, dur: 7 };
+      }
+      return null;
+    }
+
+    function buffPeak(buff) {
+      return buff ? buff.amount * buff.stacks : 0;
+    }
+
+    /** Steady-state uptime when buff is on a side slot: primary / (primary + buff refresh). */
+    function buffUptime(buff) {
+      if (!buff) return 1;
+      return buff.dur / (buff.dur + buff.cd);
+    }
+
+    /**
+     * Evaluate loadout:
+     *  mainMoves[] damage, buffPlacement 'bond'|'slot'|null
+     * Returns score + step lines for tooltips.
+     */
+    function scoreLoadout(mainMoves, buff, placement, cfg) {
+      const base = mainMoves.reduce((a, m) => a + m.dps, 0);
+      const steps = [];
+      steps.push('Main damage: ' + mainMoves.map(m => m.pre + '(' + m.tier + ')=' + m.dps).join(' + ') + (mainMoves.length ? '' : '0'));
+      steps.push('Sum = ' + base);
+
+      let mult = 1, uptime = 1, peak = 0;
+      if (buff && placement === 'bond') {
+        peak = buffPeak(buff);
+        mult = 1 + peak;
+        steps.push('Buff ' + buff.pre + ' in active slot → max stacks ' + buff.stacks + ' × ' + buff.amount + ' = +' + Math.round(peak * 100) + '%');
+        steps.push('ATK mult = ×' + mult.toFixed(2) + ' (always up)');
+        steps.push('uptime = 100% (no slot switch)');
+      } else if (buff && placement === 'slot') {
+        peak = buffPeak(buff);
+        mult = 1 + peak;
+        uptime = buffUptime(buff);
+        steps.push('Buff ' + buff.pre + ' in side slot → peak +' + Math.round(peak * 100) + '% but must refresh');
+        steps.push('Refresh: 1 cast every ' + buff.dur + 's (dur), costs ~' + buff.cd + 's on buff slot');
+        steps.push('uptime = primary/(primary+buff) = ' + buff.dur + '/(' + buff.dur + '+' + buff.cd + ') = ' + (uptime * 100).toFixed(1) + '%');
+        steps.push('ATK mult = ×' + mult.toFixed(2) + ' while on main');
+      } else {
+        steps.push('No ATK buff');
+      }
+
+      const effective = Math.round(base * mult * uptime);
+      steps.push('Effective DPS = ' + base + ' × ' + mult.toFixed(2) + ' × ' + uptime.toFixed(3) + ' = ' + effective);
+      return { best: effective, mainMoves, buff, buffPlacement: placement, peak, uptime, mult, steps, base };
+    }
+
+    function bestDpsForTypes(types, cfg) {
+      const damage = bestDamageMoves(types, cfg);
+      const bondN = Math.min(cfg.bondSize || 4, 4, Math.max(1, damage.length));
+      const buff = bestAtkBuff(types, cfg && cfg.mon);
+      const preferSwitch = !!(document.getElementById('preferSwitchSlots') && document.getElementById('preferSwitchSlots').checked);
+
+      // Candidate A: no buff, full bond of damage
+      const pure = scoreLoadout(damage.slice(0, bondN), null, null, cfg);
+
+      // Candidate B: buff in the active slot (shares bond seats with damage moves — always on)
+      let bondedBuff = null;
+      if (buff && bondN >= 1) {
+        const dmgN = Math.max(1, bondN - 1);
+        bondedBuff = scoreLoadout(damage.slice(0, dmgN), buff, 'bond', cfg);
+      }
+
+      // Candidate C: buff occupies a non-active slot; player switches to it (uptime cost)
+      // Only considered when user prefers switching active slots
+      let sideBuff = null;
+      if (buff && preferSwitch) {
+        sideBuff = scoreLoadout(damage.slice(0, bondN), buff, 'slot', cfg);
+      }
+
+      const candidates = [pure, bondedBuff, sideBuff].filter(Boolean);
+      candidates.sort((a, b) => b.best - a.best);
+      return candidates[0];
+    }
+
+    function moveLabel(m) {
+      const lab = m.pre + '(' + m.tier + ')';
+      const col = TYPE_COLORS[m.type] || '#ccc';
+      const style = 'color:' + col + (m.evolved ? ';font-weight:700' : '');
+      return '<span style="' + style + '">' + lab + '</span>';
+    }
+
+    function calcCombos() {
+      if (!RAW.length || !DEX.length) return;
+      const cfg = getConfig();
+      const mon = cfg.mon;
+
+      const ranked = [];
+      if (mon) {
+        // Selected Pokémon: only its learnable skills (Normal + types) + PA/SA DPS
+        const types = [...(mon.types || [])].sort();
+        const key = types.join('+');
+        const res = bestDpsForTypes(types, cfg);
+        ranked.push({
+          key, types, count: 1, examples: [mon.name],
+          monName: mon.name, monDex: mon.dex,
+          ...res
+        });
+      } else {
+        const comboMap = new Map();
+        for (const p of DEX) {
+          const key = [...p.types].sort().join('+');
+          if (!comboMap.has(key)) {
+            comboMap.set(key, { types: [...p.types].sort(), count: 0, examples: [] });
+          }
+          const c = comboMap.get(key);
+          c.count++;
+          if (c.examples.length < 3) c.examples.push(p.name);
+        }
+        for (const [key, info] of comboMap) {
+          ranked.push({ key, ...info, ...bestDpsForTypes(info.types, cfg) });
+        }
+        ranked.sort((a, b) => b.best - a.best);
+      }
+
+      document.getElementById('comboList').innerHTML = ranked.slice(0, 40).map((c, i) => {
+        const badges = c.types.map(t => {
+          const col = TYPE_COLORS[t] || '#888';
+          return '<span class="type-badge" style="background:' + col + '33;color:' + col + '">' + t + '</span>';
+        }).join(' ');
+        const rankCls = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+
+        const mainStack = (c.mainMoves || []).map(m =>
+          '<div class="slot-move" data-move-id="' + m.id + '">' + moveLabel(m) +
+          ' <span class="slot-dps">' + m.dps + '</span></div>'
+        ).join('');
+
+        let buffStack = '';
+        if (c.buff && c.buffPlacement === 'bond') {
+          buffStack = '<div class="slot-move buff" data-move-id="' + c.buff.id + '">' +
+            c.buff.pre + ' <span class="slot-dps">×' + (c.mult || 1).toFixed(2) + '</span></div>';
+        }
+        const slot1 = '<div class="slot-col main"><div class="slot-tag">Main (active)</div>' + mainStack + buffStack + '</div>';
+
+        let otherSlots = '';
+        if (c.buff && c.buffPlacement === 'slot') {
+          otherSlots = '<div class="slot-col"><div class="slot-tag">Other slot (switch)</div>' +
+            '<div class="slot-move buff" data-move-id="' + c.buff.id + '">' + c.buff.pre +
+            ' <span class="slot-dps">' + Math.round((c.uptime || 0) * 100) + '% up</span></div></div>';
+        }
+
+        const meta = c.count + ' Pokémon · e.g. ' + c.examples.join(', ');
+        const stepsAttr = (c.steps || []).join('\\n');
+        return '<div class="combo-row tip-combo" data-steps="' + stepsAttr.replace(/"/g, '&quot;') + '">' +
+          '<div class="left"><span class="rank ' + rankCls + '">' + (i + 1) + '</span> ' + badges +
+          ' <span style="color:var(--muted);font-size:0.75rem">' + meta + '</span></div>' +
+          '<div class="score">' + c.best + '</div>' +
+          '<div class="slots-wrap">' + slot1 + otherSlots + '</div></div>';
+      }).join('');
+
+      document.querySelectorAll('#comboList .slot-move[data-move-id]').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', e => { e.stopPropagation(); jumpToMove(el.dataset.moveId); });
+      });
+      document.querySelectorAll('#comboList .tip-combo').forEach(el => {
+        el.addEventListener('mouseenter', e => {
+          const steps = (el.dataset.steps || '').split('\\n').filter(Boolean);
+          if (!steps.length) return;
+          const htmlTip = '<div class="tt-title">Combo calculation</div>' +
+            steps.map(s => '<div class="tt-step">' + s + '</div>').join('');
+          showTip(htmlTip, e.clientX, e.clientY);
+        });
+        el.addEventListener('mousemove', e => {
+          const eltt = ttEl();
+          if (eltt.style.display !== 'block') return;
+          let left = e.clientX + 12, top = e.clientY + 12;
+          const r = eltt.getBoundingClientRect();
+          if (left + r.width > window.innerWidth - 8) left = e.clientX - r.width - 12;
+          if (top + r.height > window.innerHeight - 8) top = e.clientY - r.height - 12;
+          eltt.style.left = Math.max(8, left) + 'px';
+          eltt.style.top = Math.max(8, top) + 'px';
+        });
+        el.addEventListener('mouseleave', () => { if (!tipPinned) hideTip(true); });
+      });
+    }
+
+    // ---------- Calculator (4×4 grid) ----------
+    function movesForPoke(p) {
+      if (!p) return [];
+      const types = new Set(['normal', ...p.types]);
+      return RAW.filter(m => types.has(m.type));
+    }
+
+    function populateCalcList() {
+      const dl = document.getElementById('calcPokeList');
+      if (!dl) return;
+      dl.innerHTML = DEX.map(p => '<option value="' + p.name + '"></option>').join('');
+      const sdl = document.getElementById('sizePokeList');
+      if (sdl) sdl.innerHTML = DEX.map(p => '<option value="' + p.name + '"></option>').join('');
+    }
+
+    /**
+     * Size compare: sprites scaled by Idle frame size (proportional), circles every 10 units.
+     * Game: bodyRadius = clamp(Idle.w * 0.22, 5, 26) * 2 (PX).
+     * We map 1 game unit → SCALE screen px so r=50 fits in the stage.
+     */
+    function renderSizeView() {
+      const stage = document.getElementById('sizeView');
+      const meta = document.getElementById('sizePokeMeta');
+      if (!stage) return;
+      // Refresh datalist with optional type filter
+      const sdl = document.getElementById('sizePokeList');
+      if (sdl && DEX.length) {
+        let pool = DEX;
+        if (sizeTypeSel.size) {
+          pool = DEX.filter(p => {
+            for (const t of sizeTypeSel) if (!p.types.includes(t)) return false;
+            return true;
+          });
+        }
+        sdl.innerHTML = pool.map(p => '<option value="' + p.name + '"></option>').join('');
+      }
+      const name = (document.getElementById('sizePoke').value || '').trim();
+      const p = DEX.find(x => x.name.toLowerCase() === name.toLowerCase()) ||
+                DEX.find(x => matchSearch(x.name, name));
+      if (!p) {
+        stage.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted)">Select a Pokémon' +
+          (sizeTypeSel.size ? ' (type filter active)' : '') + '</div>';
+        if (meta) meta.textContent = sizeTypeSel.size ? (sizeTypeSel.size + ' type filter') : '';
+        return;
+      }
+      const hit = p.hit != null ? p.hit : bodyRadius(p.dex);
+      const m = SPRITE_META[p.dex];
+      const w = (m && m.a && m.a.Idle && m.a.Idle.w) ? m.a.Idle.w : 32;
+      const h = (m && m.a && m.a.Idle && m.a.Idle.h) ? m.a.Idle.h : 32;
+      const n = (m && m.a && m.a.Idle && m.a.Idle.n) ? m.a.Idle.n : 3;
+      // Stage is 520px; max ring r=50 → diameter 100 units. Leave margin.
+      const SCALE = 3.2; // screen px per game unit (sprite = 2×SCALE per source px)
+      const maxR = 50;
+      let rings = '';
+      for (let r = 10; r <= maxR; r += 10) {
+        const d = r * 2 * SCALE;
+        rings += '<div class="ring" style="width:' + d + 'px;height:' + d + 'px"></div>';
+        rings += '<div class="ring-label" style="top:calc(50% - ' + (r * SCALE) + 'px - 10px)">r=' + r + '</div>';
+      }
+      // Hitbox ring for this Pokémon (pink)
+      const hd = hit * 2 * SCALE;
+      rings += '<div class="hit-ring" style="width:' + hd + 'px;height:' + hd + 'px" title="hitbox r=' + hit + '"></div>';
+
+      // Game draws sprites at PX=2 world units per source pixel.
+      // bodyRadius = clamp(w*0.22, 5, 26) * PX — hitbox is much smaller than the sprite.
+      // Screen: 1 world unit = SCALE px → 1 source pixel = 2 * SCALE screen px.
+      const pxPerSrc = 2 * SCALE;
+      const sprW = w * pxPerSrc;
+      const sprH = h * pxPerSrc;
+      const bgW = n * w * pxPerSrc;
+      const bgH = 8 * h * pxPerSrc;
+      // Anchor feet at center (bottom of Idle frame near center) — game uses feet at (x,y)
+      const sprStyle =
+        'width:' + sprW + 'px;height:' + sprH + 'px;' +
+        'background-image:url(\'' + spriteUrl(p.dex) + '\');' +
+        'background-size:' + bgW + 'px ' + bgH + 'px;' +
+        'background-position:0 0;background-repeat:no-repeat;' +
+        'left:50%;top:50%;transform:translate(-50%,-50%);position:absolute;';
+
+      stage.innerHTML = rings + '<div class="spr-wrap" style="' + sprStyle + '"></div>';
+      if (meta) {
+        meta.innerHTML = '#' + p.dex + ' · hitbox r=<b>' + hit + '</b> · frame ' + w + '×' + h +
+          ' · <span class="size-tag ' + (p.size || sizeClass(hit)) + '">' + (p.size || sizeClass(hit)) + '</span>';
+      }
+    }
+
+    function onCalcPokeChange() {
+      const name = (document.getElementById('calcPoke').value || '').trim();
+      const p = DEX.find(x => x.name.toLowerCase() === name.toLowerCase()) ||
+                DEX.find(x => matchSearch(x.name, name));
+      calcPoke = p || null;
+      const info = document.getElementById('calcPokeInfo');
+      if (info) {
+        if (p) {
+          info.innerHTML = '#' + p.dex + ' · ' + p.types.join('/') +
+            ' · <span class="size-tag ' + (p.size || sizeClass(p.hit)) + '">' + (p.size || sizeClass(p.hit)) + '</span>';
+        } else info.textContent = '';
+      }
+      // Remove moves no longer in pool
+      if (p) {
+        const pool = new Set(movesForPoke(p).map(m => m.id));
+        for (let s = 0; s < 4; s++) {
+          calcSlotsState[s] = calcSlotsState[s].filter(e => pool.has(e.id));
+        }
+      }
+      renderCalc();
+    }
+
+    function calcClear() {
+      calcSlotsState = [[], [], [], []];
+      calcPickCell = null;
+      const pk = document.getElementById('calcPicker');
+      if (pk) pk.style.display = 'none';
+      renderCalc();
+    }
+
+    function calcCellClick(slot, row) {
+      if (!calcPoke) {
+        alert('Select a Pokémon first');
+        return;
+      }
+      const cur = calcSlotsState[slot][row];
+      if (cur) {
+        // remove
+        calcSlotsState[slot].splice(row, 1);
+        renderCalc();
+        return;
+      }
+      calcPickCell = { slot, row };
+      showCalcPicker();
+    }
+
+    function showCalcPicker() {
+      const box = document.getElementById('calcPicker');
+      if (!box || !calcPoke) return;
+      const used = new Set(calcSlotsState.flat().map(e => e.id));
+      const pool = movesForPoke(calcPoke).filter(m => !used.has(m.id));
+      box.style.display = 'flex';
+      box.innerHTML = pool.length ? pool.map(m => {
+        const n = enName(m.name, m.id);
+        const c = TYPE_COLORS[m.type] || '#888';
+        return '<span class="pick" style="color:' + c + '" data-id="' + m.id + '">' + n +
+          (m.kind === 'buff' ? ' (buff)' : '') + '</span>';
+      }).join('') : '<span style="color:var(--muted)">No remaining moves for this Pokémon.</span>';
+      box.querySelectorAll('.pick').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = el.dataset.id;
+          const def = RAW.find(m => m.id === id);
+          if (!def || !calcPickCell) return;
+          const { slot } = calcPickCell;
+          if (calcSlotsState[slot].length >= 4) {
+            alert('Max 4 bonded moves per slot');
+            return;
+          }
+          calcSlotsState[slot].push({ id, evolved: !!EVO[id] });
+          calcPickCell = null;
+          box.style.display = 'none';
+          renderCalc();
+        });
+      });
+    }
+
+    function scoreCalculator() {
+      const cfg = getConfig();
+      const steps = [];
+      let base = 0;
+      const mainLabels = [];
+      let atkBuffInMain = null;
+      let atkBuffSide = null;
+
+      function resolveEntry(entry) {
+        const def = RAW.find(m => m.id === entry.id);
+        if (!def) return null;
+        const pre = enName(def.name, def.id);
+        if (def.kind === 'buff' && def.stat === 'atk') {
+          return { kind: 'buff', id: def.id, pre, amount: def.amount, stacks: def.stacks || 5, cd: def.cd, dur: def.dur, type: def.type };
+        }
+        if (def.kind === 'buff') return { kind: 'buff-other', id: def.id, pre, dps: 0, type: def.type };
+        const s = instance(def, 5, !!entry.evolved && !!EVO[def.id]);
+        const dps = Math.round(singleTargetDPS(s, cfg));
+        const tier = (entry.evolved && EVO[def.id]) ? 'Evo' : 'Lv5';
+        return { kind: 'dmg', id: def.id, pre, dps, tier, type: def.type };
+      }
+
+      for (const e of calcSlotsState[0]) {
+        const r = resolveEntry(e);
+        if (!r) continue;
+        if (r.kind === 'buff') atkBuffInMain = r;
+        else if (r.kind === 'dmg') { base += r.dps; mainLabels.push(r.pre + '(' + r.tier + ')=' + r.dps); }
+      }
+      for (let si = 1; si < 4; si++) {
+        for (const e of calcSlotsState[si]) {
+          const r = resolveEntry(e);
+          if (r && r.kind === 'buff' && !atkBuffSide) atkBuffSide = r;
+        }
+      }
+
+      steps.push('Main damage: ' + (mainLabels.join(' + ') || '0'));
+      steps.push('Base sum = ' + base);
+      let mult = 1, uptime = 1;
+      if (atkBuffInMain) {
+        const peak = atkBuffInMain.amount * atkBuffInMain.stacks;
+        mult = 1 + peak;
+        steps.push(atkBuffInMain.pre + ' in main → max stacks (+' + Math.round(peak * 100) + '%)');
+        steps.push('uptime 100%');
+      } else if (atkBuffSide) {
+        const peak = atkBuffSide.amount * atkBuffSide.stacks;
+        mult = 1 + peak;
+        uptime = atkBuffSide.dur / (atkBuffSide.dur + atkBuffSide.cd);
+        steps.push(atkBuffSide.pre + ' in side → peak +' + Math.round(peak * 100) + '%');
+        steps.push('uptime = ' + atkBuffSide.dur + '/(' + atkBuffSide.dur + '+' + atkBuffSide.cd + ') = ' + (uptime * 100).toFixed(1) + '%');
+      } else steps.push('No ATK buff');
+
+      const effective = Math.round(base * mult * uptime);
+      steps.push('Effective DPS = ' + base + ' × ' + mult.toFixed(2) + ' × ' + uptime.toFixed(3) + ' = ' + effective);
+      return { effective, steps };
+    }
+
+    function renderCalc() {
+      const body = document.getElementById('calcGridBody');
+      if (!body) return;
+      // 4 rows × 4 columns
+      let html = '';
+      for (let row = 0; row < 4; row++) {
+        html += '<tr><th>Bond ' + (row + 1) + '</th>';
+        for (let slot = 0; slot < 4; slot++) {
+          const entry = calcSlotsState[slot][row];
+          if (entry) {
+            const def = RAW.find(m => m.id === entry.id);
+            const pre = def ? enName(def.name, def.id) : entry.id;
+            const col = def ? (TYPE_COLORS[def.type] || '#ccc') : '#ccc';
+            const tier = def && def.kind === 'buff' ? 'buff' : (entry.evolved && EVO[entry.id] ? 'Evo' : 'Lv5');
+            html += '<td class="cell filled" onclick="calcCellClick(' + slot + ',' + row + ')">' +
+              '<span class="cell-move" style="color:' + col + '">' + pre + '</span>' +
+              '<div style="color:var(--muted);font-size:0.68rem">' + tier + '</div></td>';
+          } else {
+            html += '<td class="cell" onclick="calcCellClick(' + slot + ',' + row + ')" style="color:var(--muted)">+</td>';
+          }
+        }
+        html += '</tr>';
+      }
+      body.innerHTML = html;
+      const res = scoreCalculator();
+      const box = document.getElementById('calcResult');
+      if (box) {
+        box.innerHTML = '<div class="iname">Effective DPS: ' + res.effective + '</div>' +
+          '<div class="idesc">' + res.steps.join('<br>') + '</div>';
+      }
+      const info = document.getElementById('calcPokeInfo');
+      if (info && calcPoke) {
+        info.innerHTML = '#' + calcPoke.dex + ' · ' + calcPoke.types.join('/') +
+          ' · <span class="size-tag ' + (calcPoke.size || '') + '">' + (calcPoke.size || '') + '</span>';
+      }
+    }
+
+    function jumpToMove(id) {
+      if (!id) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'dps'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-dps'));
+       clearDpsTypes();
+      sortKey = 'lv5'; sortDir = -1;
+      renderDps();
+      requestAnimationFrame(() => {
+        let target = document.querySelector('#dpsBody tr[data-move-id="' + id + '"]');
+        if (!target) {
+          const def = RAW.find(m => m.id === id);
+          if (def && sm) {
+            sm.value = enName(def.name, def.id);
+            renderDps();
+            target = document.querySelector('#dpsBody tr[data-move-id="' + id + '"]');
+          }
+        }
+        if (target) {
+          target.classList.add('highlight-row');
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    }
+
+    document.querySelectorAll('th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.sort;
+        if (sortKey === key) sortDir *= -1;
+        else {
+          sortKey = key;
+          sortDir = ['name','type','kind'].includes(key) ? 1 : -1;
+        }
+        renderDps();
+      });
+    });
+
+    document.querySelectorAll('.poke-table th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.pokeSort;
+        if (pokeSortKey === key) pokeSortDir *= -1;
+        else {
+          pokeSortKey = key;
+          pokeSortDir = (key === 'name' || key === 'dex') ? 1 : -1;
+        }
+        renderPokedex();
+      });
+    });
+
+    function renderChangelog() {
+      const badge = document.getElementById('appVersionBadge');
+      if (badge) badge.textContent = 'v' + APP_VERSION;
+      const list = document.getElementById('changelogList');
+      if (!list) return;
+      list.innerHTML = CHANGELOG.map(c =>
+        '<div class="changelog-item item-row"><div class="iname"><span class="ver">v' + c.v +
+        '</span> · ' + c.date + '</div><ul>' +
+        c.items.map(i => '<li>' + i + '</li>').join('') + '</ul></div>'
+      ).join('');
+    }
+
+    function renderMechanics() {
+      const el = document.getElementById('mechanicsBody');
+      if (!el) return;
+      const groups = [
+        {
+          title: 'Damage (combat.js)',
+          items: [
+            'Hit pipeline: <code>dmg × typeK × (crit ? CRIT_MUL : 1)</code>',
+            '<code>typeK</code> = soft type chart vs target types × weather mult for attack type',
+            'Crit multiplier: <code>CRIT_MUL = 1.5</code>',
+            'Move flags can apply poison / burn / slow / knock on hit'
+          ]
+        },
+        {
+          title: 'Type chart (soft)',
+          items: [
+            'Super-effective ×1.6 · resist ×0.6 · immune ×0.3',
+            'Dual types multiply; result clamped to [0.3, 2.4]',
+            'Same values feed DPS Spawn-normalised weakness multi and the Weakness matrix'
+          ]
+        },
+        {
+          title: 'Weather (weather.js)',
+          items: [
+            'Starts after <code>FROM = 120</code>s; every <code>CHECK = 60</code>s has <code>CHANCE = 0.18</code> to roll',
+            'Duration ~55–75s; intensity fades in/out over 3s',
+            'Sun: Fire ×1.5, Water ×0.5 · Rain: Water ×1.5, Electric ×1.2, Fire ×0.5',
+            'Sand: Rock/Ground/Steel ×1.3 · Snow: Ice ×1.5 · Fog: Ghost/Fairy/Psychic ×1.3',
+            'Biome weights (forest / cave / volcano) change which weather is more likely',
+            'Toolkit Use weather avg folds ~18% uptime into a per-type overall mult'
+          ]
+        },
+        {
+          title: 'Move slots & buffs',
+          items: [
+            '4 move slots; only the <strong>active</strong> slot fires; bonded moves in a slot all tick',
+            'Buffs share the same slots as damage moves (no dedicated buff slot)',
+            'Buff in active slot: always on, uses one bond seat',
+            'Buff in another slot: switch to refresh — uptime ≈ dur / (dur + cd)',
+            'Combo tab Prefer switching toggles whether non-active buffs are considered'
+          ]
+        },
+        {
+          title: 'Hitbox & size',
+          items: [
+            'Collision radius: <code>clamp(Idle.w × 0.22, 5, 26) × PX</code> with <code>PX = 2</code>',
+            'Sprites draw at 2 world units per source pixel — body often larger than hitbox ring',
+            'Size tab rings mark r = 10, 20, … and the mon own hit radius'
+          ]
+        },
+        {
+          title: 'DoT approximations (toolkit)',
+          items: [
+            'Poison DoT uses config Ref enemy HP',
+            'Burn DoT uses config Ref player level',
+            'Toggle Include DoT on the DPS table to fold these into listed DPS'
+          ]
+        }
+      ];
+      el.innerHTML = groups.map(g =>
+        '<div class="mech-card"><h3>' + g.title + '</h3><ul>' +
+        g.items.map(i => '<li>' + i + '</li>').join('') +
+        '</ul></div>'
+      ).join('');
+    }
+
+    function recalcAll() {
+      const mob = document.getElementById('dpsMobbing');
+      if (mob && mob.checked) prefillAvgEnemyR();
+      if (typeof buildWeakAtkChips === 'function') buildWeakAtkChips();
+      if (typeof onDodgeOptionsChange === 'function' && DEX.length) { try { const med = medianHitRadius(); const hint = document.getElementById('dodgeOptionsHint'); if (hint) hint.textContent = 'baseline = ' + med.toFixed(2); } catch (e) {} }
+      if (typeof buildPokeTypeChips === 'function') buildPokeTypeChips();
+      recalcDps();
+      renderPokedex();
+      calcCombos();
+      renderItems();
+      renderEnemies();
+      populateCalcList();
+      renderCalc();
+      renderSizeView();
+      renderMechanics();
+      renderChangelog();
+      document.querySelectorAll('.table-wrap table').forEach(t => t.classList.add('compact'));
+    }
+
+    fetchAll();
+  </script>
 </body>
 </html>

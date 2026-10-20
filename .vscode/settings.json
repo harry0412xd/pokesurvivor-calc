@@ -1,0 +1,11 @@
+{
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportUndefinedVariable": "none",
+    "reportMissingImports": "none"
+  },
+  "python.analysis.extraPaths": [
+    "scripts/.erpnext-types/python-stubs"
+  ],
+  "javascript.validate.enable": true,
+  "typescript.validate.enable": true
+}
