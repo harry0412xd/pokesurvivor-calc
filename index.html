@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>PokéSurvivor Toolkit</title>
+  <title>PokéSurvivor Calc</title>
   <style>
 :root {
       --bg: #0f1419;
@@ -143,11 +143,20 @@
     tr:hover td { background: rgba(79,195,247,0.06); }
     .type-badge {
       display: inline-block;
-      padding: 0.08rem 0.35rem;
-      border-radius: 4px;
-      font-size: 0.65rem;
+      padding: 0.01rem 0.22rem;
+      border-radius: 3px;
+      font-size: 0.55rem;
       font-weight: 600;
       text-transform: uppercase;
+      line-height: 1.2;
+      letter-spacing: 0.02em;
+    }
+    .type-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      align-items: flex-start;
+      line-height: 1.05;
     }
     .cat-badge {
       font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.35rem; border-radius: 4px;
@@ -556,25 +565,245 @@ table.compact th, table.compact td,
   color: #64b5f6;
 }
 
+.global-poke-search-wrap {
+  position: relative;
+  margin-top: 0.35rem;
+  max-width: 280px;
+}
+.global-poke-search-wrap input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--border, #243044);
+  background: #0a1018;
+  color: var(--text, #e8eef7);
+}
+.global-poke-results {
+  position: absolute;
+  z-index: 40;
+  left: 0; right: 0;
+  top: 100%;
+  margin-top: 2px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #0e1620;
+  border: 1px solid var(--border, #243044);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+.global-poke-hit {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.45rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.global-poke-hit:hover, .global-poke-hit.active {
+  background: rgba(79, 195, 247, 0.12);
+}
+.global-poke-hit .hit-spr {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 4px;
+}
+.global-poke-hit .hit-meta { color: var(--muted, #9aa4b2); font-size: 0.72rem; }
+
+.score-w-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 3.6rem;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.8rem;
+}
+.score-w-row input[type="range"] { width: 100%; }
+.score-w-row input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.25rem 0.3rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border, #243044);
+  background: #0a1018;
+  color: var(--text, #e8eef7);
+}
+
+tr.dps-tm td:first-child { box-shadow: inset 3px 0 0 #ab47bc; }
+tr.dps-tm td:first-child::after {
+  content: ' TM';
+  font-size: 0.65rem;
+  color: #ce93d8;
+  font-weight: 700;
+}
+
+/* Compact raw stats */
+#panel-pokedex table.compact th.compact-stat,
+#panel-pokedex table.compact td.col-pa,
+#panel-pokedex table.compact td.col-sa,
+#panel-pokedex table.compact td.col-df,
+#panel-pokedex table.compact td.col-sd,
+#panel-pokedex table.compact td.col-hp,
+#panel-pokedex table.compact td.col-spd,
+#panel-pokedex table.compact td.col-hit,
+#panel-pokedex table.compact td.col-gen {
+  padding: 0.2rem 0.28rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+#panel-pokedex table.compact th {
+  padding: 0.28rem 0.32rem;
+  font-size: 0.72rem;
+}
+#panel-pokedex table.compact td {
+  padding: 0.22rem 0.32rem;
+  font-size: 0.78rem;
+}
+#panel-pokedex .table-wrap {
+  width: max-content;
+  max-width: 100%;
+}
+#panel-pokedex table {
+  width: auto;
+  table-layout: auto;
+}
+/* Multipliers tables fit content */
+#panel-weak .table-wrap,
+#panel-multipliers .table-wrap,
+.panel[id*="weak"] .table-wrap {
+  width: max-content;
+  max-width: 100%;
+}
+#panel-weak table,
+#panel-multipliers table {
+  width: auto !important;
+}
+.poke-cols-list label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  margin: 0.2rem 0;
+  cursor: pointer;
+}
+.scoring-modal select {
+  width: 100%;
+  box-sizing: border-box;
+}
+th.col-hidden, td.col-hidden { display: none !important; }
+
+.cell-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.05;
+  gap: 0;
+}
+.cell-val { font-size: inherit; }
+.cell-rank {
+  font-size: 0.6rem;
+  color: var(--muted, #9aa4b2);
+  font-weight: 500;
+}
+#panel-pokedex table th.col-hidden,
+#panel-pokedex table td.col-hidden {
+  display: none !important;
+}
+.poke-cols-list label.col-locked {
+  opacity: 0.75;
+}
+
+#pokeDetailTypes .type-chip { pointer-events: none; cursor: default; }
+.poke-stat-list { min-width: 168px; font-size: 0.8rem; }
+.poke-stat-table { width: 100%; border-collapse: collapse; border: none; }
+.poke-stat-table td { border: none !important; padding: 0.12rem 0.35rem 0.12rem 0; vertical-align: baseline; line-height: 1.25; }
+.poke-stat-table td.ps-name { color: var(--muted, #9aa4b2); padding-right: 0.55rem; white-space: nowrap; }
+.poke-stat-table td.ps-val { text-align: right; font-weight: 600; white-space: nowrap; }
+.poke-stat-table td.ps-rank { text-align: right; color: var(--muted, #9aa4b2); font-size: 0.72rem; padding-left: 0.45rem; white-space: nowrap; }
+
+.radar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+  font-size: 0.78rem;
+}
+.radar-leg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  color: var(--muted, #9aa4b2);
+  opacity: 0.45;
+  cursor: pointer;
+  user-select: none;
+}
+.radar-leg-item.on {
+  opacity: 1;
+  color: var(--text, #e8eef7);
+  border-color: var(--border, #243044);
+  background: rgba(255,255,255,0.03);
+}
+.radar-leg-item:first-child {
+  cursor: default;
+  opacity: 1;
+  color: var(--text, #e8eef7);
+}
+.radar-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.radar-head #pokeDetailTypes {
+  flex: 0 1 auto;
+}
+
+h1 .ver-badge {
+  font-size: 0.55em;
+  font-weight: 600;
+  color: var(--muted, #9aa4b2);
+  margin-left: 0.35rem;
+  vertical-align: middle;
+}
+.site-footer {
+  margin-top: 1.5rem;
+  padding: 0.75rem 0 0.25rem;
+  border-top: 1px solid var(--border, #243044);
+  font-size: 0.78rem;
+  color: var(--muted, #9aa4b2);
+}
+.site-footer a { color: var(--accent, #4fc3f7); }
+
   </style>
 </head>
 <body>
 <div class="container">
-    <h1>⚡ PokéSurvivor Toolkit</h1>
-    <p class="subtitle">
-      Live data from
-      <a href="https://github.com/JPTER78/pokesurvivor" target="_blank" rel="noopener">JPTER78/pokesurvivor</a>
-      · DPS · Pokédex · Mechanics · <span id="verInline">v2.0.0</span>
-    </p>
+    <h1>PokéSurvivor Calc <span id="verInline" class="ver-badge">v0</span></h1>
 
     <div id="globalPokeBar" class="global-poke-bar">
-      <div id="globalPokeSprite" class="global-poke-spr" aria-hidden="true"></div>
+      <div id="globalPokeSprite" class="global-poke-spr empty" aria-hidden="true"></div>
       <div class="global-poke-meta">
         <div class="global-poke-line">
           <strong id="globalPokeName">None</strong>
           <button type="button" class="btn-secondary global-poke-clear" onclick="clearGlobalPoke()">Clear</button>
         </div>
         <div id="globalPokeStats" class="global-poke-stats"></div>
+        <div class="global-poke-search-wrap">
+          <input type="text" id="globalPokeSearch" placeholder="Search Pokémon… (prefix or ~contains)" autocomplete="off"
+            oninput="onGlobalPokeSearch()" onkeydown="onGlobalPokeSearchKey(event)" />
+          <div id="globalPokeResults" class="global-poke-results" style="display:none"></div>
+        </div>
       </div>
     </div>
     <div class="tabs">
@@ -583,8 +812,7 @@ table.compact th, table.compact td,
       <div class="tab" data-tab="pokedex">Pokédex</div>
       <div class="tab" data-tab="combos">Best Combos</div>
       <div class="tab" data-tab="multipliers">Multipliers</div>
-      <div class="tab" data-tab="size">Size Compare</div>
-      <div class="tab" data-tab="items">Items</div>
+            <div class="tab" data-tab="items">Items</div>
       <div class="tab" data-tab="mechanics">Mechanics</div>
       <div class="tab" data-tab="changelog">Changelog</div>
       <div class="tab" data-tab="config">Config</div>
@@ -684,68 +912,67 @@ table.compact th, table.compact td,
 
     <div class="panel" id="panel-pokedex">
       <h2>Pokédex <span id="pokeCount" style="color:var(--muted);font-weight:400"></span></h2>
-      <div class="filters">
-        <div>
-          <label>Generation</label>
-          <select id="pokeGen" onchange="renderPokedex()">
-            <option value="">All gens</option>
-          </select>
-        </div>
+      <div class="filters poke-row1" style="align-items:flex-end">
         <div style="flex:1;min-width:160px">
           <label>Search</label>
           <input type="text" id="searchPoke" placeholder="prefix… or ~contains" oninput="renderPokedex()" />
         </div>
+        <div style="display:flex;gap:0.35rem;align-items:flex-end">
+          <button type="button" class="btn-secondary" id="scoreWeightsBtn" onclick="openScoreWeightsModal()" style="padding:0.3rem 0.55rem;font-size:0.78rem">Scoring</button>
+          <button type="button" class="btn-secondary" id="pokeColsBtn" onclick="openPokeColsModal()" style="padding:0.3rem 0.55rem;font-size:0.78rem">Columns</button>
+        </div>
       </div>
-      <div style="margin:0.35rem 0 0.5rem">
-        <label style="display:block;margin-bottom:0.25rem">Types (multi-select)</label>
+      <div class="poke-row2" style="margin:0.35rem 0 0.45rem">
         <div id="pokeTypeChips"></div>
-        <button class="btn-secondary" style="margin-top:0.3rem;padding:0.25rem 0.55rem;font-size:0.75rem" onclick="clearPokeTypes()">Clear types</button>
+        <button class="btn-secondary" style="margin-top:0.25rem;padding:0.2rem 0.5rem;font-size:0.72rem" onclick="clearPokeTypes()">Clear types</button>
       </div>
-      <div class="filters" style="margin:0.35rem 0 0.5rem;align-items:flex-end">
-        <div>
-          <label>Baseline r</label>
-          <select id="dodgeMedianMode" onchange="onDodgeOptionsChange()">
-            <option value="pokemon" selected>All Pokémon r</option>
-            <option value="distinct">Distinct r values</option>
-          </select>
-        </div>
-        <div>
-          <label>Evasion formula</label>
-          <select id="dodgeCurve" onchange="onDodgeOptionsChange()">
-            <option value="linear">med/r</option>
-            <option value="power15" selected>(med/r)^1.5</option>
-            <option value="soft">½·(med/r)+½·(med/r)²</option>
-            <option value="area">(med/r)²</option>
-          </select>
-        </div>
-        <div class="note" id="enemySideMix" style="margin:0;width:100%"></div>
-        <div class="note" id="dodgeOptionsHint" style="margin:0;flex:1;min-width:160px"></div>
+      <!-- gen / nature / baseline / eva live in Scoring modal; keep hidden selects for logic -->
+      <div style="display:none" aria-hidden="true">
+        <select id="pokeGen" onchange="renderPokedex()"><option value="">All gens</option></select>
+        <select id="natureModeSel" onchange="setNatureMode(this.value)">
+          <option value="best" selected>Best for score</option>
+          <option value="neutral">Neutral (no nature)</option>
+        </select>
+        <select id="dodgeMedianMode" onchange="onDodgeOptionsChange()">
+          <option value="pokemon" selected>All Pokémon r</option>
+          <option value="distinct">Distinct r values</option>
+        </select>
+        <select id="dodgeCurve" onchange="onDodgeOptionsChange()">
+          <option value="linear">med/r</option>
+          <option value="power15" selected>(med/r)^1.5</option>
+          <option value="soft">½·(med/r)+½·(med/r)²</option>
+          <option value="area">(med/r)²</option>
+        </select>
+        <span id="enemySideMix"></span>
+        <span id="dodgeOptionsHint"></span>
       </div>
       <div class="table-wrap">
         <table class="poke-table">
           <thead>
             <tr>
-              <th class="sortable text-left" data-poke-sort="dex" data-col-help="National Pokédex number."># <span class="arrow"></span></th>
-              <th class="sortable text-left" data-poke-sort="name" data-col-help="Species name. Click the sprite to select.">Name <span class="arrow"></span></th>
-              <th class="text-left" data-col-help="Typing for weakness multi, weather multi, and defense mults.">Type</th>
-              <th class="sortable" data-poke-sort="pa" data-col-help="Physical attack multi (mon.pa). Used by physical moves.">PA <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="sa" data-col-help="Special attack multi (mon.sa). Used by special moves.">SA <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="df" data-col-help="Base Defense (mon.df). Soft guard vs physical: clamp((75/df)^0.35, 0.78–1.25).">DF <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="sd" data-col-help="Base Sp. Defense (mon.sd). Soft guard vs special: clamp((75/sd)^0.35, 0.78–1.25).">SD <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="hp" data-col-help="Species base HP (level gains not included).">HP <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="spd" data-col-help="Species base speed.">SPD <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="hit" data-col-help="Collision radius r. Rank #1 = smallest.">r <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="typeM" data-col-help="Weakness multi (offense): spawn-weighted soft type chart.">weakness multi <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="wxM" data-col-help="Weather multi (offense).">weather multi <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="phyM" data-col-help="Physical dmg multi = PA × weakness multi × weather multi.">phy multi <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="speM" data-col-help="Special dmg multi = SA × weakness multi × weather multi.">spe multi <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="phyDefM" data-col-help="Incoming vs physical = type def × weather def × guard(DF). Lower = tankier vs physical.">phy def multi <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="speDefM" data-col-help="Incoming vs special = type def × weather def × guard(SD). Lower = tankier vs special.">spe def multi <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="dr" data-col-help="Damage reduction multi (incoming). Spawn-weighted: type × weather × guard(DF|SD) by enemy strong side (pa≥sa → physical). Lower = take less. ehp = eva / dr.">dr <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="eva" data-col-help="Evasion (eva) from baseline r and formula. Higher = harder to hit.">eva <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="ehp" data-col-help="ehp = eva / dr. Higher = tankier.">ehp <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="score" data-col-help="√(off′ × def′) with off = max(phy multi, spe multi) = better of PA/SA × weakness × weather; def = ehp" data-col-help="score = √(off' × def') using max(phy,spe) multi and ehp, median-normalized.">score <span class="arrow"></span></th>
-              <th class="sortable" data-poke-sort="gen" data-col-help="Generation.">Gen <span class="arrow"></span></th>
+              <th class="text-left sortable col-dex" data-col="dex" data-poke-sort="dex"># <span class="arrow"></span></th>
+              <th class="text-left col-name" data-col="name">Pokémon</th>
+              <th class="text-left col-types" data-col="types">Types</th>
+              <th class="sortable col-pa compact-stat" data-col="pa" data-poke-sort="pa" data-col-help="Species base physical attack multi from pokedex.js.">PA <span class="arrow"></span></th>
+              <th class="sortable col-sa compact-stat" data-col="sa" data-poke-sort="sa" data-col-help="Species base special attack multi from pokedex.js.">SA <span class="arrow"></span></th>
+              <th class="sortable col-paNat compact-stat" data-col="paNat" data-poke-sort="paNat" data-col-help="Nature-adjusted PA (Scoring → Nature: Best or Neutral).">PA★ <span class="arrow"></span></th>
+              <th class="sortable col-saNat compact-stat" data-col="saNat" data-poke-sort="saNat" data-col-help="Nature-adjusted SA (Scoring → Nature: Best or Neutral).">SA★ <span class="arrow"></span></th>
+              <th class="sortable col-df compact-stat" data-col="df" data-poke-sort="df" data-col-help="Defense base.">DF <span class="arrow"></span></th>
+              <th class="sortable col-sd compact-stat" data-col="sd" data-poke-sort="sd" data-col-help="Special defense base.">SD <span class="arrow"></span></th>
+              <th class="sortable col-hp compact-stat" data-col="hp" data-poke-sort="hp" data-col-help="Species base HP.">HP <span class="arrow"></span></th>
+              <th class="sortable col-spd compact-stat" data-col="spd" data-poke-sort="spd" data-col-help="Species base speed.">SPD <span class="arrow"></span></th>
+              <th class="sortable col-hit compact-stat" data-col="hit" data-poke-sort="hit" data-col-help="Collision radius r. Rank #1 = smallest.">r <span class="arrow"></span></th>
+              <th class="sortable col-typeM" data-col="typeM" data-poke-sort="typeM" data-col-help="Weakness multi (offense).">weak <span class="arrow"></span></th>
+              <th class="sortable col-wxM" data-col="wxM" data-poke-sort="wxM" data-col-help="Weather multi (offense).">wx <span class="arrow"></span></th>
+              <th class="sortable col-phyM" data-col="phyM" data-poke-sort="phyM" data-col-help="PA × weakness × weather.">phy <span class="arrow"></span></th>
+              <th class="sortable col-speM" data-col="speM" data-poke-sort="speM" data-col-help="SA × weakness × weather.">spe <span class="arrow"></span></th>
+              <th class="sortable col-phyDefM" data-col="phyDefM" data-poke-sort="phyDefM" data-col-help="Incoming vs physical.">pDef <span class="arrow"></span></th>
+              <th class="sortable col-speDefM" data-col="speDefM" data-poke-sort="speDefM" data-col-help="Incoming vs special.">sDef <span class="arrow"></span></th>
+              <th class="sortable col-dr" data-col="dr" data-poke-sort="dr" data-col-help="Damage reduction multi. ehp = eva / dr.">dr <span class="arrow"></span></th>
+              <th class="sortable col-eva" data-col="eva" data-poke-sort="eva" data-col-help="Evasion from baseline r + formula.">eva <span class="arrow"></span></th>
+              <th class="sortable col-ehp" data-col="ehp" data-poke-sort="ehp" data-col-help="ehp = eva / dr.">ehp <span class="arrow"></span></th>
+              <th class="sortable col-score" data-col="score" data-poke-sort="score" data-col-help="Weighted score from Scoring modal.">score <span class="arrow"></span></th>
+              <th class="sortable col-gen compact-stat" data-col="gen" data-poke-sort="gen">Gen <span class="arrow"></span></th>
             </tr>
           </thead>
           <tbody id="pokeBody"></tbody>
@@ -756,13 +983,8 @@ table.compact th, table.compact td,
     <div class="panel" id="panel-calc">
       <h2>DPS Calculator</h2>
       <div class="filters" style="margin-bottom:0.55rem">
-        <div style="flex:1;min-width:180px">
-          <label>Pokémon</label>
-          <input type="text" id="calcPoke" list="calcPokeList" placeholder="Search Pokémon…" onchange="onCalcPokeChange()" oninput="onCalcPokeChange()" />
-          <datalist id="calcPokeList"></datalist>
-        </div>
-        <div id="calcPokeInfo" style="align-self:center;color:var(--muted);font-size:0.8rem"></div>
-        <div style="align-self:flex-end">
+        <div id="calcPokeInfo" style="align-self:center;color:var(--muted);font-size:0.8rem">Uses selected Pokémon above</div>
+        <div style="align-self:flex-end;margin-left:auto">
           <button class="btn-secondary" onclick="calcClear()">Clear grid</button>
         </div>
       </div>
@@ -785,10 +1007,14 @@ table.compact th, table.compact td,
         <div class="iname">Effective DPS: —</div>
         <div class="idesc">Select a Pokémon and fill the grid.</div>
       </div>
+      <h3 style="margin:0.85rem 0 0.35rem;font-size:0.95rem">Size / range</h3>
+      <div id="sizePokeMeta" style="color:var(--muted);font-size:0.78rem;margin-bottom:0.3rem">Uses selected Pokémon above</div>
+      <div id="sizeView" class="size-stage"></div>
     </div>
 
     <div class="panel" id="panel-combos">
       <h2>Best Type Combos</h2>
+      <p class="note" style="margin:0 0 0.45rem;font-size:0.78rem">Uses the DPS tab Single / Mobbing mode and its mobbing options.</p>
       <div class="filters" style="margin-bottom:0.55rem;align-items:flex-end">
         <div>
           <label for="bondSize">Bond size (moves in active slot)</label>
@@ -809,24 +1035,6 @@ table.compact th, table.compact td,
         </div>
       </div>
       <div class="combo-list" id="comboList"></div>
-    </div>
-
-    <div class="panel" id="panel-size">
-      <h2>Size / Range Compare</h2>
-      <div class="filters">
-        <div style="flex:1;min-width:180px">
-          <label>Pokémon</label>
-          <input type="text" id="sizePoke" list="sizePokeList" placeholder="Search…" onchange="renderSizeView()" oninput="renderSizeView()" />
-          <datalist id="sizePokeList"></datalist>
-        </div>
-        <div id="sizePokeMeta" style="align-self:center;color:var(--muted);font-size:0.8rem"></div>
-      </div>
-      <div style="margin:0.25rem 0 0.5rem">
-        <label style="display:block;margin-bottom:0.2rem">Types (filter list)</label>
-        <div id="sizeTypeChips"></div>
-        <button class="btn-secondary" style="margin-top:0.25rem;padding:0.2rem 0.5rem;font-size:0.72rem" onclick="clearSizeTypes()">Clear types</button>
-      </div>
-      <div id="sizeView" class="size-stage"></div>
     </div>
 
     <div class="panel" id="panel-mechanics">
@@ -960,30 +1168,111 @@ table.compact th, table.compact td,
     </div>
   </div>
   <div id="tt"></div>
-  <div id="radarModal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)closeRadarModal()">
-    <div class="modal-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.4rem">
+  
+    <div id="scoreWeightsModal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)closeScoreWeightsModal()">
+      <div class="modal-card scoring-modal" style="max-width:24rem" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.55rem">
+          <h3 style="margin:0;font-size:1rem">Scoring</h3>
+          <button type="button" class="btn-secondary" style="padding:0.15rem 0.45rem;font-size:0.75rem" onclick="closeScoreWeightsModal()">Close</button>
+        </div>
+        <p style="margin:0 0 0.5rem;font-size:0.72rem;color:var(--muted)">score = off′^wOff × def′^wDef × spd′^wSpd</p>
+        <div class="score-w-row">
+          <label>Offensive</label>
+          <input type="range" id="swOffRange" min="0" max="2" step="0.05" value="1" oninput="syncScoreWeight('off', this.value, 'range')" />
+          <input type="number" id="swOffNum" min="0" max="2" step="0.05" value="1" onchange="syncScoreWeight('off', this.value, 'num')" />
+        </div>
+        <div class="score-w-row">
+          <label>Defensive</label>
+          <input type="range" id="swDefRange" min="0" max="2" step="0.05" value="1" oninput="syncScoreWeight('def', this.value, 'range')" />
+          <input type="number" id="swDefNum" min="0" max="2" step="0.05" value="1" onchange="syncScoreWeight('def', this.value, 'num')" />
+        </div>
+        <div class="score-w-row">
+          <label>Speed</label>
+          <input type="range" id="swSpdRange" min="0" max="2" step="0.05" value="0.25" oninput="syncScoreWeight('spd', this.value, 'range')" />
+          <input type="number" id="swSpdNum" min="0" max="2" step="0.05" value="0.25" onchange="syncScoreWeight('spd', this.value, 'num')" />
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border,#243044);margin:0.65rem 0" />
+        <div class="filters" style="margin:0;flex-direction:column;align-items:stretch;gap:0.4rem">
+          <div>
+            <label>Generation</label>
+            <select id="pokeGenModal" onchange="document.getElementById('pokeGen').value=this.value;renderPokedex()">
+              <option value="">All gens</option>
+            </select>
+          </div>
+          <div>
+            <label>Nature</label>
+            <select id="natureModeSelModal" onchange="document.getElementById('natureModeSel').value=this.value;setNatureMode(this.value)">
+              <option value="best" selected>Best for score</option>
+              <option value="neutral">Neutral (no nature)</option>
+            </select>
+          </div>
+          <div>
+            <label>Baseline r</label>
+            <select id="dodgeMedianModeModal" onchange="document.getElementById('dodgeMedianMode').value=this.value;onDodgeOptionsChange()">
+              <option value="pokemon" selected>All Pokémon r</option>
+              <option value="distinct">Distinct r values</option>
+            </select>
+          </div>
+          <div>
+            <label>Evasion formula</label>
+            <select id="dodgeCurveModal" onchange="document.getElementById('dodgeCurve').value=this.value;onDodgeOptionsChange()">
+              <option value="linear">med/r</option>
+              <option value="power15" selected>(med/r)^1.5</option>
+              <option value="soft">½·(med/r)+½·(med/r)²</option>
+              <option value="area">(med/r)²</option>
+            </select>
+          </div>
+          <div class="note" id="dodgeOptionsHintModal" style="margin:0"></div>
+        </div>
+        <div style="display:flex;gap:0.4rem;margin-top:0.65rem">
+          <button type="button" class="btn-secondary" style="font-size:0.78rem" onclick="resetScoreWeights()">Reset 1 / 1 / 0.25</button>
+          <button type="button" class="btn-secondary" style="font-size:0.78rem;margin-left:auto" onclick="applyScoreWeights()">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="pokeColsModal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)closePokeColsModal()">
+      <div class="modal-card" style="max-width:20rem" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+          <h3 style="margin:0;font-size:1rem">Table columns</h3>
+          <button type="button" class="btn-secondary" style="padding:0.15rem 0.45rem;font-size:0.75rem" onclick="closePokeColsModal()">Close</button>
+        </div>
+        <p style="margin:0 0 0.4rem;font-size:0.72rem;color:var(--muted)">Radar / detail still shows all stats</p>
+        <div id="pokeColsList" class="poke-cols-list"></div>
+        <div style="display:flex;gap:0.35rem;margin-top:0.55rem">
+          <button type="button" class="btn-secondary" style="font-size:0.75rem" onclick="resetPokeCols()">Defaults</button>
+          <button type="button" class="btn-secondary" style="font-size:0.75rem;margin-left:auto" onclick="applyPokeCols()">Apply</button>
+        </div>
+      </div>
+    </div>
+
+<div id="radarModal" class="modal-backdrop" style="display:none" onclick="if(event.target===this)closeRadarModal()">
+    <div class="modal-card radar-modal-card">
+      <div class="radar-head" style="display:flex;align-items:center;gap:0.45rem;margin-bottom:0.4rem;flex-wrap:wrap">
         <h3 id="pokeDetailTitle" style="margin:0">Pokémon</h3>
+        <div id="pokeDetailTypes" class="chip-row" style="margin:0"></div>
+        <select id="radarNatureSel" onchange="onRadarNatureChange()" style="font-size:0.75rem;max-width:9rem;margin-left:auto" title="Nature"></select>
         <button class="btn-secondary" style="padding:0.2rem 0.5rem;font-size:0.75rem" onclick="closeRadarModal()">Close</button>
       </div>
-      <div class="filters" style="margin-bottom:0.45rem;flex-wrap:wrap">
-        <div><label><input type="checkbox" id="radarAllAvg" checked onchange="drawPokeRadar()" /> All avg</label></div>
-        <div><label><input type="checkbox" id="radarTypeAvg" checked onchange="drawPokeRadar()" /> Per-type avg</label></div>
-        <div style="width:100%;font-size:0.72rem;color:var(--muted);margin-top:0.2rem">Axes</div>
-        <div id="radarAxisToggles" class="radar-axes"></div>
-      </div>
+      <div id="radarAxisToggles" class="radar-axes" style="margin-bottom:0.4rem"></div>
       <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:flex-start;justify-content:center">
         <canvas id="pokeRadar" width="260" height="260" style="background:#0a1018;border-radius:12px;border:1px solid var(--border)"></canvas>
-        <div id="pokeStatList" style="font-size:0.82rem;line-height:1.65;min-width:140px"></div>
+        <div id="pokeStatList" class="poke-stat-list"></div>
       </div>
+      <div id="radarLegend" class="radar-legend" style="margin-top:0.5rem"></div>
     </div>
   </div>
 
+  <footer id="siteFooter" class="site-footer">
+    <a href="https://github.com/JPTER78/pokesurvivor" target="_blank" rel="noopener">Game: JPTER78/pokesurvivor</a>
+  </footer>
+
 <script>
 /* PokéSurvivor Toolkit — static constants */
-const APP_VERSION = '2.0.5';
 
-const CACHE_KEY = 'pstk_data_v1';
+const CACHE_KEY = 'pstk_data_v2';
+const POKE_SEL_KEY = 'pstk_selected_dex';
+const SCORE_W_KEY = 'pstk_score_weights';
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 const TYPE_COLORS = {
@@ -1079,7 +1368,16 @@ const MECHANICS_GROUPS = [
           ]
         },
         {
-          title: 'Move slots & buffs',
+          title: 'Nature & TM (Kecleon update)',
+    items: [
+      'Nature: +10% one of PA/SA/DF/SD/SPD, −10% another (5 neutrals). Rolled once per account+dex (not species-fixed); Mint overrides.',
+      'Toolkit default: Best for score nature on each mon (toggle Neutral in Pokédex).',
+      'TM: teaches official off-type moves into the level-up / start pool. No damage penalty for off-type — same PA/SA × type chart × weather as any move.',
+      'Natural pool remains Normal + mon types; TM only adds compatible non-natural moves.'
+    ]
+  },
+  {
+    title: 'Move slots & buffs',
           items: [
             '4 move slots; only the <strong>active</strong> slot fires; bonded moves in a slot all tick',
             'Buffs share the same slots as damage moves (no dedicated buff slot)',
@@ -1115,9 +1413,73 @@ const MECHANICS_DROPS = [
         { src: 'Treasure goblin (Meowth / Gholdengo)', item: '—', t1: '—', t10: 'Gholdengo always', other: 'Many coins; Gholdengo also ticket ×10' }
       ];
 
+/** Game natures (natures.js): +10% up, −10% down; empty = neutral. */
+const NATURES = [{"id":"hardy","en":"Hardy","up":"","down":""},{"id":"bold","en":"Bold","up":"df","down":"pa"},{"id":"modest","en":"Modest","up":"sa","down":"pa"},{"id":"calm","en":"Calm","up":"sd","down":"pa"},{"id":"timid","en":"Timid","up":"spd","down":"pa"},{"id":"lonely","en":"Lonely","up":"pa","down":"df"},{"id":"docile","en":"Docile","up":"","down":""},{"id":"mild","en":"Mild","up":"sa","down":"df"},{"id":"gentle","en":"Gentle","up":"sd","down":"df"},{"id":"hasty","en":"Hasty","up":"spd","down":"df"},{"id":"adamant","en":"Adamant","up":"pa","down":"sa"},{"id":"impish","en":"Impish","up":"df","down":"sa"},{"id":"bashful","en":"Bashful","up":"","down":""},{"id":"careful","en":"Careful","up":"sd","down":"sa"},{"id":"rash","en":"Rash","up":"sa","down":"sd"},{"id":"jolly","en":"Jolly","up":"spd","down":"sa"},{"id":"naughty","en":"Naughty","up":"pa","down":"sd"},{"id":"lax","en":"Lax","up":"df","down":"sd"},{"id":"quirky","en":"Quirky","up":"","down":""},{"id":"naive","en":"Naive","up":"spd","down":"sd"},{"id":"brave","en":"Brave","up":"pa","down":"spd"},{"id":"relaxed","en":"Relaxed","up":"df","down":"spd"},{"id":"quiet","en":"Quiet","up":"sa","down":"spd"},{"id":"sassy","en":"Sassy","up":"sd","down":"spd"},{"id":"serious","en":"Serious","up":"","down":""}];
+const NATURE_BY = Object.fromEntries(NATURES.map(n => [n.id, n]));
+
+
 
 /* PokéSurvivor Toolkit — changelog */
 const CHANGELOG = [
+      { v: '2.2.10', date: '2026-10-22', items: [
+        'Combo pool includes TM moves (e.g. Dazzling Gleam on Xurkitree); show top 5 loadouts when a mon is selected',
+        'Pokédex: PA★/SA★ nature-adjusted columns (default); base PA/SA optional'
+      ]},
+      { v: '2.2.9', date: '2026-10-22', items: [
+        'Pokédex PA/SA/DF/SD/SPD columns show species base stats from pokedex.js; nature only affects derived multis and score'
+      ]},
+      { v: '2.2.8', date: '2026-10-22', items: [
+        'Calc/Combo: buffs use patk (physical) / satk (special) — Swords Dance no longer boosts special moves',
+        'Combo evaluates all learnable ATK buffs; shares DPS Single/Mobbing toggle'
+      ]},
+      { v: '2.2.7', date: '2026-10-22', items: [
+        'Fix: column visibility applied on first load / every pokedex render',
+        'Version badge reads latest CHANGELOG entry'
+      ]},
+      { v: '2.2.6', date: '2026-10-22', items: [
+        'Radar legend: each type avg toggles independently',
+        'Title: PokéSurvivor Calc + version from changelog; GitHub link in footer'
+      ]},
+      { v: '2.2.5', date: '2026-10-22', items: [
+        'Pokémon modal: types between # and nature (no Nature label); axes above chart; legend below with clickable avgs'
+      ]},
+      { v: '2.2.4', date: '2026-10-22', items: [
+        'Pokémon modal: type chips, axes+avg below radar, stats table name|value|rank',
+        'Column hide via stylesheet so sort/re-render keeps visibility'
+      ]},
+      { v: '2.2.3', date: '2026-10-22', items: [
+        'Pokédex columns: Pokémon always on; eva off by default; fixed header/body hide sync (v2 storage)',
+        'Rankable cells: value on top, rank below'
+      ]},
+      { v: '2.2.2', date: '2026-10-22', items: [
+        'Numbers: 4 significant figures, no trailing zeros (sig4)',
+        'Merged Size into Calculator (size below grids; type filter removed)',
+        'Pokédex type badges stacked, smaller'
+      ]},
+      { v: '2.2.1', date: '2026-10-22', items: [
+        'Pokédex layout: Search + Scoring/Columns · types · table',
+        'Scoring modal: weights + gen + nature + baseline r + eva formula',
+        'Columns modal (table only; radar still full stats); compact raw stat cols',
+        'Multiplier tables width: fit content'
+      ]},
+      { v: '2.2.0', date: '2026-10-22', items: [
+        'DPS: learnable includes live TMs (tms.js); TM rows marked when mon selected',
+        'Cache: GitHub main commit SHA check — skip re-fetch when up to date; TTL fallback',
+        'Pokédex Score weights modal: off/def/spd (default 1 / 1 / 0.25, step 0.05)'
+      ]},
+      { v: '2.1.0', date: '2026-10-22', items: [
+        'Natures: +10%/−10% on PA/SA/DF/SD/SPD; default Best-for-score (game has no species default — roll is per account+dex)',
+        'Pokédex Nature mode select + radar Nature dropdown',
+        'TM: off-type moves via compatibility list; no damage penalty for off-type'
+      ]},
+      { v: '2.0.7', date: '2026-10-20', items: [
+        'Selected Pokémon cached in localStorage; search with sprites in top bar',
+        'Calculator & Size use top selection only (local inputs removed)',
+        'DPS levels × PA or SA by move category when mon selected'
+      ]},
+      { v: '2.0.6', date: '2026-10-20', items: [
+        'Pokédex score cell tooltip: full off/def normalization steps'
+      ]},
       { v: '2.0.5', date: '2026-10-20', items: [
         'DPS: PHY / SPE category filter chips'
       ]},
@@ -1306,6 +1668,15 @@ const CHANGELOG = [
       ]}
     ];
 
+/** Latest version string from CHANGELOG (source of truth). */
+function latestChangelogVersion() {
+  if (typeof CHANGELOG !== 'undefined' && CHANGELOG && CHANGELOG.length && CHANGELOG[0] && CHANGELOG[0].v) {
+    return String(CHANGELOG[0].v).replace(/^v/i, '');
+  }
+  return '0';
+}
+var APP_VERSION = latestChangelogVersion();
+
 
 let RAW = [];
     let ALL_MOVES = [];
@@ -1319,6 +1690,8 @@ let RAW = [];
     let DEX = [];
     let ITEMS = [];
     let SPRITE_META = {};
+    let TM_OF = {}; // dex -> [moveId,...] from live tms.js
+    let TM_MOVES = {}; // moveId -> [dex,...]
     let dpsResults = [];
     let pokeSortKey = 'dex';
     let pokeSortDir = 1;
@@ -1341,6 +1714,180 @@ let RAW = [];
     let calcPoke = null; // selected mon
     let calcPickCell = null; // {slot, row}
     let tipPinned = false;
+
+    /** 'best' = nature that maxes score for each mon (default). 'neutral' = no nature. */
+    
+    const POKE_COL_DEFS = [
+      { id: 'dex', lab: '#', def: true },
+      { id: 'name', lab: 'Pokémon', def: true, locked: true },
+      { id: 'types', lab: 'Types', def: true },
+      { id: 'pa', lab: 'PA', def: false },
+      { id: 'sa', lab: 'SA', def: false },
+      { id: 'paNat', lab: 'PA★', def: true },
+      { id: 'saNat', lab: 'SA★', def: true },
+      { id: 'df', lab: 'DF', def: false },
+      { id: 'sd', lab: 'SD', def: false },
+      { id: 'hp', lab: 'HP', def: true },
+      { id: 'spd', lab: 'SPD', def: true },
+      { id: 'hit', lab: 'r', def: false },
+      { id: 'typeM', lab: 'weak', def: false },
+      { id: 'wxM', lab: 'wx', def: false },
+      { id: 'phyM', lab: 'phy multi', def: true },
+      { id: 'speM', lab: 'spe multi', def: true },
+      { id: 'phyDefM', lab: 'pDef', def: false },
+      { id: 'speDefM', lab: 'sDef', def: false },
+      { id: 'dr', lab: 'dr', def: false },
+      { id: 'eva', lab: 'eva', def: false },
+      { id: 'ehp', lab: 'ehp', def: true },
+      { id: 'score', lab: 'score', def: true },
+      { id: 'gen', lab: 'Gen', def: false }
+    ];
+    let pokeColVis = null;
+    const POKE_COLS_KEY = 'pstk_poke_cols_v3';
+    function defaultPokeCols() {
+      const o = {};
+      POKE_COL_DEFS.forEach(c => { o[c.id] = c.locked ? true : !!c.def; });
+      return o;
+    }
+    function loadPokeCols() {
+      pokeColVis = defaultPokeCols();
+      try {
+        const raw = localStorage.getItem(POKE_COLS_KEY);
+        if (!raw) return;
+        const o = JSON.parse(raw);
+        if (!o || typeof o !== 'object') return;
+        POKE_COL_DEFS.forEach(c => {
+          if (c.locked) { pokeColVis[c.id] = true; return; }
+          if (Object.prototype.hasOwnProperty.call(o, c.id)) pokeColVis[c.id] = !!o[c.id];
+        });
+      } catch (e) {}
+    }
+    loadPokeCols();
+    function isPokeColOn(id) {
+      if (!pokeColVis) loadPokeCols();
+      const def = POKE_COL_DEFS.find(c => c.id === id);
+      if (def && def.locked) return true;
+      return pokeColVis[id] === true;
+    }
+    function openPokeColsModal() {
+      const box = document.getElementById('pokeColsList');
+      const m = document.getElementById('pokeColsModal');
+      if (!box || !m) return;
+      box.innerHTML = POKE_COL_DEFS.map(c => {
+        if (c.locked) {
+          return '<label class="col-locked"><input type="checkbox" checked disabled data-col="' + c.id + '"/> ' + c.lab + ' <span style="color:var(--muted);font-size:0.7rem">(always)</span></label>';
+        }
+        return '<label><input type="checkbox" data-col="' + c.id + '"' + (isPokeColOn(c.id) ? ' checked' : '') + '/> ' + c.lab + '</label>';
+      }).join('');
+      m.style.display = 'flex';
+    }
+    function closePokeColsModal() {
+      const m = document.getElementById('pokeColsModal');
+      if (m) m.style.display = 'none';
+    }
+    function resetPokeCols() {
+      pokeColVis = defaultPokeCols();
+      try { localStorage.setItem(POKE_COLS_KEY, JSON.stringify(pokeColVis)); } catch (e) {}
+      openPokeColsModal();
+    }
+    function applyPokeCols() {
+      const box = document.getElementById('pokeColsList');
+      if (box) {
+        const next = defaultPokeCols();
+        box.querySelectorAll('input[data-col]').forEach(inp => {
+          const id = inp.dataset.col;
+          const def = POKE_COL_DEFS.find(c => c.id === id);
+          if (def && def.locked) next[id] = true;
+          else next[id] = !!inp.checked;
+        });
+        pokeColVis = next;
+        try { localStorage.setItem(POKE_COLS_KEY, JSON.stringify(pokeColVis)); } catch (e) {}
+      }
+      closePokeColsModal();
+      applyPokeColVisibility();
+    }
+    function applyPokeColVisibility() {
+      let el = document.getElementById('pokeColStyle');
+      if (!el) {
+        el = document.createElement('style');
+        el.id = 'pokeColStyle';
+        (document.head || document.documentElement).appendChild(el);
+      }
+      const rules = [];
+      POKE_COL_DEFS.forEach(c => {
+        if (isPokeColOn(c.id)) return;
+        rules.push(
+          '#panel-pokedex table th[data-col="' + c.id + '"],' +
+          '#panel-pokedex table td[data-col="' + c.id + '"]{display:none!important}'
+        );
+      });
+      el.textContent = rules.join('\n');
+    }
+
+    let natureMode = 'best';
+    let scoreW = { off: 1, def: 1, spd: 0.25 };
+    (function loadScoreW() {
+      try {
+        const raw = localStorage.getItem(typeof SCORE_W_KEY !== 'undefined' ? SCORE_W_KEY : 'pstk_score_weights');
+        if (!raw) return;
+        const o = JSON.parse(raw);
+        if (o && typeof o.off === 'number') scoreW = { off: +o.off, def: +o.def, spd: +o.spd };
+      } catch (e) {}
+    })();
+    /** Radar popup: override nature id for the viewed mon, or null = follow mode. */
+    let radarNatureId = null;
+    let radarShowAllAvg = true;
+    let radarShowTypeAvg = new Set(); // type names enabled in legend
+
+    function applyNatureToMon(base, natureId) {
+      if (!base) return base;
+      const n = natureId ? NATURE_BY[natureId] : null;
+      const m = Object.assign({}, base);
+      // reset from base numeric fields
+      ['pa','sa','df','sd','spd'].forEach(k => {
+        if (base[k] != null) m[k] = +base[k];
+      });
+      if (n && n.up && m[n.up] != null) m[n.up] = +base[n.up] * 1.1;
+      if (n && n.down && m[n.down] != null) m[n.down] = +base[n.down] * 0.9;
+      m.atk = Math.max(m.pa != null ? +m.pa : 0, m.sa != null ? +m.sa : 0) || base.atk;
+      m.nature = n ? n.id : null;
+      return m;
+    }
+
+    /** Score for a mon under a specific nature (does not mutate cache). */
+    function scoreUnderNature(base, natureId) {
+      const m = applyNatureToMon(base, natureId);
+      const o = pokeOffenseMults(m);
+      const d = pokeDefenseMults(m);
+      const off = Math.max(o.phyM || 0, o.speM || 0);
+      const def = d.ehp || 0;
+      const spd = m.spd != null ? +m.spd : 0;
+      const wo = scoreW.off, wd = scoreW.def, ws = scoreW.spd;
+      // absolute proxy (same exponents); good enough to pick best nature
+      return Math.pow(Math.max(1e-9, off), wo) * Math.pow(Math.max(1e-9, def), wd) * Math.pow(Math.max(1e-9, spd), ws);
+    }
+
+    function bestNatureIdFor(base) {
+      let bestId = null, best = -1;
+      for (const n of NATURES) {
+        const s = scoreUnderNature(base, n.id);
+        if (s > best) { best = s; bestId = n.id; }
+      }
+      return bestId;
+    }
+
+    function natureIdForMon(p) {
+      if (natureMode === 'neutral') return null;
+      // best by default
+      return p._bestNature || bestNatureIdFor(p);
+    }
+
+    function monWithNature(p, overrideId) {
+      const id = overrideId !== undefined ? overrideId : natureIdForMon(p);
+      return applyNatureToMon(p, id);
+    }
+
+
 
     let sortDir = -1;
 
@@ -1519,6 +2066,13 @@ let RAW = [];
     }
 
     function onDodgeOptionsChange() {
+      const r = onDodgeOptionsChangeInner();
+      const h = document.getElementById('dodgeOptionsHint');
+      const hm = document.getElementById('dodgeOptionsHintModal');
+      if (h && hm) hm.textContent = h.textContent || '';
+      return r;
+    }
+    function onDodgeOptionsChangeInner() {
       invalidatePokeCache();
       const med = medianHitRadius();
       const hint = document.getElementById('dodgeOptionsHint');
@@ -1979,9 +2533,20 @@ function dpsBreakdown(s, cfg) {
       return lines.join('');
     }
 
+    /** 4 significant figures, no trailing zeros. */
+    function sig4(n) {
+      if (n == null || n === '' || n === '—') return '—';
+      if (typeof n === 'string' && isNaN(+n)) return n;
+      const x = +n;
+      if (!isFinite(x)) return '—';
+      if (x === 0) return '0';
+      // toPrecision(4) then Number→String drops trailing zeros
+      return String(Number(x.toPrecision(4)));
+    }
+
     function fmt(n) {
       if (n == null || isNaN(n)) return '?';
-      return (Math.round(n * 100) / 100).toString();
+      return sig4(n);
     }
 
     // Tooltip positioning
@@ -2122,7 +2687,7 @@ function dpsBreakdown(s, cfg) {
         const raw = localStorage.getItem(CACHE_KEY);
         if (!raw) return null;
         const obj = JSON.parse(raw);
-        if (!obj || !obj.ts || !obj.movesSrc || !obj.dexSrc) return null;
+        if (!obj || !obj.ts || !obj.movesSrc || !obj.dexSrc) return null; // tmsSrc optional for old caches
         return obj;
       } catch (e) { return null; }
     }
@@ -2132,22 +2697,72 @@ function dpsBreakdown(s, cfg) {
       } catch (e) { /* quota */ }
     }
 
+    
+    async function fetchRepoHeadSha() {
+      try {
+        const r = await fetch('https://api.github.com/repos/JPTER78/pokesurvivor/commits/main?per_page=1', {
+          headers: { 'Accept': 'application/vnd.github+json' }
+        });
+        if (!r.ok) return null;
+        const j = await r.json();
+        const row = Array.isArray(j) ? j[0] : j;
+        return row && row.sha ? row.sha : null;
+      } catch (e) { return null; }
+    }
+
+    const DATA_URLS = {
+      moves: 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/moves.js',
+      dex: 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/pokedex.js',
+      lang: 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/lang-en.js',
+      items: 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/items.js',
+      meta: 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/sprites-meta.js',
+      enemies: 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/enemies.js',
+      spawner: 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/systems/spawner.js',
+      tms: 'https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/tms.js'
+    };
+
+    async function fetchText(url) {
+      const r = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now());
+      if (!r.ok) throw new Error(url.split('/').pop() + ' HTTP ' + r.status);
+      return r.text();
+    }
+
+    
+    function syncAppVersion() {
+      const v = (typeof latestChangelogVersion === 'function')
+        ? latestChangelogVersion()
+        : (typeof APP_VERSION !== 'undefined' ? String(APP_VERSION).replace(/^v/i, '') : null);
+      if (!v) return;
+      const el = document.getElementById('verInline');
+      if (el) el.textContent = 'v' + v;
+      try { document.title = 'PokéSurvivor Calc v' + v; } catch (e) {}
+    }
+
     async function fetchAll(force = false) {
       const status = document.getElementById('status');
       status.className = 'status loading';
 
       const cached = !force ? loadCache() : null;
+      let remoteSha = null;
+      try { remoteSha = await fetchRepoHeadSha(); } catch (e) {}
+
+      const cacheComplete = cached && cached.movesSrc && cached.dexSrc;
+      const shaMatch = cacheComplete && remoteSha && cached.sha && cached.sha === remoteSha;
       const age = cached ? (Date.now() - cached.ts) : Infinity;
-      const useCache = cached && age < CACHE_TTL_MS;
+      const ttlOk = cacheComplete && age < CACHE_TTL_MS;
+      // Prefer commit SHA match (up-to-date without re-downloading blobs). Fallback: TTL if API fails.
+      const useCache = !force && cacheComplete && (shaMatch || (!remoteSha && ttlOk));
 
       if (useCache) {
-        status.textContent = 'Loaded from cache (' + Math.round(age / 60000) + ' min old). Recheck every 1 h.';
+        status.textContent = shaMatch
+          ? ('Cache up to date (commit ' + (remoteSha || '').slice(0, 7) + ')')
+          : ('Loaded from cache (' + Math.round(age / 60000) + ' min old); GitHub API unreachable for SHA check');
       } else {
-        status.textContent = force ? 'Force-refreshing from GitHub…' : 'Fetching moves, pokedex, enemies, spawner…';
+        status.textContent = force ? 'Force-refreshing from GitHub…' : 'Fetching game data (moves, dex, TMs, …)…';
       }
 
       try {
-        let movesSrc, dexSrc, langSrc, itemsSrc, metaSrc, enemiesSrc = '', spawnerSrc = '';
+        let movesSrc, dexSrc, langSrc, itemsSrc, metaSrc, enemiesSrc = '', spawnerSrc = '', tmsSrc = '';
         if (useCache) {
           movesSrc = cached.movesSrc;
           dexSrc = cached.dexSrc;
@@ -2156,26 +2771,35 @@ function dpsBreakdown(s, cfg) {
           metaSrc = cached.metaSrc || '';
           enemiesSrc = cached.enemiesSrc || '';
           spawnerSrc = cached.spawnerSrc || '';
+          tmsSrc = cached.tmsSrc || '';
         } else {
-          const ts = Date.now();
-          const [movesRes, dexRes, langRes, itemsRes, metaRes] = await Promise.all([
-            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/moves.js?' + ts),
-            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/pokedex.js?' + ts),
-            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/lang-en.js?' + ts),
-            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/items.js?' + ts),
-            fetch('https://raw.githubusercontent.com/JPTER78/pokesurvivor/main/js/data/sprites-meta.js?' + ts)
-          ]);
-          if (!movesRes.ok) throw new Error('moves.js HTTP ' + movesRes.status);
-          if (!dexRes.ok) throw new Error('pokedex.js HTTP ' + dexRes.status);
-
-          movesSrc = await movesRes.text();
-          dexSrc = await dexRes.text();
-          langSrc = langRes.ok ? await langRes.text() : '';
-          itemsSrc = itemsRes.ok ? await itemsRes.text() : '';
-          metaSrc = metaRes.ok ? await metaRes.text() : '';
-          enemiesSrc = (typeof enemiesRes !== 'undefined' && enemiesRes.ok) ? await enemiesRes.text() : '';
-          spawnerSrc = (typeof spawnerRes !== 'undefined' && spawnerRes.ok) ? await spawnerRes.text() : '';
-          saveCache({ movesSrc, dexSrc, langSrc, itemsSrc, metaSrc, enemiesSrc, spawnerSrc });
+          const keys = Object.keys(DATA_URLS);
+          const texts = await Promise.all(keys.map(async k => {
+            try { return await fetchText(DATA_URLS[k]); }
+            catch (e) { console.warn(k, e); return ''; }
+          }));
+          const bag = {};
+          keys.forEach((k, i) => { bag[k] = texts[i]; });
+          movesSrc = bag.moves; dexSrc = bag.dex; langSrc = bag.lang;
+          itemsSrc = bag.items; metaSrc = bag.meta;
+          enemiesSrc = bag.enemies; spawnerSrc = bag.spawner; tmsSrc = bag.tms;
+          if (!movesSrc) throw new Error('moves.js missing');
+          if (!dexSrc) throw new Error('pokedex.js missing');
+          saveCache({
+            movesSrc, dexSrc, langSrc, itemsSrc, metaSrc, enemiesSrc, spawnerSrc, tmsSrc,
+            sha: remoteSha || null
+          });
+        }
+        parseTms(tmsSrc);
+        if (!Object.keys(TM_MOVES || {}).length) {
+          try {
+            tmsSrc = await fetchText(DATA_URLS.tms);
+            parseTms(tmsSrc);
+            if (cached) {
+              cached.tmsSrc = tmsSrc;
+              saveCache(Object.assign({}, cached, { tmsSrc: tmsSrc, sha: remoteSha || cached.sha }));
+            }
+          } catch (e) { console.warn('tms refresh', e); }
         }
 
         // Build Spanish → English map from lang-en.js
@@ -2342,6 +2966,8 @@ function dpsBreakdown(s, cfg) {
       }
       buildDpsKindChips(kinds);
       fill('pokeGen', gens, 'All gens');
+      const pgm = document.getElementById('pokeGenModal');
+      if (pgm) { pgm.innerHTML = document.getElementById('pokeGen').innerHTML; }
       buildPokeTypeChips(allTypes);
       buildDpsTypeChips(types);
       buildSizeTypeChips(allTypes);
@@ -3048,10 +3674,49 @@ function dpsBreakdown(s, cfg) {
     }
 
     /** Game poolFor: Normal + the mon's types. */
+    
+    function parseTms(src) {
+      TM_MOVES = {};
+      TM_OF = {};
+      if (!src) return;
+      const m = src.match(/G\.TM_MOVES\s*=\s*(\{[\s\S]*?\n\});/);
+      if (!m) {
+        // fallback: whole object
+        const m2 = src.match(/G\.TM_MOVES\s*=\s*(\{[\s\S]*\});?\s*(?:G\.|$)/);
+        if (!m2) return;
+        try { TM_MOVES = (0, eval)('(' + m2[1] + ')'); } catch (e) { console.warn('parseTms', e); return; }
+      } else {
+        try { TM_MOVES = (0, eval)('(' + m[1] + ')'); } catch (e) { console.warn('parseTms', e); return; }
+      }
+      for (const [mid, dexes] of Object.entries(TM_MOVES)) {
+        if (!Array.isArray(dexes)) continue;
+        for (const d of dexes) {
+          if (!TM_OF[d]) TM_OF[d] = [];
+          TM_OF[d].push(mid);
+        }
+      }
+    }
+
     function monCanLearn(mon, move) {
       if (!mon || !move) return true;
+      // Natural pool: Normal + mon types
       if (move.type === 'normal') return true;
-      return (mon.types || []).indexOf(move.type) >= 0;
+      if ((mon.types || []).indexOf(move.type) >= 0) return true;
+      // TM pool (live tms.js): off-type but compatible
+      const id = move.id;
+      if (!id || !TM_OF) return false;
+      const list = TM_OF[mon.dex];
+      if (list && list.indexOf(id) >= 0) return true;
+      // also accept if TM_MOVES[id] contains dex
+      if (TM_MOVES[id] && TM_MOVES[id].indexOf(mon.dex) >= 0) return true;
+      return false;
+    }
+
+    function isTmOnlyMove(mon, move) {
+      if (!mon || !move) return false;
+      if (move.type === 'normal') return false;
+      if ((mon.types || []).indexOf(move.type) >= 0) return false;
+      return monCanLearn(mon, move);
     }
 
     function recalcDps() {
@@ -3143,8 +3808,9 @@ function dpsBreakdown(s, cfg) {
         const lv = (n, v) => '<td class="tip ' + cls(v) + '" data-tip="lv" data-id="' + r.id + '" data-lv="' + n + '">' + v + '</td>';
         const catLabel = r.cat === 'physical' ? 'PHY' : (r.cat === 'special' ? 'SPE' : '—');
         const catCls = r.cat === 'physical' ? 'cat-phy' : (r.cat === 'special' ? 'cat-spe' : '');
-        return '<tr data-move-id="' + r.id + '" class="' + (usable ? '' : 'dps-unusable') + '" title="' +
-          (usable ? '' : 'Not learnable by selected Pokémon (pool = Normal + its types)') + '">' +
+        const tmOnly = usable && mon && isTmOnlyMove(mon, RAW.find(m => m.id === r.id) || r);
+        return '<tr data-move-id="' + r.id + '" class="' + (usable ? (tmOnly ? 'dps-tm' : '') : 'dps-unusable') + '" title="' +
+          (usable ? (tmOnly ? 'Learnable via TM (off-type)' : '') : 'Not learnable (need type match or TM)') + '">' +
           '<td class="text-left">' + r.name + '</td>' +
           '<td class="text-left"><span class="type-badge" style="background:' + color + '33;color:' + color + '">' + r.type + '</span></td>' +
           '<td class="text-left"><span class="kind-badge">' + r.kind + '</span></td>' +
@@ -3305,6 +3971,7 @@ function dpsBreakdown(s, cfg) {
     
     
     let POKE_CACHE_DIRTY = true;
+    let SCORE_MED_OFF = 1, SCORE_MED_DEF = 1;
     let POKE_CACHE_GEN = 0; // bump when dodge options / data change
 
     /**
@@ -3335,6 +4002,76 @@ function dpsBreakdown(s, cfg) {
       return map;
     }
 
+    
+    function openScoreWeightsModal() {
+      const m = document.getElementById('scoreWeightsModal');
+      if (!m) return;
+      const map = { off: 'Off', def: 'Def', spd: 'Spd' };
+      Object.keys(map).forEach(k => {
+        const v = +scoreW[k];
+        const range = document.getElementById('sw' + map[k] + 'Range');
+        const num = document.getElementById('sw' + map[k] + 'Num');
+        if (range) range.value = v;
+        if (num) num.value = v;
+      });
+      // sync gen options from hidden select
+      const srcGen = document.getElementById('pokeGen');
+      const dstGen = document.getElementById('pokeGenModal');
+      if (srcGen && dstGen) {
+        dstGen.innerHTML = srcGen.innerHTML;
+        dstGen.value = srcGen.value;
+      }
+      const pairs = [
+        ['natureModeSel', 'natureModeSelModal'],
+        ['dodgeMedianMode', 'dodgeMedianModeModal'],
+        ['dodgeCurve', 'dodgeCurveModal']
+      ];
+      pairs.forEach(([a, b]) => {
+        const s = document.getElementById(a), d = document.getElementById(b);
+        if (s && d) d.value = s.value;
+      });
+      const hint = document.getElementById('dodgeOptionsHint');
+      const hintM = document.getElementById('dodgeOptionsHintModal');
+      if (hint && hintM) hintM.textContent = hint.textContent || '';
+      m.style.display = 'flex';
+    }
+    function closeScoreWeightsModal() {
+      const m = document.getElementById('scoreWeightsModal');
+      if (m) m.style.display = 'none';
+    }
+    function syncScoreWeight(key, val, src) {
+      let v = parseFloat(val);
+      if (isNaN(v)) v = 0;
+      v = Math.max(0, Math.min(2, Math.round(v * 20) / 20)); // 0.05 steps
+      scoreW[key] = v;
+      const map = { off: 'Off', def: 'Def', spd: 'Spd' };
+      const range = document.getElementById('sw' + map[key] + 'Range');
+      const num = document.getElementById('sw' + map[key] + 'Num');
+      if (src === 'range' && num) num.value = v;
+      if (src === 'num' && range) range.value = v;
+    }
+    function resetScoreWeights() {
+      scoreW = { off: 1, def: 1, spd: 0.25 };
+      openScoreWeightsModal();
+    }
+    function applyScoreWeights() {
+      try {
+        localStorage.setItem(typeof SCORE_W_KEY !== 'undefined' ? SCORE_W_KEY : 'pstk_score_weights', JSON.stringify(scoreW));
+      } catch (e) {}
+      closeScoreWeightsModal();
+      DEX.forEach(p => { p._bestNature = undefined; p._cacheGen = -1; });
+      invalidatePokeCache();
+      if (typeof renderPokedex === 'function') renderPokedex();
+    }
+
+    function setNatureMode(mode) {
+      natureMode = mode === 'neutral' ? 'neutral' : 'best';
+      // clear best-nature cache keys
+      DEX.forEach(p => { p._bestNature = undefined; p._cacheGen = -1; });
+      invalidatePokeCache();
+      if (typeof renderPokedex === 'function') renderPokedex();
+      if (typeof drawPokeRadar === 'function') drawPokeRadar();
+    }
     function invalidatePokeCache() {
       POKE_CACHE_DIRTY = true;
       POKE_CACHE_GEN++;
@@ -3357,8 +4094,16 @@ function dpsBreakdown(s, cfg) {
     function ensurePokeMults(p) {
       if (!p) return p;
       if (p._cacheGen === POKE_CACHE_GEN && p.dr != null && p.phyM != null) return p;
-      const o = pokeOffenseMults(p);
-      const d = pokeDefenseMults(p);
+      if (!p._bestNature && typeof bestNatureIdFor === 'function') {
+        try { p._bestNature = bestNatureIdFor(p); } catch (e) { p._bestNature = null; }
+      }
+      const natId = natureIdForMon(p);
+      const m = monWithNature(p, natId);
+      p._natId = natId;
+      p._natPa = m.pa; p._natSa = m.sa; p._natDf = m.df; p._natSd = m.sd; p._natSpd = m.spd;
+      p.paNat = m.pa != null ? +m.pa : null; p.saNat = m.sa != null ? +m.sa : null;
+      const o = pokeOffenseMults(m);
+      const d = pokeDefenseMults(m);
       p.typeM = o.typeM; p.wxM = o.wxM; p.dmgM = o.dmgM;
       p.phyM = o.phyM; p.speM = o.speM;
       p.defM = d.defM; p.phyDefM = d.phyDefM; p.speDefM = d.speDefM;
@@ -3373,11 +4118,11 @@ function dpsBreakdown(s, cfg) {
       const curve = (typeof getDodgeCurve === 'function') ? getDodgeCurve() : 'power15';
       const expLabel = curve === 'linear' ? 'r¹' : (curve === 'power15' ? 'r¹·⁵' : (curve === 'soft' ? 'soft' : 'r²'));
       p._tip = {
-        typeM: 'spawn-weighted offensive coverage avg = ' + o.typeM.toFixed(3),
+        typeM: 'spawn-weighted offensive coverage avg = ' + sig4(o.typeM),
         wxM: (p.types || []).map(t => {
           const w = (WEATHER_AVG_MULT[t] != null) ? WEATHER_AVG_MULT[t] : 1;
           return w.toFixed(3) + ' (' + t + ')';
-        }).join(' avg ') + (p.types && p.types.length > 1 ? ' → ' + o.wxM.toFixed(3) : ' = ' + o.wxM.toFixed(3)),
+        }).join(' avg ') + (p.types && p.types.length > 1 ? ' → ' + sig4(o.wxM) : ' = ' + sig4(o.wxM)),
         phyM: fmtMultStep([
           { n: o.paM, label: 'PA' },
           { n: o.typeM, label: 'weakness multi' },
@@ -3398,12 +4143,12 @@ function dpsBreakdown(s, cfg) {
           { n: d.wxDefM, label: 'weather def' },
           { n: d.sdG, label: 'guard SD ' + (p.sd != null ? p.sd : '?') }
         ], d.speDefM),
-        dr: 'spawn-weighted incoming (type × weather × guard by enemy PA/SA side) = ' + d.dr.toFixed(3),
+        dr: 'spawn-weighted incoming (type × weather × guard by enemy PA/SA side) = ' + sig4(d.dr),
         dodge: fmtMultStep([
           { n: med, label: 'baseline r' },
           { n: r, label: 'this r' }
         ], d.dodge).replace(' * ', ' / ').replace(' = ', ' → (' + expLabel + ') = ')
-          || ((med / Math.max(0.01, r)).toFixed(3) + ' (baseline/r) ^ curve = ' + d.dodge.toFixed(3)),
+          || ((med / Math.max(0.01, r)).toFixed(3) + ' (baseline/r) ^ curve = ' + sig4(d.dodge)),
         ehp: fmtMultStep([
           { n: d.dodge, label: 'dodge' },
           { n: d.dr, label: 'dr' }
@@ -3413,13 +4158,13 @@ function dpsBreakdown(s, cfg) {
       {
         const ratio = med / Math.max(0.01, r);
         let step = ratio.toFixed(3) + ' (baseline ' + med.toFixed(2) + ' / r ' + (+r).toFixed(2) + ')';
-        if (curve === 'linear') p._tip.eva = p._tip.dodge = step + ' = ' + d.dodge.toFixed(3);
-        else if (curve === 'power15') p._tip.eva = p._tip.dodge = step + ' ^ 1.5 = ' + d.dodge.toFixed(3);
-        else if (curve === 'area') p._tip.eva = p._tip.dodge = step + ' ^ 2 = ' + d.dodge.toFixed(3);
-        else p._tip.eva = p._tip.dodge = step + ' (soft mix) = ' + d.dodge.toFixed(3);
+        if (curve === 'linear') p._tip.eva = p._tip.dodge = step + ' = ' + sig4(d.dodge);
+        else if (curve === 'power15') p._tip.eva = p._tip.dodge = step + ' ^ 1.5 = ' + sig4(d.dodge);
+        else if (curve === 'area') p._tip.eva = p._tip.dodge = step + ' ^ 2 = ' + sig4(d.dodge);
+        else p._tip.eva = p._tip.dodge = step + ' (soft mix) = ' + sig4(d.dodge);
       }
       // Fix ehp tip: division
-      p._tip.ehp = d.dodge.toFixed(3) + ' (dodge) / ' + d.dr.toFixed(3) + ' (dr) = ' + d.ehp.toFixed(3);
+      p._tip.ehp = sig4(d.dodge) + ' (dodge) / ' + sig4(d.dr) + ' (dr) = ' + sig4(d.ehp);
 
       p._cacheGen = POKE_CACHE_GEN;
       return p;
@@ -3438,9 +4183,11 @@ function dpsBreakdown(s, cfg) {
         ensurePokeMults(p);
       }
 
-      // Offense side of score = better of phy multi / spe multi (stronger of PA vs SA × type × weather)
+      // Weighted score: off′^wOff × def′^wDef × spd′^wSpd (defaults 1, 1, 0.25)
+      const wo = scoreW.off, wd = scoreW.def, ws = scoreW.spd;
       const offs = DEX.map(p => Math.max(p.phyM || 0, p.speM || 0)).filter(x => x > 0).sort((a, b) => a - b);
       const defs = DEX.map(p => p.ehp || 0).filter(x => x > 0).sort((a, b) => a - b);
+      const spds = DEX.map(p => (p._natSpd != null ? p._natSpd : p.spd) || 0).filter(x => x > 0).sort((a, b) => a - b);
       function med(arr) {
         if (!arr.length) return 1;
         const m = Math.floor(arr.length / 2);
@@ -3448,13 +4195,36 @@ function dpsBreakdown(s, cfg) {
       }
       const medOff = med(offs) || 1;
       const medDef = med(defs) || 1;
+      const medSpd = med(spds) || 1;
+      SCORE_MED_OFF = medOff;
+      SCORE_MED_DEF = medDef;
       for (const p of DEX) {
         const off = Math.max(p.phyM || 0, p.speM || 0);
-        p.score = Math.sqrt(Math.max(0, off / medOff) * Math.max(0, (p.ehp || 0) / medDef));
+        const def = p.ehp || 0;
+        const spd = (p._natSpd != null ? p._natSpd : p.spd) || 0;
+        const offP = Math.max(1e-9, off / medOff);
+        const defP = Math.max(1e-9, def / medDef);
+        const spdP = Math.max(1e-9, spd / medSpd);
+        p.score = Math.pow(offP, wo) * Math.pow(defP, wd) * Math.pow(spdP, ws);
+        p._scoreOff = off;
+        p._scoreDef = def;
+        p._scoreSpd = spd;
+        p._scoreOffP = offP;
+        p._scoreDefP = defP;
+        p._scoreSpdP = spdP;
+        const side = (p.phyM || 0) >= (p.speM || 0) ? 'phy' : 'spe';
+        p._tip = p._tip || {};
+        p._tip.score =
+          'nature = ' + (p._natId || 'neutral') +
+          ' · weights off/def/spd = ' + wo + '/' + wd + '/' + ws +
+          ' · off = max(phy,spe multi) = ' + off.toFixed(3) + ' (' + side + ') · off′ = ' + offP.toFixed(3) +
+          ' · def = ehp = ' + def.toFixed(3) + ' · def′ = ' + defP.toFixed(3) +
+          ' · spd = ' + (+spd).toFixed(1) + ' · spd′ = ' + spdP.toFixed(3) +
+          ' · score = off′^' + wo + ' × def′^' + wd + ' × spd′^' + ws + ' = ' + p.score.toFixed(3);
       }
 
       const higher = true, lower = false;
-      const keysHi = ['atk','pa','sa','df','sd','hp','spd','typeM','wxM','phyM','speM','dodge','eva','ehp','score','cov','dmgM'];
+      const keysHi = ['atk','pa','sa','paNat','saNat','df','sd','hp','spd','typeM','wxM','phyM','speM','dodge','eva','ehp','score','cov','dmgM'];
       const keysLo = ['hit','phyDefM','speDefM','dr','defM'];
       const maps = {};
       for (const k of keysHi) maps[k] = rankByTied(DEX, k, higher);
@@ -3537,53 +4307,91 @@ function dpsBreakdown(s, cfg) {
       const body = document.getElementById('pokeBody');
       if (!body) return;
       body.innerHTML = list.map(p => {
-        const badges = p.types.map(t => {
+        const badges = '<span class="type-stack">' + (p.types || []).map(t => {
           const c = TYPE_COLORS[t] || '#888';
           return '<span class="type-badge" style="background:' + c + '33;color:' + c + '">' + t + '</span>';
-        }).join(' ');
+        }).join('') + '</span>';
         ensurePokeMults(p);
         const hit = p.hit != null ? p.hit : bodyRadius(p.dex);
-        const o = { typeM: p.typeM, wxM: p.wxM, phyM: p.phyM, speM: p.speM, paM: p.pa != null ? p.pa : p.atk, saM: p.sa != null ? p.sa : p.atk, dmgM: p.dmgM };
+        // PA/SA columns = species base from pokedex.js (nature is applied only to derived multis / score)
+        const o = {
+          typeM: p.typeM, wxM: p.wxM, phyM: p.phyM, speM: p.speM, dmgM: p.dmgM,
+          paM: p.pa != null ? +p.pa : (p.atk != null ? +p.atk : null),
+          saM: p.sa != null ? +p.sa : (p.atk != null ? +p.atk : null)
+        };
         const d = { phyDefM: p.phyDefM, speDefM: p.speDefM, dr: p.dr, dodge: p.dodge, ehp: p.ehp, typeDefM: p.typeM, wxDefM: p.wxM, dfG: p.dfG, sdG: p.sdG };
         const rk = p.ranks || {};
         function st(val, rank, digits) {
-          const v = typeof val === 'number' ? (digits != null ? val.toFixed(digits) : val) : val;
-          return v + (rank ? ' <span style="color:var(--muted);font-size:0.7rem">#' + rank + '</span>' : '');
+          let v;
+          if (typeof val === 'number') v = sig4(val);
+          else if (val != null && val !== '—' && !isNaN(+val)) v = sig4(+val);
+          else v = (val == null ? '—' : val);
+          if (!rank) return '<span class="cell-stack"><span class="cell-val">' + v + '</span></span>';
+          return '<span class="cell-stack"><span class="cell-val">' + v + '</span><span class="cell-rank">#' + rank + '</span></span>';
         }
         const score = p.score != null ? p.score : 0;
         const rarCls = p.leg ? 'rarity-leg' : ('rarity-' + (p.rarity != null ? p.rarity : 1));
         return '<tr data-dex="' + p.dex + '" onclick="selectPokeDetail(' + p.dex + ')" style="cursor:pointer">' +
-          '<td class="text-left"><span class="dex-num ' + rarCls + '" title="' +
+          '<td data-col="dex" class="text-left"><span class="dex-num ' + rarCls + '" title="' +
             (p.leg ? 'Legendary/singular' : ('Rarity ' + (p.rarity != null ? p.rarity : '?'))) +
           '">#' + p.dex + '</span></td>' +
-          '<td class="text-left"><div class="poke-name-cell">' +
+          '<td data-col="name" class="text-left"><div class="poke-name-cell">' +
             '<div class="poke-spr poke-spr-btn" style="' + spriteStyle(p.dex, 40) + '" onclick="event.stopPropagation();useGlobalPoke(' + p.dex + ')" title="Select ' + p.name + '"></div>' +
             '<div><div class="pname">' + p.name + '</div></div></div></td>' +
-          '<td class="text-left">' + badges + '</td>' +
-          '<td>' + st(o.paM, rk.pa, 2) + '</td>' +
-          '<td>' + st(o.saM, rk.sa, 2) + '</td>' +
-          '<td>' + st(p.df != null ? p.df : '—', rk.df) + '</td>' +
-          '<td>' + st(p.sd != null ? p.sd : '—', rk.sd) + '</td>' +
-          '<td>' + st(p.hp, rk.hp) + '</td>' +
-          '<td>' + st(p.spd, rk.spd) + '</td>' +
-          '<td>' + st(Number(hit).toFixed(1), rk.hit) + '</td>' +
-          '<td class="' + multClass(o.typeM) + '" title="' + escTip(p._tip && p._tip.typeM) + '">' + o.typeM.toFixed(3) + '</td>' +
-          '<td title="' + escTip(p._tip && p._tip.wxM) + '">' + o.wxM.toFixed(3) + '</td>' +
-          '<td class="' + multClass(o.phyM) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.phyM) + '">' + o.phyM.toFixed(3) + '</td>' +
-          '<td class="' + multClass(o.speM) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.speM) + '">' + o.speM.toFixed(3) + '</td>' +
-          '<td class="' + multClassDef(d.phyDefM) + '" title="' + escTip(p._tip && p._tip.phyDefM) + '">' + d.phyDefM.toFixed(3) + '</td>' +
-          '<td class="' + multClassDef(d.speDefM) + '" title="' + escTip(p._tip && p._tip.speDefM) + '">' + d.speDefM.toFixed(3) + '</td>' +
-          '<td class="' + multClassDef(d.dr) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.dr) + '">' + d.dr.toFixed(3) + '</td>' +
-          '<td class="' + multClass(d.dodge) + '" title="' + escTip(p._tip && (p._tip.eva || p._tip.dodge)) + '">' + d.dodge.toFixed(3) + '</td>' +
-          '<td class="' + multClass(d.ehp) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.ehp) + '">' + d.ehp.toFixed(3) + '</td>' +
-          '<td style="font-weight:600;color:var(--accent2)">' + st(score, rk.score, 3) + '</td>' +
-          '<td>' + (p.gen || '—') + '</td>' +
+          '<td data-col="types" class="text-left">' + badges + '</td>' +
+          '<td data-col="pa" class="col-pa">' + st(o.paM, rk.pa, 2) + '</td>' +
+          '<td data-col="sa" class="col-sa">' + st(o.saM, rk.sa, 2) + '</td>' +
+          '<td data-col="paNat" class="col-paNat">' + st(p._natPa != null ? p._natPa : o.paM, rk.paNat, 2) + '</td>' +
+          '<td data-col="saNat" class="col-saNat">' + st(p._natSa != null ? p._natSa : o.saM, rk.saNat, 2) + '</td>' +
+          '<td data-col="df" class="col-df">' + st(p.df != null ? p.df : '—', rk.df) + '</td>' +
+          '<td data-col="sd" class="col-sd">' + st(p.sd != null ? p.sd : '—', rk.sd) + '</td>' +
+          '<td data-col="hp" class="col-hp">' + st(p.hp, rk.hp) + '</td>' +
+          '<td data-col="spd" class="col-spd">' + st(p.spd, rk.spd) + '</td>' +
+          '<td data-col="hit" class="col-hit">' + st(Number(hit).toFixed(1), rk.hit) + '</td>' +
+          '<td data-col="typeM" class="' + multClass(o.typeM) + '" title="' + escTip(p._tip && p._tip.typeM) + '">' + sig4(o.typeM) + '</td>' +
+          '<td data-col="wxM" title="' + escTip(p._tip && p._tip.wxM) + '">' + sig4(o.wxM) + '</td>' +
+          '<td data-col="phyM" class="' + multClass(o.phyM) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.phyM) + '">' + sig4(o.phyM) + '</td>' +
+          '<td data-col="speM" class="' + multClass(o.speM) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.speM) + '">' + sig4(o.speM) + '</td>' +
+          '<td data-col="phyDefM" class="' + multClassDef(d.phyDefM) + '" title="' + escTip(p._tip && p._tip.phyDefM) + '">' + sig4(d.phyDefM) + '</td>' +
+          '<td data-col="speDefM" class="' + multClassDef(d.speDefM) + '" title="' + escTip(p._tip && p._tip.speDefM) + '">' + sig4(d.speDefM) + '</td>' +
+          '<td data-col="dr" class="' + multClassDef(d.dr) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.dr) + '">' + sig4(d.dr) + '</td>' +
+          '<td data-col="eva" class="' + multClass(d.dodge) + '" title="' + escTip(p._tip && (p._tip.eva || p._tip.dodge)) + '">' + sig4(d.dodge) + '</td>' +
+          '<td data-col="ehp" class="' + multClass(d.ehp) + '" style="font-weight:600" title="' + escTip(p._tip && p._tip.ehp) + '">' + sig4(d.ehp) + '</td>' +
+          '<td data-col="score" style="font-weight:600;color:var(--accent2)" title="' + escTip(p._tip && p._tip.score) + '">' + st(score, rk.score, 3) + '</td>' +
+          '<td data-col="gen" class="col-gen">' + (p.gen || '—') + '</td>' +
           '</tr>';
       }).join('');
+      applyPokeColVisibility();
     }
 
     let selectedPokeDex = null;
 
+    function fillRadarNatureSel(p) {
+      const sel = document.getElementById('radarNatureSel');
+      if (!sel || !p) return;
+      const cur = radarNatureId || natureIdForMon(p) || '';
+      sel.innerHTML = '<option value="">' + (natureMode === 'best' ? 'Best (' + (p._bestNature || bestNatureIdFor(p) || '—') + ')' : 'Neutral') + '</option>' +
+        NATURES.map(n => {
+          const up = n.up ? ('+' + n.up) : '±';
+          const down = n.down ? ('−' + n.down) : '';
+          return '<option value="' + n.id + '"' + (n.id === cur ? ' selected' : '') + '>' + n.en + ' (' + up + (down ? ' ' + down : '') + ')</option>';
+        }).join('');
+      if (cur) sel.value = cur;
+    }
+    function toggleRadarAvg(which, typeName) {
+      if (which === 'all') {
+        radarShowAllAvg = !radarShowAllAvg;
+      } else if (which === 'type' && typeName) {
+        if (radarShowTypeAvg.has(typeName)) radarShowTypeAvg.delete(typeName);
+        else radarShowTypeAvg.add(typeName);
+      }
+      drawPokeRadar();
+    }
+    function onRadarNatureChange() {
+      const sel = document.getElementById('radarNatureSel');
+      radarNatureId = sel && sel.value ? sel.value : null;
+      if (typeof drawPokeRadar === 'function') drawPokeRadar();
+    }
     function selectPokeDetail(dex) {
       selectedPokeDex = dex;
       document.querySelectorAll('#pokeBody tr').forEach(tr => {
@@ -3591,11 +4399,23 @@ function dpsBreakdown(s, cfg) {
       });
       const p = DEX.find(x => x.dex === dex);
       if (!p) return;
+      radarNatureId = null;
+      fillRadarNatureSel(p);
       const modal = document.getElementById('radarModal');
       if (modal) modal.style.display = 'flex';
       document.getElementById('pokeDetailTitle').innerHTML =
         '<div class="poke-spr" style="display:inline-block;vertical-align:middle;margin-right:0.45rem;' + spriteStyle(p.dex, 48) + '"></div>' +
-        p.name + ' <span style="color:var(--muted);font-weight:400">#' + p.dex + ' · ' + p.types.join('/') + '</span>';
+        p.name + ' <span style="color:var(--muted);font-weight:400">#' + p.dex + '</span>';
+      const typeBox = document.getElementById('pokeDetailTypes');
+      if (typeBox) {
+        typeBox.innerHTML = (p.types || []).map(t => {
+          const c = TYPE_COLORS[t] || '#888';
+          return '<span class="type-chip on" style="--tc:' + c + ';background:' + c + ';color:#111;border-color:' + c + '">' + t + '</span>';
+        }).join('');
+      }
+      // default: each of this mon's types enabled for type-avg polygons
+      radarShowTypeAvg = new Set(p.types || []);
+      radarShowAllAvg = true;
       drawPokeRadar();
     }
 
@@ -3665,13 +4485,33 @@ function dpsBreakdown(s, cfg) {
     
     function radarStatsFor(p) {
       ensurePokeMults(p);
+      let src = p;
+      if (p && selectedPokeDex === p.dex && radarNatureId) {
+        src = monWithNature(p, radarNatureId);
+        // recompute multis for this override without polluting cache
+        const o = pokeOffenseMults(src);
+        const d = pokeDefenseMults(src);
+        return {
+          pa: src.pa != null ? +src.pa : (src.atk || 0),
+          sa: src.sa != null ? +src.sa : (src.atk || 0),
+          df: src.df != null ? +src.df : 75,
+          sd: src.sd != null ? +src.sd : 75,
+          hp: src.hp || 0,
+          spd: src.spd || 0,
+          hit: p.hit != null ? +p.hit : pokeHit(p),
+          typeM: o.typeM, wxM: o.wxM, phyM: o.phyM, speM: o.speM,
+          phyDefM: d.phyDefM, speDefM: d.speDefM, dr: d.dr, dodge: d.dodge, eva: d.dodge,
+          ehp: d.ehp, score: Math.sqrt(Math.max(0, Math.max(o.phyM, o.speM)) * Math.max(0, d.ehp)),
+          cov: o.typeM, dmgM: o.dmgM, defM: d.defM
+        };
+      }
       return {
-        pa: p.pa != null ? +p.pa : (p.atk || 0),
-        sa: p.sa != null ? +p.sa : (p.atk || 0),
-        df: p.df != null ? +p.df : 75,
-        sd: p.sd != null ? +p.sd : 75,
+        pa: (p._natPa != null ? p._natPa : p.pa) != null ? +(p._natPa != null ? p._natPa : p.pa) : (p.atk || 0),
+        sa: (p._natSa != null ? p._natSa : p.sa) != null ? +(p._natSa != null ? p._natSa : p.sa) : (p.atk || 0),
+        df: (p._natDf != null ? p._natDf : p.df) != null ? +(p._natDf != null ? p._natDf : p.df) : 75,
+        sd: (p._natSd != null ? p._natSd : p.sd) != null ? +(p._natSd != null ? p._natSd : p.sd) : 75,
         hp: p.hp || 0,
-        spd: p.spd || 0,
+        spd: (p._natSpd != null ? p._natSpd : p.spd) || 0,
         hit: p.hit != null ? +p.hit : pokeHit(p),
         typeM: p.typeM != null ? p.typeM : 1,
         wxM: p.wxM != null ? p.wxM : 1,
@@ -3778,50 +4618,53 @@ function dpsBreakdown(s, cfg) {
       });
 
       const TYPE_LINE = ['#ffb74d', '#ce93d8', '#80cbc4', '#ef9a9a', '#90caf9'];
-      const showAll = document.getElementById('radarAllAvg')?.checked;
-      const showType = document.getElementById('radarTypeAvg')?.checked;
+      const showAll = !!radarShowAllAvg;
       if (showAll) poly(avgStats(DEX), '#78909c', 'rgba(120,144,156,0.12)', 1.5);
-      const typeLegend = [];
-      if (showType) {
-        p.types.forEach((t, idx) => {
-          const pool = DEX.filter(x => x.types.includes(t));
-          const col = TYPE_COLORS[t] || TYPE_LINE[idx % TYPE_LINE.length];
-          poly(avgStats(pool), col, null, 1.5);
-          typeLegend.push({ t, col, n: pool.length });
-        });
-      }
+      const typeLegend = (p.types || []).map((t, idx) => {
+        const pool = DEX.filter(x => x.types.includes(t));
+        const col = TYPE_COLORS[t] || (typeof TYPE_LINE !== 'undefined' ? TYPE_LINE[idx % TYPE_LINE.length] : '#888');
+        const on = radarShowTypeAvg.has(t);
+        if (on) poly(avgStats(pool), col, null, 1.5);
+        return { t, col, n: pool.length, on };
+      });
       poly(radarStatsFor(p), '#4fc3f7', 'rgba(79,195,247,0.22)', 2.5);
 
-      const rk = p.ranks || {};
-      if (listEl) {
-        let leg = '<div><span style="color:#4fc3f7">●</span> This Pokémon</div>';
-        if (showAll) leg += '<div><span style="color:#78909c">●</span> All avg</div>';
+      // Legend below chart — each type avg toggles independently
+      const legEl = document.getElementById('radarLegend');
+      if (legEl) {
+        let leg = '<div class="radar-leg-item on"><span class="radar-dot" style="background:#4fc3f7"></span> This Pokémon</div>';
+        leg += '<div class="radar-leg-item' + (showAll ? ' on' : '') + '" onclick="toggleRadarAvg(\'all\')" title="Toggle all-average polygon">' +
+          '<span class="radar-dot" style="background:#78909c"></span> All avg</div>';
         typeLegend.forEach(x => {
-          leg += '<div><span style="color:' + x.col + '">●</span> ' + x.t + ' avg (' + x.n + ')</div>';
+          leg += '<div class="radar-leg-item' + (x.on ? ' on' : '') + '" onclick="toggleRadarAvg(\'type\',\'' + x.t + '\')" title="Toggle ' + x.t + ' average">' +
+            '<span class="radar-dot" style="background:' + x.col + '"></span> ' + x.t + ' avg (' + x.n + ')</div>';
         });
-        ensurePokeMults(p);
+        legEl.innerHTML = leg;
+      }
+
+      ensurePokeMults(p);
       recomputeCompositeScores();
+      const stats = radarStatsFor(p);
       const fmtV = (k) => {
-        const v = p[k];
+        const v = stats[k] != null ? stats[k] : p[k];
         if (v == null) return '—';
-        if (k === 'hp' || k === 'spd') return String(v);
-        if (k === 'hit') return Number(v).toFixed(1);
-        if (k === 'atk') return Number(v).toFixed(2);
-        return Number(v).toFixed(3);
+        return sig4(v);
       };
       const rankOf = (k) => {
         const map = { atk: 'atk', hp: 'hp', spd: 'spd', hit: 'hit', cov: 'cov', typeM: 'cov', dmgM: 'dmgM', eva: 'eva', ehp: 'ehp', score: 'score' };
         const rkKey = map[k] || k;
         return (p.ranks && p.ranks[rkKey]) ? '#' + p.ranks[rkKey] : '';
       };
-      const rows = keys.map(k =>
-        '<div>' + labels[keys.indexOf(k)] + ' <b>' + fmtV(k) + '</b> <span style="color:var(--muted)">' + rankOf(k) + '</span></div>'
-      ).join('');
-      listEl.innerHTML = leg +
-          '<hr style="border-color:var(--border);margin:0.45rem 0">' +
-          rows +
-          '<div style="margin-top:0.35rem">score <b>' + (p.score != null ? p.score.toFixed(3) : '—') + '</b> <span style="color:var(--muted)">' + rankOf('score') + '</span></div>' +
-          '<div style="margin-top:0.4rem"><button class="btn-primary" style="padding:0.25rem 0.6rem;font-size:0.75rem" onclick="useGlobalPoke(' + p.dex + ');closeRadarModal()">Select</button></div>';
+      const rowHtml = (name, val, rank) =>
+        '<tr><td class="ps-name">' + name + '</td><td class="ps-val">' + val + '</td><td class="ps-rank">' + (rank || '') + '</td></tr>';
+      let tableRows = keys.map(k => rowHtml(labels[keys.indexOf(k)], fmtV(k), rankOf(k))).join('');
+      if (keys.indexOf('score') < 0) {
+        tableRows += rowHtml('score', p.score != null ? sig4(p.score) : '—', rankOf('score'));
+      }
+      if (listEl) {
+        listEl.innerHTML =
+          '<table class="poke-stat-table"><tbody>' + tableRows + '</tbody></table>' +
+          '<div style="margin-top:0.45rem"><button class="btn-primary" style="padding:0.25rem 0.6rem;font-size:0.75rem" onclick="useGlobalPoke(' + p.dex + ');closeRadarModal()">Select</button></div>';
       }
     }
 
@@ -3856,22 +4699,101 @@ function dpsBreakdown(s, cfg) {
       }
     }
 
+    
+    function saveSelectedPoke(dex) {
+      try {
+        if (dex == null) localStorage.removeItem(typeof POKE_SEL_KEY !== 'undefined' ? POKE_SEL_KEY : 'pstk_selected_dex');
+        else localStorage.setItem(typeof POKE_SEL_KEY !== 'undefined' ? POKE_SEL_KEY : 'pstk_selected_dex', String(dex));
+      } catch (e) {}
+    }
+    function loadSelectedPokeDex() {
+      try {
+        const key = typeof POKE_SEL_KEY !== 'undefined' ? POKE_SEL_KEY : 'pstk_selected_dex';
+        const v = localStorage.getItem(key);
+        if (v == null || v === '') return null;
+        const n = parseInt(v, 10);
+        return isNaN(n) ? null : n;
+      } catch (e) { return null; }
+    }
+    function restoreSelectedPoke() {
+      const dex = loadSelectedPokeDex();
+      if (dex == null || !DEX.length) return;
+      if (DEX.some(p => p.dex === dex)) useGlobalPoke(dex);
+    }
+
+    let globalPokeSearchIdx = -1;
+
+    function onGlobalPokeSearch() {
+      const inp = document.getElementById('globalPokeSearch');
+      const box = document.getElementById('globalPokeResults');
+      if (!inp || !box || !DEX.length) return;
+      const q = inp.value.trim();
+      if (!q) { box.style.display = 'none'; box.innerHTML = ''; globalPokeSearchIdx = -1; return; }
+      const hits = DEX.filter(p => matchSearch(p.name, q) || matchSearch(String(p.dex), q)).slice(0, 12);
+      if (!hits.length) {
+        box.innerHTML = '<div class="global-poke-hit" style="cursor:default;color:var(--muted)">No matches</div>';
+        box.style.display = 'block';
+        globalPokeSearchIdx = -1;
+        return;
+      }
+      globalPokeSearchIdx = 0;
+      box.innerHTML = hits.map((p, i) =>
+        '<div class="global-poke-hit' + (i === 0 ? ' active' : '') + '" data-dex="' + p.dex + '" onmousedown="event.preventDefault();useGlobalPoke(' + p.dex + ');closeGlobalPokeSearch()">' +
+          '<div class="hit-spr" style="' + spriteStyle(p.dex, 32) + '"></div>' +
+          '<div><div>' + p.name + '</div><div class="hit-meta">#' + p.dex + ' · ' + (p.types || []).join('/') +
+          ' · PA ' + (p.pa != null ? (+p.pa).toFixed(2) : '—') + ' · SA ' + (p.sa != null ? (+p.sa).toFixed(2) : '—') + '</div></div></div>'
+      ).join('');
+      box.style.display = 'block';
+    }
+    function closeGlobalPokeSearch() {
+      const box = document.getElementById('globalPokeResults');
+      const inp = document.getElementById('globalPokeSearch');
+      if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+      if (inp) inp.value = '';
+      globalPokeSearchIdx = -1;
+    }
+    function onGlobalPokeSearchKey(ev) {
+      const box = document.getElementById('globalPokeResults');
+      if (!box || box.style.display === 'none') {
+        if (ev.key === 'Escape') closeGlobalPokeSearch();
+        return;
+      }
+      const hits = [...box.querySelectorAll('.global-poke-hit[data-dex]')];
+      if (!hits.length) return;
+      if (ev.key === 'ArrowDown') {
+        ev.preventDefault();
+        globalPokeSearchIdx = Math.min(hits.length - 1, globalPokeSearchIdx + 1);
+      } else if (ev.key === 'ArrowUp') {
+        ev.preventDefault();
+        globalPokeSearchIdx = Math.max(0, globalPokeSearchIdx - 1);
+      } else if (ev.key === 'Enter') {
+        ev.preventDefault();
+        const el = hits[Math.max(0, globalPokeSearchIdx)];
+        if (el) { useGlobalPoke(+el.dataset.dex); closeGlobalPokeSearch(); }
+        return;
+      } else if (ev.key === 'Escape') {
+        closeGlobalPokeSearch();
+        return;
+      } else return;
+      hits.forEach((el, i) => el.classList.toggle('active', i === globalPokeSearchIdx));
+      hits[globalPokeSearchIdx].scrollIntoView({ block: 'nearest' });
+    }
+
     function useGlobalPoke(dex) {
       const p = DEX.find(x => x.dex === dex);
       if (!p) return;
       globalPoke = p;
-      updateGlobalPokeBar(p);
-
-      // Calculator
       calcPoke = p;
-      const cinp = document.getElementById('calcPoke');
-      if (cinp) cinp.value = p.name;
-      calcClear();
+      saveSelectedPoke(p.dex);
+      updateGlobalPokeBar(p);
+      const cinfo = document.getElementById('calcPokeInfo');
+      if (cinfo) {
+        cinfo.innerHTML = '#' + p.dex + ' · ' + (p.types || []).join('/') +
+          ' · PA ' + (p.pa != null ? (+p.pa).toFixed(2) : '—') +
+          ' · SA ' + (p.sa != null ? (+p.sa).toFixed(2) : '—');
+      }
       renderCalc();
-
-      // Size
-      const sinp = document.getElementById('sizePoke');
-      if (sinp) { sinp.value = p.name; renderSizeView(); }
+      renderSizeView();
 
       // Weakness: select this mon's types (+ normal stays optional)
       weakAtkSel = new Set(p.types);
@@ -3895,6 +4817,9 @@ function dpsBreakdown(s, cfg) {
       globalPoke = null;
       calcPoke = null;
       updateGlobalPokeBar(null);
+      saveSelectedPoke(null);
+      const cinfo2 = document.getElementById('calcPokeInfo');
+      if (cinfo2) cinfo2.textContent = 'Uses selected Pokémon above';
       const cinp = document.getElementById('calcPoke');
       if (cinp) cinp.value = '';
       if (typeof renderCalc === 'function') renderCalc();
@@ -3943,8 +4868,19 @@ function dpsBreakdown(s, cfg) {
       for (const t of types || []) {
         RAW.filter(m => m.type === t).forEach(m => ids.add(m.id));
       }
+      // TM-compatible off-type moves (must add before filter — they are not in mon types)
+      if (mon) {
+        const dex = mon.dex;
+        const tmList = (TM_OF && (TM_OF[dex] || TM_OF[String(dex)])) || [];
+        for (const mid of tmList) ids.add(mid);
+        // reverse index
+        if (TM_MOVES) {
+          for (const [mid, dexes] of Object.entries(TM_MOVES)) {
+            if (Array.isArray(dexes) && (dexes.indexOf(dex) >= 0 || dexes.indexOf(+dex) >= 0)) ids.add(mid);
+          }
+        }
+      }
       let pool = [...ids].map(id => RAW.find(m => m.id === id)).filter(Boolean);
-      // Selected mon: only moves it can actually learn (Normal + its types)
       if (mon) pool = pool.filter(m => monCanLearn(mon, m));
       return pool;
     }
@@ -3971,15 +4907,65 @@ function dpsBreakdown(s, cfg) {
       return [...byId.values()].sort((a, b) => b.dps - a.dps);
     }
 
-    function bestAtkBuff(types, mon) {
+    function isAtkBuffMove(def) {
+      if (!def || def.kind !== 'buff') return false;
+      const st = def.stat;
+      return st === 'patk' || st === 'satk' || st === 'atk';
+    }
+
+    function buffSideOf(defOrBuff) {
+      if (!defOrBuff) return null;
+      const st = defOrBuff.stat;
+      if (st === 'satk') return 'special';
+      if (st === 'patk' || st === 'atk') return 'physical';
+      return defOrBuff.side || null;
+    }
+
+    function moveIsSpecial(m) {
+      if (!m) return false;
+      if (m.cat === 'special') return true;
+      if (m.cat === 'physical') return false;
+      const def = RAW.find(x => x.id === m.id);
+      const cat = (def && def.cat) || (def && moveCat(def)) || m.cat;
+      return cat === 'special';
+    }
+
+    function buffFromDef(def) {
+      if (!isAtkBuffMove(def)) return null;
+      return {
+        id: def.id,
+        pre: enName(def.name, def.id),
+        amount: +def.amount || 0,
+        stacks: def.stacks || 5,
+        cd: +def.cd || 1,
+        dur: +def.dur || 7,
+        stat: def.stat,
+        side: buffSideOf(def),
+        type: def.type
+      };
+    }
+
+    /** All learnable physical/special ATK buffs for a type pool. */
+    function listAtkBuffs(types, mon) {
       const pool = poolForTypes(types, mon);
-      if (pool.some(m => m.id === 'dragon-dance')) {
-        return { id: 'dragon-dance', pre: 'Dragon Dance', amount: 0.11, stacks: 5, cd: 0.7, dur: 7 };
+      const out = [];
+      const seen = new Set();
+      for (const def of pool) {
+        if (!isAtkBuffMove(def) || seen.has(def.id)) continue;
+        seen.add(def.id);
+        const b = buffFromDef(def);
+        if (b) out.push(b);
       }
-      if (pool.some(m => m.id === 'swords-dance')) {
-        return { id: 'swords-dance', pre: 'Swords Dance', amount: 0.13, stacks: 5, cd: 0.85, dur: 7 };
-      }
-      return null;
+      return out;
+    }
+
+    /** @deprecated single-pick — prefer listAtkBuffs + scoring */
+    function bestAtkBuff(types, mon) {
+      const list = listAtkBuffs(types, mon);
+      if (!list.length) return null;
+      // Prefer higher peak; dragon-dance ties broken by lower cd
+      list.sort((a, b) => (b.amount * b.stacks) - (a.amount * a.stacks) || a.cd - b.cd);
+      return list[0];
     }
 
     function buffPeak(buff) {
@@ -3993,66 +4979,85 @@ function dpsBreakdown(s, cfg) {
     }
 
     /**
-     * Evaluate loadout:
-     *  mainMoves[] damage, buffPlacement 'bond'|'slot'|null
-     * Returns score + step lines for tooltips.
+     * Apply ATK buff only to matching side (patk→physical, satk→special).
+     * placement: 'bond' always up; 'slot' uses refresh uptime.
      */
     function scoreLoadout(mainMoves, buff, placement, cfg) {
-      const base = mainMoves.reduce((a, m) => a + m.dps, 0);
       const steps = [];
       steps.push('Main damage: ' + mainMoves.map(m => m.pre + '(' + m.tier + ')=' + m.dps).join(' + ') + (mainMoves.length ? '' : '0'));
+      const base = mainMoves.reduce((a, m) => a + m.dps, 0);
       steps.push('Sum = ' + base);
 
-      let mult = 1, uptime = 1, peak = 0;
+      let uptime = 1, peak = 0;
+      const side = buffSideOf(buff);
       if (buff && placement === 'bond') {
         peak = buffPeak(buff);
-        mult = 1 + peak;
-        steps.push('Buff ' + buff.pre + ' in active slot → max stacks ' + buff.stacks + ' × ' + buff.amount + ' = +' + Math.round(peak * 100) + '%');
-        steps.push('ATK mult = ×' + mult.toFixed(2) + ' (always up)');
-        steps.push('uptime = 100% (no slot switch)');
+        uptime = 1;
+        steps.push('Buff ' + buff.pre + ' (' + (buff.stat || side) + ') in active slot → max stacks ' + buff.stacks + ' × ' + buff.amount + ' = +' + Math.round(peak * 100) + '%');
+        steps.push('Only ' + side + ' moves get the mult; uptime 100%');
       } else if (buff && placement === 'slot') {
         peak = buffPeak(buff);
-        mult = 1 + peak;
         uptime = buffUptime(buff);
-        steps.push('Buff ' + buff.pre + ' in side slot → peak +' + Math.round(peak * 100) + '% but must refresh');
-        steps.push('Refresh: 1 cast every ' + buff.dur + 's (dur), costs ~' + buff.cd + 's on buff slot');
-        steps.push('uptime = primary/(primary+buff) = ' + buff.dur + '/(' + buff.dur + '+' + buff.cd + ') = ' + (uptime * 100).toFixed(1) + '%');
-        steps.push('ATK mult = ×' + mult.toFixed(2) + ' while on main');
+        steps.push('Buff ' + buff.pre + ' (' + (buff.stat || side) + ') in side slot → peak +' + Math.round(peak * 100) + '%');
+        steps.push('uptime = ' + buff.dur + '/(' + buff.dur + '+' + buff.cd + ') = ' + (uptime * 100).toFixed(1) + '%');
+        steps.push('Only ' + side + ' moves get the mult while on main');
       } else {
         steps.push('No ATK buff');
       }
 
-      const effective = Math.round(base * mult * uptime);
-      steps.push('Effective DPS = ' + base + ' × ' + mult.toFixed(2) + ' × ' + uptime.toFixed(3) + ' = ' + effective);
-      return { best: effective, mainMoves, buff, buffPlacement: placement, peak, uptime, mult, steps, base };
+      let weighted = 0;
+      for (const m of mainMoves) {
+        const isSpec = moveIsSpecial(m);
+        let mMult = 1;
+        if (buff && side === 'special' && isSpec) mMult = 1 + peak;
+        else if (buff && side === 'physical' && !isSpec) mMult = 1 + peak;
+        weighted += m.dps * mMult;
+        if (mMult !== 1) {
+          steps.push('  ' + m.pre + ' (' + (isSpec ? 'spe' : 'phy') + ') ×' + mMult.toFixed(2) + ' → ' + Math.round(m.dps * mMult));
+        }
+      }
+      const effective = Math.round(weighted * uptime);
+      steps.push('Effective DPS = ' + Math.round(weighted) + ' × uptime ' + uptime.toFixed(3) + ' = ' + effective);
+      return { best: effective, mainMoves, buff, buffPlacement: placement || null, mult: 1 + peak, uptime, steps };
     }
 
-    function bestDpsForTypes(types, cfg) {
+    function bestDpsForTypes(types, cfg, topN) {
+      topN = topN == null ? 1 : Math.max(1, topN | 0);
       const damage = bestDamageMoves(types, cfg);
       const bondN = Math.min(cfg.bondSize || 4, 4, Math.max(1, damage.length));
-      const buff = bestAtkBuff(types, cfg && cfg.mon);
+      const buffs = listAtkBuffs(types, cfg && cfg.mon);
       const preferSwitch = !!(document.getElementById('preferSwitchSlots') && document.getElementById('preferSwitchSlots').checked);
 
-      // Candidate A: no buff, full bond of damage
-      const pure = scoreLoadout(damage.slice(0, bondN), null, null, cfg);
+      const candidates = [];
+      candidates.push(scoreLoadout(damage.slice(0, bondN), null, null, cfg));
 
-      // Candidate B: buff in the active slot (shares bond seats with damage moves — always on)
-      let bondedBuff = null;
-      if (buff && bondN >= 1) {
-        const dmgN = Math.max(1, bondN - 1);
-        bondedBuff = scoreLoadout(damage.slice(0, dmgN), buff, 'bond', cfg);
+      for (const buff of buffs) {
+        if (bondN >= 1) {
+          const dmgN = Math.max(1, bondN - 1);
+          candidates.push(scoreLoadout(damage.slice(0, dmgN), buff, 'bond', cfg));
+        }
+        if (preferSwitch) {
+          candidates.push(scoreLoadout(damage.slice(0, bondN), buff, 'slot', cfg));
+        }
       }
 
-      // Candidate C: buff occupies a non-active slot; player switches to it (uptime cost)
-      // Only considered when user prefers switching active slots
-      let sideBuff = null;
-      if (buff && preferSwitch) {
-        sideBuff = scoreLoadout(damage.slice(0, bondN), buff, 'slot', cfg);
+      // Also score pure top-5 damage without requiring buff (for transparency)
+      if (damage.length > bondN) {
+        candidates.push(scoreLoadout(damage.slice(0, Math.min(5, damage.length)), null, null, cfg));
       }
 
-      const candidates = [pure, bondedBuff, sideBuff].filter(Boolean);
       candidates.sort((a, b) => b.best - a.best);
-      return candidates[0];
+      // de-dupe near-identical loadouts
+      const uniq = [];
+      const seen = new Set();
+      for (const c of candidates) {
+        const key = (c.mainMoves || []).map(m => m.id + (m.evolved ? 'E' : '')).join(',') + '|' + (c.buff && c.buff.id) + '|' + c.buffPlacement;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        uniq.push(c);
+        if (uniq.length >= topN) break;
+      }
+      return topN === 1 ? uniq[0] : uniq;
     }
 
     function moveLabel(m) {
@@ -4069,14 +5074,17 @@ function dpsBreakdown(s, cfg) {
 
       const ranked = [];
       if (mon) {
-        // Selected Pokémon: only its learnable skills (Normal + types) + PA/SA DPS
+        // Selected Pokémon: top loadouts using learnable skills (types + TMs)
         const types = [...(mon.types || [])].sort();
         const key = types.join('+');
-        const res = bestDpsForTypes(types, cfg);
-        ranked.push({
-          key, types, count: 1, examples: [mon.name],
-          monName: mon.name, monDex: mon.dex,
-          ...res
+        const list = bestDpsForTypes(types, cfg, 5);
+        const arr = Array.isArray(list) ? list : [list];
+        arr.forEach((res, idx) => {
+          ranked.push({
+            key: key + '#' + idx, types, count: 1, examples: [mon.name],
+            monName: mon.name, monDex: mon.dex,
+            ...res
+          });
         });
       } else {
         const comboMap = new Map();
@@ -4192,9 +5200,7 @@ function dpsBreakdown(s, cfg) {
         }
         sdl.innerHTML = pool.map(p => '<option value="' + p.name + '"></option>').join('');
       }
-      const name = (document.getElementById('sizePoke').value || '').trim();
-      const p = DEX.find(x => x.name.toLowerCase() === name.toLowerCase()) ||
-                DEX.find(x => matchSearch(x.name, name));
+      const p = globalPoke || calcPoke;
       if (!p) {
         stage.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted)">Select a Pokémon' +
           (sizeTypeSel.size ? ' (type filter active)' : '') + '</div>';
@@ -4243,24 +5249,7 @@ function dpsBreakdown(s, cfg) {
     }
 
     function onCalcPokeChange() {
-      const name = (document.getElementById('calcPoke').value || '').trim();
-      const p = DEX.find(x => x.name.toLowerCase() === name.toLowerCase()) ||
-                DEX.find(x => matchSearch(x.name, name));
-      calcPoke = p || null;
-      const info = document.getElementById('calcPokeInfo');
-      if (info) {
-        if (p) {
-          info.innerHTML = '#' + p.dex + ' · ' + p.types.join('/') +
-            ' · <span class="size-tag ' + (p.size || sizeClass(p.hit)) + '">' + (p.size || sizeClass(p.hit)) + '</span>';
-        } else info.textContent = '';
-      }
-      // Remove moves no longer in pool
-      if (p) {
-        const pool = new Set(movesForPoke(p).map(m => m.id));
-        for (let s = 0; s < 4; s++) {
-          calcSlotsState[s] = calcSlotsState[s].filter(e => pool.has(e.id));
-        }
-      }
+      calcPoke = globalPoke || null;
       renderCalc();
     }
 
@@ -4274,7 +5263,7 @@ function dpsBreakdown(s, cfg) {
 
     function calcCellClick(slot, row) {
       if (!calcPoke) {
-        alert('Select a Pokémon first');
+        alert('Select a Pokémon in the bar above first');
         return;
       }
       const cur = calcSlotsState[slot][row];
@@ -4320,58 +5309,94 @@ function dpsBreakdown(s, cfg) {
 
     function scoreCalculator() {
       const cfg = getConfig();
+      const preferSwitch = !!(document.getElementById('preferSwitchSlots') && document.getElementById('preferSwitchSlots').checked);
       const steps = [];
-      let base = 0;
-      const mainLabels = [];
-      let atkBuffInMain = null;
-      let atkBuffSide = null;
 
       function resolveEntry(entry) {
+        if (!entry) return null;
         const def = RAW.find(m => m.id === entry.id);
         if (!def) return null;
         const pre = enName(def.name, def.id);
-        if (def.kind === 'buff' && def.stat === 'atk') {
-          return { kind: 'buff', id: def.id, pre, amount: def.amount, stacks: def.stacks || 5, cd: def.cd, dur: def.dur, type: def.type };
+        if (isAtkBuffMove(def)) {
+          const b = buffFromDef(def);
+          return Object.assign({ kind: 'buff' }, b);
         }
-        if (def.kind === 'buff') return { kind: 'buff-other', id: def.id, pre, dps: 0, type: def.type };
+        if (def.kind === 'buff') {
+          return { kind: 'buff-other', id: def.id, pre, dps: 0, type: def.type };
+        }
+        if (!def.cat) def.cat = moveCat(def);
         const s = instance(def, 5, !!entry.evolved && !!EVO[def.id]);
+        if (!s.cat) s.cat = def.cat;
         const dps = Math.round(singleTargetDPS(s, cfg));
         const tier = (entry.evolved && EVO[def.id]) ? 'Evo' : 'Lv5';
-        return { kind: 'dmg', id: def.id, pre, dps, tier, type: def.type };
+        return { kind: 'dmg', id: def.id, pre, dps, tier, type: def.type, cat: def.cat };
       }
 
-      for (const e of calcSlotsState[0]) {
+      // Collect from active (slot 0)
+      const mainDmg = [];
+      let mainPhyBuff = null, mainSpeBuff = null;
+      for (const e of (calcSlotsState[0] || [])) {
         const r = resolveEntry(e);
         if (!r) continue;
-        if (r.kind === 'buff') atkBuffInMain = r;
-        else if (r.kind === 'dmg') { base += r.dps; mainLabels.push(r.pre + '(' + r.tier + ')=' + r.dps); }
-      }
-      for (let si = 1; si < 4; si++) {
-        for (const e of calcSlotsState[si]) {
-          const r = resolveEntry(e);
-          if (r && r.kind === 'buff' && !atkBuffSide) atkBuffSide = r;
+        if (r.kind === 'buff') {
+          if (r.side === 'special' && !mainSpeBuff) mainSpeBuff = r;
+          else if (r.side === 'physical' && !mainPhyBuff) mainPhyBuff = r;
+        } else if (r.kind === 'dmg') {
+          mainDmg.push(r);
         }
       }
 
-      steps.push('Main damage: ' + (mainLabels.join(' + ') || '0'));
-      steps.push('Base sum = ' + base);
-      let mult = 1, uptime = 1;
-      if (atkBuffInMain) {
-        const peak = atkBuffInMain.amount * atkBuffInMain.stacks;
-        mult = 1 + peak;
-        steps.push(atkBuffInMain.pre + ' in main → max stacks (+' + Math.round(peak * 100) + '%)');
-        steps.push('uptime 100%');
-      } else if (atkBuffSide) {
-        const peak = atkBuffSide.amount * atkBuffSide.stacks;
-        mult = 1 + peak;
-        uptime = atkBuffSide.dur / (atkBuffSide.dur + atkBuffSide.cd);
-        steps.push(atkBuffSide.pre + ' in side → peak +' + Math.round(peak * 100) + '%');
-        steps.push('uptime = ' + atkBuffSide.dur + '/(' + atkBuffSide.dur + '+' + atkBuffSide.cd + ') = ' + (uptime * 100).toFixed(1) + '%');
-      } else steps.push('No ATK buff');
+      // Side slots: buffs only (if prefer switch)
+      let sidePhyBuff = null, sideSpeBuff = null;
+      if (preferSwitch) {
+        for (let si = 1; si < 4; si++) {
+          for (const e of (calcSlotsState[si] || [])) {
+            const r = resolveEntry(e);
+            if (!r || r.kind !== 'buff') continue;
+            if (r.side === 'special' && !sideSpeBuff) sideSpeBuff = r;
+            if (r.side === 'physical' && !sidePhyBuff) sidePhyBuff = r;
+          }
+        }
+      }
 
-      const effective = Math.round(base * mult * uptime);
-      steps.push('Effective DPS = ' + base + ' × ' + mult.toFixed(2) + ' × ' + uptime.toFixed(3) + ' = ' + effective);
-      return { effective, steps };
+      // Prefer main-slot buff over side for each side
+      function pickBuff(mainB, sideB) {
+        if (mainB) return { buff: mainB, placement: 'bond', uptime: 1 };
+        if (sideB) return { buff: sideB, placement: 'slot', uptime: buffUptime(sideB) };
+        return { buff: null, placement: null, uptime: 1 };
+      }
+      const phy = pickBuff(mainPhyBuff, sidePhyBuff);
+      const spe = pickBuff(mainSpeBuff, sideSpeBuff);
+
+      steps.push('Mode: ' + (cfg.mobbing ? 'mobbing' : 'single') + ' (from DPS tab)');
+      steps.push('Main damage moves: ' + (mainDmg.map(m => m.pre + '(' + m.tier + '/' + (m.cat || '?') + ')=' + m.dps).join(' + ') || '0'));
+      if (phy.buff) {
+        steps.push('Physical buff: ' + phy.buff.pre + ' (' + phy.placement + ') peak +' + Math.round(buffPeak(phy.buff) * 100) + '% uptime ' + (phy.uptime * 100).toFixed(1) + '%');
+      }
+      if (spe.buff) {
+        steps.push('Special buff: ' + spe.buff.pre + ' (' + spe.placement + ') peak +' + Math.round(buffPeak(spe.buff) * 100) + '% uptime ' + (spe.uptime * 100).toFixed(1) + '%');
+      }
+      if (!phy.buff && !spe.buff) steps.push('No ATK buff (patk/satk) in loadout');
+
+      let total = 0;
+      for (const m of mainDmg) {
+        const isSpec = m.cat === 'special';
+        const pack = isSpec ? spe : phy;
+        let mult = 1, up = 1;
+        if (pack.buff) {
+          mult = 1 + buffPeak(pack.buff);
+          up = pack.uptime;
+        }
+        const part = Math.round(m.dps * mult * up);
+        total += part;
+        if (mult !== 1 || up !== 1) {
+          steps.push('  ' + m.pre + ': ' + m.dps + ' ×' + mult.toFixed(2) + ' ×' + up.toFixed(3) + ' = ' + part);
+        } else {
+          steps.push('  ' + m.pre + ': ' + part + ' (no matching buff)');
+        }
+      }
+      steps.push('Effective DPS = ' + total);
+      return { effective: total, steps };
     }
 
     function renderCalc() {
@@ -4502,6 +5527,8 @@ function dpsBreakdown(s, cfg) {
       document.querySelectorAll('.table-wrap table').forEach(t => t.classList.add('compact'));
     }
 
+    try { syncAppVersion(); } catch (e) {}
+    try { applyPokeColVisibility(); } catch (e) {}
     fetchAll();
 
 </script>
