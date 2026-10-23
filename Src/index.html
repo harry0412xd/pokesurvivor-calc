@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>PokéSurvivor Calc</title>
-  <link rel="stylesheet" href="css/app.css?v=2.2.29" />
+  <link rel="stylesheet" href="css/app.css?v=2.2.32" />
 </head>
 <body>
   <div class="container">
     <header class="app-head">
       <h1>PokéSurvivor Calc <span id="verInline" class="ver-badge">v0</span></h1>
-      <p class="subtitle">MVC rewrite · Pokédex rows per (Pokémon × ability × move type)</p>
+      <p class="subtitle">MVC rewrite · Pokédex rows per (Pokémon × ability × Tm type)</p>
     </header>
 
     <div id="globalPokeBar" class="global-poke-bar">
@@ -202,8 +202,14 @@
 
         <div class="filters-block">
           <div class="filters-block-head">
-            <label>Ability filter</label>
+            <label for="pokeAbilitySearch">Ability filter</label>
             <button type="button" class="btn-secondary btn-mini" data-action="clear-abilities">Clear</button>
+          </div>
+          <div class="ability-filter-row">
+            <input type="search" id="pokeAbilitySearch" list="pokeAbilityOptions" autocomplete="off"
+              placeholder="Type an ability name and press Enter..." />
+            <datalist id="pokeAbilityOptions"></datalist>
+            <button type="button" class="btn-secondary btn-mini" id="pokeAbilityAdd">Add</button>
           </div>
           <div id="pokeAbilityChips" class="chip-row ability-chips"></div>
         </div>
@@ -218,14 +224,14 @@
 
         <div class="filters-block">
           <div class="filters-block-head">
-            <label>Move type (row variant)</label>
-            <button type="button" class="btn-secondary btn-mini" data-action="clear-variant-types">Clear move types</button>
+            <label>Tm type (row variant)</label>
+            <button type="button" class="btn-secondary btn-mini" data-action="clear-variant-types">Clear Tm types</button>
           </div>
           <div id="pokeVariantChips" class="chip-row"></div>
         </div>
 
         <p class="note" style="margin:0 0 0.45rem">
-          Each row is one <strong>(Pokémon, ability, move type)</strong> build. Move type is either a natural type
+          Each row is one <strong>(Pokémon, ability, Tm type)</strong> build. Tm type is either a natural type
           (Normal + the Pokémon's types) or a distinct damaging type learned through a TM. Click a multiplier cell to
           open its damage matrix. Click a header to sort.
         </p>
@@ -234,26 +240,26 @@
           <table class="poke-table" id="pokeTable">
             <thead>
               <tr>
-                <th class="text-left sortable col-dex" data-sort="dex"># <span class="arrow"></span></th>
-                <th class="text-left sortable col-name" data-sort="name">Pokémon <span class="arrow"></span></th>
-                <th class="text-left sortable col-types" data-sort="types">Types <span class="arrow"></span></th>
-                <th class="text-left sortable col-ability" data-sort="ability">Ability <span class="arrow"></span></th>
-                <th class="text-left sortable col-variant" data-sort="variant">Move type <span class="arrow"></span></th>
-                <th class="sortable col-pa" data-sort="pa">PA <span class="arrow"></span></th>
-                <th class="sortable col-sa" data-sort="sa">SA <span class="arrow"></span></th>
-                <th class="sortable col-df" data-sort="df">DF <span class="arrow"></span></th>
-                <th class="sortable col-sd" data-sort="sd">SD <span class="arrow"></span></th>
-                <th class="sortable col-hp" data-sort="hp">HP <span class="arrow"></span></th>
-                <th class="sortable col-spd" data-sort="spd">SPD <span class="arrow"></span></th>
-                <th class="sortable col-hit" data-sort="hit">r <span class="arrow"></span></th>
-                <th class="sortable col-bst" data-sort="bst">BST <span class="arrow"></span></th>
-                <th class="sortable col-hitbox" data-sort="hitbox" title="Hitbox evasion multiplier. Higher is better. Click a row cell for the formula.">hitbox multi <span class="arrow"></span></th>
-                <th class="sortable col-dodge" data-sort="dodge" title="Dodge granted by the ability. Higher is better.">dodge (ability) <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="dodge" title="Open dodge matrix">▦</button></th>
-                <th class="sortable col-dr" data-sort="dr" title="Spawn-weighted incoming damage multiplier after type, weather, defences and ability. Lower is better.">damage reduction <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="dr" title="Open damage-reduction matrix">▦</button></th>
-                <th class="sortable col-ehp" data-sort="ehp" title="ehp = hitbox multi × ability dodge ÷ damage reduction. Higher is better.">EHP <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="ehp" title="Open EHP breakdown">▦</button></th>
-                <th class="sortable col-offense" data-sort="offense" title="Spawn-weighted average DPS of available moves, normalized to a neutral baseline (×). Favours strong moves but counts the whole pool.">offensive rating (pool avg) <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="offense" title="Open offense matrix">▦</button></th>
-                <th class="sortable col-score" data-sort="score" title="Overall score. Click the matrix button for the score breakdown.">overall score <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="score" title="Open score breakdown">▦</button></th>
-                <th class="sortable col-gen" data-sort="gen">Gen <span class="arrow"></span></th>
+                <th class="text-left sortable col-dex" data-sort="dex"><span data-label-key="dex">#</span> <span class="arrow"></span></th>
+                <th class="sortable col-gen" data-sort="gen"><span data-label-key="gen">Gen</span> <span class="arrow"></span></th>
+                <th class="text-left sortable col-name" data-sort="name"><span data-label-key="name">Pokémon</span> <span class="arrow"></span></th>
+                <th class="text-left sortable col-types" data-sort="types"><span data-label-key="types">Types</span> <span class="arrow"></span></th>
+                <th class="text-left sortable col-ability" data-sort="ability"><span data-label-key="ability">Ability</span> <span class="arrow"></span></th>
+                <th class="text-left sortable col-variant" data-sort="variant" title="Tm type"><span data-label-key="variant">Tm type</span> <span class="arrow"></span></th>
+                <th class="sortable col-pa" data-sort="pa"><span data-label-key="pa">PA</span> <span class="arrow"></span></th>
+                <th class="sortable col-sa" data-sort="sa"><span data-label-key="sa">SA</span> <span class="arrow"></span></th>
+                <th class="sortable col-df" data-sort="df"><span data-label-key="df">DF</span> <span class="arrow"></span></th>
+                <th class="sortable col-sd" data-sort="sd"><span data-label-key="sd">SD</span> <span class="arrow"></span></th>
+                <th class="sortable col-hp" data-sort="hp"><span data-label-key="hp">HP</span> <span class="arrow"></span></th>
+                <th class="sortable col-spd" data-sort="spd"><span data-label-key="spd">SPD</span> <span class="arrow"></span></th>
+                <th class="sortable col-hit" data-sort="hit"><span data-label-key="hit">r</span> <span class="arrow"></span></th>
+                <th class="sortable col-bst" data-sort="bst"><span data-label-key="bst">BST</span> <span class="arrow"></span></th>
+                <th class="sortable col-hitbox" data-sort="hitbox" title="Hitbox multiplier (hb). Higher is better. Click a row cell for the formula."><span data-label-key="hitbox">hb</span> <span class="arrow"></span></th>
+                <th class="sortable col-dodge" data-sort="dodge" title="Dodge (dodg) granted by the ability. Higher is better."><span data-label-key="dodge">dodg</span> <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="dodge" title="Open dodge matrix">▦</button></th>
+                <th class="sortable col-dr" data-sort="dr" title="Damage reduction (dr): spawn-weighted incoming damage multiplier after type, weather, defences and ability. Lower is better."><span data-label-key="dr">dr</span> <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="dr" title="Open damage-reduction matrix">▦</button></th>
+                <th class="sortable col-ehp" data-sort="ehp" title="EHP = hb × dodg ÷ dr. Higher is better."><span data-label-key="ehp">EHP</span> <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="ehp" title="Open EHP breakdown">▦</button></th>
+                <th class="sortable col-offense" data-sort="offense" title="Offensive rating (OR): spawn-weighted average DPS of available moves, normalized to a neutral baseline (×). Favours strong moves but counts the whole pool."><span data-label-key="offense">OR</span> <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="offense" title="Open offense matrix">▦</button></th>
+                <th class="sortable col-score" data-sort="score" title="Overall score (Scr). Click the matrix button for the score breakdown."><span data-label-key="score">Scr</span> <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="score" title="Open score breakdown">▦</button></th>
               </tr>
             </thead>
             <tbody id="pokeBody"></tbody>
@@ -337,11 +343,15 @@
       <!-- ------------------------------------------------------------- Abilities -->
       <section class="panel" id="panel-abilities" data-panel="abilities">
         <h2>Abilities</h2>
-        <p class="note" style="margin:0 0 0.5rem">Click an ability name to filter the Pokédex to that ability.</p>
+        <p class="note" style="margin:0 0 0.5rem">Click an ability to add it to the Pokédex ability filter. Groups describe when an ability applies and what it changes; one ability can have several.</p>
         <div class="filters">
           <div>
             <label for="abilitySearch">Search</label>
-            <input type="search" id="abilitySearch" placeholder="Search ability..." />
+            <input type="search" id="abilitySearch" placeholder="Search ability or group..." />
+          </div>
+          <div>
+            <label for="abilGroupFilter">Group</label>
+            <select id="abilGroupFilter"><option value="">All groups</option></select>
           </div>
           <div>
             <label class="ios-toggle-label" style="margin-top:1.15rem">
@@ -351,7 +361,7 @@
         </div>
         <div class="table-wrap">
           <table class="compact" id="abilTable">
-            <thead><tr><th class="text-left">Ability</th><th class="text-left">Description (EN)</th><th class="text-left">Calc status</th></tr></thead>
+            <thead><tr><th class="text-left">Ability</th><th class="text-left">Groups</th><th class="text-left">Description (EN)</th><th class="text-left">Calc status</th></tr></thead>
             <tbody id="abilBody"></tbody>
           </table>
         </div>
@@ -482,7 +492,7 @@
         <h3>Table columns</h3>
         <button type="button" class="btn-secondary btn-mini" data-action="close-columns">Close</button>
       </div>
-      <p class="note" style="margin:0 0 0.5rem">The radar and matrices always use every stat.</p>
+      <p class="note" style="margin:0 0 0.5rem">The radar axes match the numeric table columns. Matrices always use every stat.</p>
       <div id="columnsList" class="poke-cols-list"></div>
       <div class="btn-row">
         <button type="button" class="btn-secondary" data-action="reset-columns">Defaults</button>
@@ -496,55 +506,57 @@
   </footer>
 
   <!-- Core -->
-  <script src="js/constants.js?v=2.2.29"></script>
-  <script src="js/abilities.js?v=2.2.29"></script>
-  <script src="js/changelog.js?v=2.2.29"></script>
-  <script src="js/core/utils.js?v=2.2.29"></script>
-  <script src="js/core/type-chart.js?v=2.2.29"></script>
-  <script src="js/core/data-service.js?v=2.2.29"></script>
-  <script src="js/core/calc.js?v=2.2.29"></script>
-  <script src="js/core/store.js?v=2.2.29"></script>
-  <script src="js/core/ui.js?v=2.2.29"></script>
+  <script src="js/constants.js?v=2.2.32"></script>
+  <script src="js/labels.js?v=2.2.32"></script>
+  <script src="js/abilities.js?v=2.2.32"></script>
+  <script src="js/ability-groups.js?v=2.2.32"></script>
+  <script src="js/changelog.js?v=2.2.32"></script>
+  <script src="js/core/utils.js?v=2.2.32"></script>
+  <script src="js/core/type-chart.js?v=2.2.32"></script>
+  <script src="js/core/data-service.js?v=2.2.32"></script>
+  <script src="js/core/calc.js?v=2.2.32"></script>
+  <script src="js/core/store.js?v=2.2.32"></script>
+  <script src="js/core/ui.js?v=2.2.32"></script>
 
   <!-- Tab models -->
-  <script src="js/tabs/dps/dps-model.js?v=2.2.29"></script>
-  <script src="js/tabs/pokedex/pokedex-model.js?v=2.2.29"></script>
-  <script src="js/tabs/calculator/calculator-model.js?v=2.2.29"></script>
-  <script src="js/tabs/combos/combos-model.js?v=2.2.29"></script>
-  <script src="js/tabs/multipliers/multipliers-model.js?v=2.2.29"></script>
-  <script src="js/tabs/abilities/abilities-model.js?v=2.2.29"></script>
-  <script src="js/tabs/items/items-model.js?v=2.2.29"></script>
-  <script src="js/tabs/mechanics/mechanics-model.js?v=2.2.29"></script>
-  <script src="js/tabs/changelog/changelog-model.js?v=2.2.29"></script>
-  <script src="js/tabs/config/config-model.js?v=2.2.29"></script>
+  <script src="js/tabs/dps/dps-model.js?v=2.2.32"></script>
+  <script src="js/tabs/pokedex/pokedex-model.js?v=2.2.32"></script>
+  <script src="js/tabs/calculator/calculator-model.js?v=2.2.32"></script>
+  <script src="js/tabs/combos/combos-model.js?v=2.2.32"></script>
+  <script src="js/tabs/multipliers/multipliers-model.js?v=2.2.32"></script>
+  <script src="js/tabs/abilities/abilities-model.js?v=2.2.32"></script>
+  <script src="js/tabs/items/items-model.js?v=2.2.32"></script>
+  <script src="js/tabs/mechanics/mechanics-model.js?v=2.2.32"></script>
+  <script src="js/tabs/changelog/changelog-model.js?v=2.2.32"></script>
+  <script src="js/tabs/config/config-model.js?v=2.2.32"></script>
 
   <!-- Tab views -->
-  <script src="js/tabs/dps/dps-view.js?v=2.2.29"></script>
-  <script src="js/tabs/pokedex/pokedex-view.js?v=2.2.29"></script>
-  <script src="js/tabs/calculator/calculator-view.js?v=2.2.29"></script>
-  <script src="js/tabs/combos/combos-view.js?v=2.2.29"></script>
-  <script src="js/tabs/multipliers/multipliers-view.js?v=2.2.29"></script>
-  <script src="js/tabs/abilities/abilities-view.js?v=2.2.29"></script>
-  <script src="js/tabs/items/items-view.js?v=2.2.29"></script>
-  <script src="js/tabs/mechanics/mechanics-view.js?v=2.2.29"></script>
-  <script src="js/tabs/changelog/changelog-view.js?v=2.2.29"></script>
-  <script src="js/tabs/config/config-view.js?v=2.2.29"></script>
-  <script src="js/views/modal-view.js?v=2.2.29"></script>
+  <script src="js/tabs/dps/dps-view.js?v=2.2.32"></script>
+  <script src="js/tabs/pokedex/pokedex-view.js?v=2.2.32"></script>
+  <script src="js/tabs/calculator/calculator-view.js?v=2.2.32"></script>
+  <script src="js/tabs/combos/combos-view.js?v=2.2.32"></script>
+  <script src="js/tabs/multipliers/multipliers-view.js?v=2.2.32"></script>
+  <script src="js/tabs/abilities/abilities-view.js?v=2.2.32"></script>
+  <script src="js/tabs/items/items-view.js?v=2.2.32"></script>
+  <script src="js/tabs/mechanics/mechanics-view.js?v=2.2.32"></script>
+  <script src="js/tabs/changelog/changelog-view.js?v=2.2.32"></script>
+  <script src="js/tabs/config/config-view.js?v=2.2.32"></script>
+  <script src="js/views/modal-view.js?v=2.2.32"></script>
 
   <!-- Tab controllers -->
-  <script src="js/tabs/dps/dps-controller.js?v=2.2.29"></script>
-  <script src="js/tabs/pokedex/pokedex-controller.js?v=2.2.29"></script>
-  <script src="js/tabs/calculator/calculator-controller.js?v=2.2.29"></script>
-  <script src="js/tabs/combos/combos-controller.js?v=2.2.29"></script>
-  <script src="js/tabs/multipliers/multipliers-controller.js?v=2.2.29"></script>
-  <script src="js/tabs/abilities/abilities-controller.js?v=2.2.29"></script>
-  <script src="js/tabs/items/items-controller.js?v=2.2.29"></script>
-  <script src="js/tabs/mechanics/mechanics-controller.js?v=2.2.29"></script>
-  <script src="js/tabs/changelog/changelog-controller.js?v=2.2.29"></script>
-  <script src="js/tabs/config/config-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/dps/dps-controller.js?v=2.2.32"></script>
+  <script src="js/tabs/pokedex/pokedex-controller.js?v=2.2.32"></script>
+  <script src="js/tabs/calculator/calculator-controller.js?v=2.2.32"></script>
+  <script src="js/tabs/combos/combos-controller.js?v=2.2.32"></script>
+  <script src="js/tabs/multipliers/multipliers-controller.js?v=2.2.32"></script>
+  <script src="js/tabs/abilities/abilities-controller.js?v=2.2.32"></script>
+  <script src="js/tabs/items/items-controller.js?v=2.2.32"></script>
+  <script src="js/tabs/mechanics/mechanics-controller.js?v=2.2.32"></script>
+  <script src="js/tabs/changelog/changelog-controller.js?v=2.2.32"></script>
+  <script src="js/tabs/config/config-controller.js?v=2.2.32"></script>
 
   <!-- Shell -->
-  <script src="js/controllers/app-controller.js?v=2.2.29"></script>
-  <script src="js/app.js?v=2.2.29"></script>
+  <script src="js/controllers/app-controller.js?v=2.2.32"></script>
+  <script src="js/app.js?v=2.2.32"></script>
 </body>
 </html>

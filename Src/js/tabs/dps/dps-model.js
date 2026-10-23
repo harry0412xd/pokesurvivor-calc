@@ -66,6 +66,7 @@ PSC.Models.Dps = (function () {
       }
       const cov = d.avgTypeMult[def.type] != null ? d.avgTypeMult[def.type] : 1;
       const wx = WEATHER_AVG_MULT[def.type] != null ? WEATHER_AVG_MULT[def.type] : 1;
+      const ab = m ? PSC.Calc.abilityOutForMove(m, def) : 1;
       rows.push({
         id: def.id,
         name: PSC.Data.moveName(def),
@@ -75,7 +76,8 @@ PSC.Models.Dps = (function () {
         atkM: sideAtk,
         covM: cov,
         wxM: wx,
-        mult: +(sideAtk * cov * wx).toFixed(4),
+        abM: ab,
+        mult: +(sideAtk * cov * wx * ab).toFixed(4),
         lv1: Math.round(levels[0].dps),
         lv2: Math.round(levels[1].dps),
         lv3: Math.round(levels[2].dps),
@@ -123,6 +125,7 @@ PSC.Models.Dps = (function () {
       atk: row.atkM,
       type: row.covM,
       weather: row.wxM,
+      ability: row.abM,
       total: row.mult
     };
   }

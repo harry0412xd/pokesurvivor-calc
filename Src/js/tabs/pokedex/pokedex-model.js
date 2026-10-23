@@ -155,17 +155,13 @@ PSC.Models.Pokedex = (function () {
       hp: row.hp || 0,
       spd: row.spd || 0,
       hit: row.hit || 0,
-      typeM: m.offenseTypeM,
-      wxM: m.offenseWxM,
-      phyM: m.offensePhy || m.offense,
-      speM: m.offenseSpe || m.offense,
-      phyDefM: m.dr.phyDefM,
-      speDefM: m.dr.speDefM,
-      dr: m.dr.dr,
+      bst: row.bst || 0,
+      hitbox: m.hitMulti,
       dodge: m.dodge.factor,
+      dr: m.dr.dr,
       ehp: m.ehp,
+      offense: m.offense,
       score: m.score,
-      hitMulti: m.hitMulti,
       raw: row
     };
   }

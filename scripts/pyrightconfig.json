@@ -1,0 +1,14 @@
+{
+  "include": [
+    "."
+  ],
+  "exclude": [
+    ".history",
+    "**/node_modules"
+  ],
+  "reportUndefinedVariable": "none",
+  "reportMissingImports": "none",
+  "reportMissingModuleSource": "none",
+  "reportGeneralTypeIssues": "none",
+  "reportOptionalMemberAccess": "none"
+}

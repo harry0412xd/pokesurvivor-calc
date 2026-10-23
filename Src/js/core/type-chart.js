@@ -3,6 +3,11 @@ window.PSC = window.PSC || {};
 
 PSC.TypeChart = (function () {
   const RUN_END_SEC = 1800;
+  // game/js/data/enemies.js bagAt(t): a tier keeps full weight for 260 s
+  // after it unlocks, then drops to the old-tier weight.
+  const BAG_RECENT_WEIGHT = 10;
+  const BAG_OLD_WEIGHT = 3;
+  const BAG_OLD_AFTER = 260;
   const U = PSC.Utils;
 
   function softValue(raw) {
@@ -35,6 +40,7 @@ PSC.TypeChart = (function () {
     return { atkType, defTypes: defTypes || [], parts, beforeClamp: m, value: U.clamp(m, 0.3, 2.4) };
   }
 
+  /** Spawner rate from spawner.js. It only scales counts, not tier shares. */
   function spawnRate(t, ctx) {
     if (ctx && typeof ctx.spawnRateFn === 'function') {
       try {
@@ -42,30 +48,53 @@ PSC.TypeChart = (function () {
         if (Number.isFinite(v) && v > 0) return v;
       } catch (e) { /* fall through */ }
     }
-    const density = (ctx && ctx.spawnDensity) || 0.24;
-    return (1.6 + t * 0.028 + Math.pow(t / 60, 1.6) * 0.5) * density;
+    return 1;
   }
 
-  function tierSpawnWeight(tier, ctx) {
-    const step = 2;
-    const t0 = +tier.from || 0;
-    const t1 = tier.to != null ? +tier.to : RUN_END_SEC;
-    let w = 0;
-    for (let t = t0; t < t1; t += step) w += spawnRate(t, ctx) * step;
-    return w;
+  /** Exact game candidate filter: rarity < 5, BST band and an available sprite. */
+  function tierPool(dex, tier, spriteMeta) {
+    const hasSprites = spriteMeta && Object.keys(spriteMeta).length > 0;
+    return dex.filter(p => p.rarity < 5 &&
+      p.bst >= tier.bst[0] && p.bst <= tier.bst[1] &&
+      (!hasSprites || !!spriteMeta[p.dex]));
   }
 
-  function tierPool(dex, tier) {
-    return dex.filter(p => (p.rarity == null || p.rarity < 5) && !p.leg &&
-      p.bst >= tier.bst[0] && p.bst <= tier.bst[1]);
+  /**
+   * Time-integrated tier shares using the game's bagAt() rule:
+   * every active tier contributes 10 copies per cast slot for 260 s after it
+   * unlocks, then 3 copies. Spawner rate is included so the result is the
+   * expected mix of all enemies spawned during a 30-minute run.
+   */
+  function tierWeights(tiers, ctx) {
+    const out = new Map();
+    if (!tiers || !tiers.length) return out;
+    const end = (ctx && ctx.runEnd) || RUN_END_SEC;
+    const step = (ctx && ctx.step) || 2;
+    for (let t = 0; t < end; t += step) {
+      const active = tiers.filter(tr => t >= (+tr.from || 0));
+      if (!active.length) continue;
+      const bag = active.map(tr => {
+        const age = t - (+tr.from || 0);
+        return age > BAG_OLD_AFTER ? BAG_OLD_WEIGHT : BAG_RECENT_WEIGHT;
+      });
+      const bagTotal = bag.reduce((a, w) => a + w, 0);
+      if (!bagTotal) continue;
+      const rate = spawnRate(t, ctx);
+      active.forEach((tr, i) => {
+        out.set(tr, (out.get(tr) || 0) + rate * (bag[i] / bagTotal) * step);
+      });
+    }
+    return out;
   }
 
-  /** Distinct enemy type combos weighted by spawn intensity and tier pool size. */
+  /** Distinct enemy type combos weighted by the game's spawn tiers and pool size. */
   function buildEnemyWeights(dex, tiers, ctx) {
     const comboW = new Map();
-    for (const tier of (tiers && tiers.length ? tiers : DEFAULT_TIERS_BST)) {
-      const tw = tierSpawnWeight(tier, ctx);
-      const cands = tierPool(dex, tier);
+    const weights = tierWeights(tiers, ctx);
+    for (const tier of (tiers || [])) {
+      const tw = weights.get(tier) || 0;
+      if (!tw) continue;
+      const cands = tierPool(dex, tier, ctx && ctx.spriteMeta);
       if (!cands.length) continue;
       const per = tw / cands.length;
       for (const p of cands) {
@@ -94,9 +123,11 @@ PSC.TypeChart = (function () {
   /** Per-species enemy attack profile: type + physical/special side. */
   function buildEnemyAttackProfile(dex, tiers, ctx) {
     const rows = [];
-    for (const tier of (tiers && tiers.length ? tiers : DEFAULT_TIERS_BST)) {
-      const tw = tierSpawnWeight(tier, ctx);
-      const cands = tierPool(dex, tier);
+    const weights = tierWeights(tiers, ctx);
+    for (const tier of (tiers || [])) {
+      const tw = weights.get(tier) || 0;
+      if (!tw) continue;
+      const cands = tierPool(dex, tier, ctx && ctx.spriteMeta);
       if (!cands.length) continue;
       const per = tw / cands.length;
       for (const mon of cands) {
@@ -190,7 +221,7 @@ PSC.TypeChart = (function () {
     multiplier,
     steps,
     spawnRate,
-    tierSpawnWeight,
+    tierWeights,
     buildEnemyWeights,
     buildEnemyAttackProfile,
     buildAvgTypeMultipliers,

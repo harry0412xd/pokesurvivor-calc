@@ -9,11 +9,20 @@ PSC.Views.Pokedex = (function () {
 
   function renderChips() {
     const p = PSC.Store.state.pokedex;
+    const options = PSC.Models.Pokedex.abilityOptions();
     const aBox = document.getElementById('pokeAbilityChips');
     if (aBox) {
-      aBox.innerHTML = PSC.Models.Pokedex.abilityOptions().map(id =>
-        PSC.UI.abilityChip(id, PSC.Data.abilityName(id), p.abilitySel.has(id))
-      ).join('') || '<span class="note">No abilities loaded.</span>';
+      const selected = [...p.abilitySel].sort((a, b) =>
+        PSC.Data.abilityName(a).localeCompare(PSC.Data.abilityName(b)));
+      aBox.innerHTML = selected.map(id =>
+        PSC.UI.abilityChip(id, PSC.Data.abilityName(id), true)
+      ).join('') || '<span class="note">No ability filter — every ability is included.</span>';
+    }
+    const list = document.getElementById('pokeAbilityOptions');
+    if (list) {
+      list.innerHTML = options.map(id =>
+        '<option value="' + U.esc(PSC.Data.abilityName(id)) + '"></option>'
+      ).join('');
     }
     const tBox = document.getElementById('pokeTypeChips');
     if (tBox) {
@@ -90,6 +99,7 @@ PSC.Views.Pokedex = (function () {
 
       return '<tr data-dex="' + row.dex + '" data-rowkey="' + U.esc(row.rowKey) + '">' +
         cell(row, 'text-left col-dex', row.dex) +
+        cell(row, 'col-gen', row.gen || '—') +
         cell(row, 'text-left col-name', '<div class="poke-name-cell">' +
           '<div class="poke-spr" style="' + U.spriteStyle(row.dex, 34, PSC.Data.state.spriteMeta) + '"></div>' +
           '<div><div class="pname" data-action="open-radar" data-dex="' + row.dex + '">' + U.esc(row.name) + '</div>' +
@@ -112,7 +122,6 @@ PSC.Views.Pokedex = (function () {
         cell(row, 'col-ehp ' + PSC.Calc.multClass(m.ehp), U.fmt(m.ehp, 3) + hintRank(rk.ehp), { tipKey: 'ehp:' + row.rowKey, tipHtml: ehpTip, extra: ' matrix-cell', matrix: 'ehp' }) +
         cell(row, 'col-offense ' + PSC.Calc.multClass(m.offense), '×' + U.fmt(m.offense, 3) + hintRank(rk.offense), { tipKey: 'off:' + row.rowKey, tipHtml: offTip, extra: ' matrix-cell', matrix: 'offense' }) +
         cell(row, 'col-score score-cell', '<b>' + U.fmt(m.score, 3) + '</b>' + hintRank(rk.score), { tipKey: 'score:' + row.rowKey, tipHtml: scoreTip, extra: ' matrix-cell', matrix: 'score' }) +
-        cell(row, 'col-gen', row.gen || '—') +
         '</tr>';
     }).join('') || '<tr><td colspan="20" class="note">No rows match the current filters.</td></tr>';
 
@@ -150,25 +159,24 @@ PSC.Views.Pokedex = (function () {
   }
 
   // ------------------------------------------------------------------ Radar
-  const RADAR_KEYS = ['pa', 'sa', 'df', 'sd', 'hp', 'spd', 'hit',
-    'typeM', 'wxM', 'phyM', 'speM', 'phyDefM', 'speDefM', 'dr', 'dodge', 'ehp', 'score'];
-  const RADAR_LABELS = {
-    pa: 'PA', sa: 'SA', df: 'DF', sd: 'SD', hp: 'HP', spd: 'SPD', hit: 'r',
-    typeM: 'type', wxM: 'weather', phyM: 'offense', speM: 'offense (S)',
-    phyDefM: 'phy def', speDefM: 'spe def', dr: 'DR', dodge: 'dodge', ehp: 'EHP', score: 'score'
-  };
-  const INVERT = new Set(['hit', 'phyDefM', 'speDefM', 'dr']);
+  // Radar axes are exactly the numeric Pokédex table columns (minus # and Gen,
+  // which are identifiers). Labels come from js/labels.js.
+  const RADAR_KEYS = PSC.Labels.RADAR_KEYS;
+  const RADAR_LABELS = PSC.Labels.RADAR_LABELS;
+  const INVERT = new Set(['hit', 'dr']);
 
   function renderAxes() {
     const box = document.getElementById('radarAxisToggles');
     if (!box) return;
     const axes = PSC.Store.state.radar.axes;
-    const raw = ['pa', 'sa', 'df', 'sd', 'hp', 'spd', 'hit'];
-    const calc = ['typeM', 'wxM', 'phyM', 'speM', 'phyDefM', 'speDefM', 'dr', 'dodge', 'ehp', 'score'];
-    const row = keys => keys.map(k => '<label class="radar-axis"><input type="checkbox" data-axis="' + k + '"' +
-      (axes[k] ? ' checked' : '') + ' /> ' + RADAR_LABELS[k] + '</label>').join('');
-    box.innerHTML = '<div class="radar-axes-row"><span class="radar-axes-label">Raw</span>' + row(raw) + '</div>' +
-      '<div class="radar-axes-row"><span class="radar-axes-label">Calc</span>' + row(calc) + '</div>';
+    const row = keys => keys.map(k => {
+      const def = PSC.Labels.byKey[k] || { full: k, abbr: k };
+      return '<button type="button" class="radar-axis' + (axes[k] ? ' on' : '') +
+        '" data-axis="' + k + '" aria-pressed="' + (axes[k] ? 'true' : 'false') +
+        '" title="' + U.esc(def.full) + '">' + U.esc(def.abbr) + '</button>';
+    }).join('');
+    box.innerHTML = '<div class="radar-axes-row"><span class="radar-axes-label">Axes</span>' +
+      row(RADAR_KEYS) + '</div>';
   }
 
   function avgStats(rows) {
@@ -302,10 +310,9 @@ PSC.Views.Pokedex = (function () {
   function renderStatList(row, keys, stats) {
     const el = document.getElementById('pokeStatList');
     if (!el) return;
-    const m = row._m || {};
     const rk = row.ranks || {};
     const rankFor = k => {
-      const map = { typeM: 'offense', wxM: 'offense', phyM: 'offense', speM: 'offense', dr: 'dr', dodge: 'dodge', ehp: 'ehp', score: 'score', hit: 'hit' };
+      const map = { hitbox: 'hit', hit: 'hit', dr: 'dr', dodge: 'dodge', ehp: 'ehp', offense: 'offense', score: 'score', spd: 'spd' };
       return map[k] && rk[map[k]] ? '#' + rk[map[k]] : '';
     };
     el.innerHTML = keys.map(k =>
@@ -313,16 +320,15 @@ PSC.Views.Pokedex = (function () {
       '<span class="rank-tag">' + rankFor(k) + '</span></div>'
     ).join('') +
       '<div class="stat-line"><span>Ability</span><b>' + U.esc(row.abilityName || '—') + '</b></div>' +
-      '<div class="stat-line"><span>Move type</span><b>' + U.esc(row.variantType) + '</b></div>' +
-      '<div class="stat-line"><span>DR</span><b>×' + U.fmt(m.dr && m.dr.dr, 3) + '</b></div>' +
-      '<div class="stat-line"><span>Score</span><b>' + U.fmt(m.score, 3) + '</b><span class="rank-tag">' + (rk.score ? '#' + rk.score : '') + '</span></div>' +
+      '<div class="stat-line"><span>Tm type</span><b>' + U.esc(row.variantType) + '</b></div>' +
       '<button type="button" class="btn-primary select-radar-poke" data-dex="' + row.dex + '">Select</button>';
   }
 
   function statFmt(k, v) {
     if (v == null) return '—';
-    if (k === 'hp' || k === 'spd') return U.fmt(v, 0);
-    if (k === 'pa' || k === 'sa' || k === 'df' || k === 'sd') return U.fmt(v, 2);
+    if (k === 'hp' || k === 'spd' || k === 'bst') return U.fmt(v, 0);
+    if (k === 'pa' || k === 'sa') return U.fmt(v, 2);
+    if (k === 'df' || k === 'sd') return U.fmt(v, 0);
     if (k === 'hit') return U.fmt(v, 1);
     return U.fmt(v, 3);
   }

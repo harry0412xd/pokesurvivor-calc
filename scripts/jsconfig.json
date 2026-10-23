@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "maxNodeModuleJsDepth": 0
+  },
+  "include": [
+    "./**/*.js",
+    "./.erpnext-types/**/*.d.ts"
+  ],
+  "exclude": [
+    ".history",
+    "**/node_modules",
+    "**/.git"
+  ]
+}

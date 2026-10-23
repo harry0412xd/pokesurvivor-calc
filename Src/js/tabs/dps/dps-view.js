@@ -29,7 +29,8 @@ PSC.Views.Dps = (function () {
     return '<div class="tt-title">' + U.esc(row.name) + ' · Lv' + n + '</div>' +
       '<div class="tt-result">' + U.esc(b.expr) + '</div>' +
       '<div class="tt-step">' + c.dmg + ' dmg × ' + c.count + ' hit · ATK ' + U.fmt(c.atkUse, 2) +
-      ' · type ' + U.fmt(c.typeFactor, 3) + ' · weather ' + U.fmt(c.weatherFactor, 3) + '</div>' +
+      ' · type ' + U.fmt(c.typeFactor, 3) + ' · weather ' + U.fmt(c.weatherFactor, 3) +
+      ' · ability ' + U.fmt(c.abilityFactor, 3) + '</div>' +
       (b.poisonDps ? '<div class="tt-step">poison DoT ' + U.fmt(b.poisonDps, 1) + ' DPS</div>' : '') +
       (b.burnDps ? '<div class="tt-step">burn DoT ' + U.fmt(b.burnDps, 1) + ' DPS</div>' : '') +
       '<div class="tt-muted">DPS ' + Math.round(b.dps) + '</div>';
@@ -49,7 +50,7 @@ PSC.Views.Dps = (function () {
       const lv = n => '<td class="tip-num" ' + PSC.UI.tip('dps:' + r.id + ':' + n, levelTip(r, n)) + '>' + r['lv' + n] + '</td>';
       const multTip = '<div class="tt-title">dmg multi</div><div class="tt-step">' +
         U.fmt(r.atkM, 3) + ' (ATK) × ' + U.fmt(r.covM, 3) + ' (spawn type) × ' +
-        U.fmt(r.wxM, 3) + ' (weather) = <b>' + U.fmt(r.mult, 3) + '</b></div>';
+        U.fmt(r.wxM, 3) + ' (weather) × ' + U.fmt(r.abM, 3) + ' (ability) = <b>' + U.fmt(r.mult, 3) + '</b></div>';
       return '<tr data-move-id="' + U.esc(r.id) + '" class="' + (r.usable ? '' : 'dps-unusable') + '">' +
         '<td class="text-left">' + U.esc(r.name) + '</td>' +
         '<td class="text-left"><span class="type-badge" style="background:' + color + '33;color:' + color + '">' + U.esc(r.type) + '</span></td>' +

@@ -7,16 +7,12 @@ PSC.UI = (function () {
   let currentTipKey = null;
   let inited = false;
 
-  const COLUMN_LABELS = {
-    dex: '#', name: 'Pokémon', types: 'Types', ability: 'Ability', variant: 'Move type',
-    pa: 'PA', sa: 'SA', df: 'DF', sd: 'SD', hp: 'HP', spd: 'SPD', hit: 'r', bst: 'BST',
-    hitbox: 'hitbox multi', dodge: 'dodge (ability)', dr: 'damage reduction',
-    ehp: 'EHP', offense: 'offensive rating (pool avg)', score: 'overall score', gen: 'Gen'
-  };
+  const COLUMN_LABELS = PSC.Labels.COLUMN_LABELS;
 
   function init() {
     if (inited) return;
     inited = true;
+    PSC.Labels.syncTableHeaders(document.getElementById('pokeTable'));
 
     document.addEventListener('mouseover', e => {
       const el = e.target.closest('[data-tipkey]');
@@ -135,7 +131,9 @@ PSC.UI = (function () {
 
   function abilityChip(id, name, selected) {
     return '<button type="button" class="type-chip ability-chip' + (selected ? ' selected' : '') +
-      '" data-ability="' + U.esc(id) + '">' + U.esc(name) + '</button>';
+      '" data-ability="' + U.esc(id) + '"' +
+      (selected ? ' title="Remove ' + U.esc(name) + '"' : '') + '>' + U.esc(name) +
+      (selected ? '<span class="chip-x" aria-hidden="true">×</span>' : '') + '</button>';
   }
 
   function scorePrefsFromInputs() {

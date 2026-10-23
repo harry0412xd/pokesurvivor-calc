@@ -146,37 +146,83 @@ PSC.Abilities = (function () {
     return (abilityNames && abilityNames[id]) || id;
   }
 
+  /** Game fallback for abilities not described by data/ability-fx.js: +8% with the primary type. */
+  function genericMods(row) {
+    const type = row && row.types && row.types[0];
+    return type ? { typeMulti: { [type]: 1.08 }, generic: true } : {};
+  }
+
   function mods(row) {
     const id = row && row.abilityId;
-    if (!id || typeof ABILITIES === 'undefined' || !ABILITIES[id] || typeof ABILITIES[id].fn !== 'function') return {};
+    if (!id) return {};
+    if (typeof ABILITIES === 'undefined' || !ABILITIES[id] || typeof ABILITIES[id].fn !== 'function') {
+      return genericMods(row);
+    }
     try {
       const r = ABILITIES[id].fn(row) || {};
       return (r && typeof r === 'object') ? r : {};
     } catch (e) { return {}; }
   }
 
-  function meta(id) {
-    const a = (typeof ABILITIES !== 'undefined') ? ABILITIES[id] : null;
-    if (!a) return { desc: '', calcDesc: 'Unknown ability', implemented: false, willNot: false };
-    let m = {};
-    try { m = a.fn({ types: [], abilityId: id }) || {}; } catch (e) { m = {}; }
-    const has = m && Object.keys(m).length > 0;
-    const wni = String(a.calcDesc || '').indexOf('Will not implement') === 0;
-    return { desc: a.desc || '', calcDesc: a.calcDesc || '', implemented: has, willNot: wni };
+  function groupsFor(id) {
+    return (PSC.AbilityGroups && PSC.AbilityGroups.classify)
+      ? PSC.AbilityGroups.classify(id)
+      : { conditions: [], effects: [] };
   }
 
-  function dodge(id) {
-    const d = ABILITY_DODGE[id];
-    if (!d) return { chance: 0, factor: 1, applied: false, conditional: null, note: '', specialOnly: false };
-    const applied = !d.conditional;
+  function meta(id) {
+    const a = (typeof ABILITIES !== 'undefined') ? ABILITIES[id] : null;
+    if (!a) {
+      return {
+        desc: 'Generic primary-type passive (the game has no specific effect for this ability).',
+        calcDesc: 'Game fallback: +8% damage with its primary type.',
+        implemented: true,
+        willNot: false,
+        groups: groupsFor(id)
+      };
+    }
+    // Decide from the declared model, not from fn({types: []}): several effects
+    // depend on the Pokémon's types and return {} when given an empty stub.
+    const calcDesc = String(a.calcDesc || '');
+    const wni = calcDesc.indexOf('Will not implement') === 0;
+    const utility = calcDesc.indexOf('Utility only') === 0;
     return {
-      chance: d.chance,
-      factor: applied ? 1 / Math.max(0.01, 1 - d.chance) : 1,
-      applied,
-      conditional: d.conditional || null,
-      note: d.note || '',
-      specialOnly: !!d.specialOnly
+      desc: a.desc || '',
+      calcDesc,
+      implemented: !!calcDesc && !wni && !utility,
+      willNot: wni,
+      groups: groupsFor(id)
     };
+  }
+
+  function dodge(rowOrId) {
+    const isRow = rowOrId && typeof rowOrId === 'object';
+    const id = isRow ? rowOrId.abilityId : rowOrId;
+    const meta = (id && ABILITY_DODGE[id]) || null;
+    if (!id) return { chance: 0, factor: 1, applied: false, conditional: null, note: '', specialOnly: false };
+
+    let m = {};
+    try {
+      m = isRow ? mods(rowOrId) : (ABILITIES[id] && typeof ABILITIES[id].fn === 'function'
+        ? (ABILITIES[id].fn({ types: [], abilityId: id }) || {})
+        : {});
+    } catch (e) { m = {}; }
+
+    const hasNormal = m.dodge != null && +m.dodge > 0;
+    const hasSpecial = m.dodgeSpecial != null && +m.dodgeSpecial > 0;
+    const chance = hasNormal ? +m.dodge : (hasSpecial ? +m.dodgeSpecial : 0);
+    if (chance > 0 || meta) {
+      const applied = chance > 0;
+      return {
+        chance,
+        factor: applied ? 1 / Math.max(0.01, 1 - chance) : 1,
+        applied,
+        conditional: null,
+        note: m.dodgeNote || (meta && meta.note) || '',
+        specialOnly: !hasNormal && hasSpecial
+      };
+    }
+    return { chance: 0, factor: 1, applied: false, conditional: null, note: '', specialOnly: false };
   }
 
   function allIds(dexAbil) {

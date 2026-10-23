@@ -22,18 +22,28 @@ PSC.Models.Abilities = (function () {
       desc: meta.desc || '',
       calcDesc: meta.calcDesc || '',
       implemented: !!meta.implemented,
-      willNot: !!meta.willNot
+      willNot: !!meta.willNot,
+      groups: meta.groups || { conditions: [], effects: [] }
     };
   }
 
-  function list(q, implOnly) {
+  function groupText(groups) {
+    return (groups.conditions || []).concat(groups.effects || [])
+      .map(key => PSC.AbilityGroups.label(key)).join(' ');
+  }
+
+  function list(q, implOnly, group) {
     const query = String(q || '').trim().toLowerCase();
     return allIds().map(row).filter(r => {
       if (implOnly && !r.implemented) return false;
+      if (group && !r.groups.conditions.includes(group) && !r.groups.effects.includes(group)) return false;
       if (!query) return true;
-      return (r.name + ' ' + r.id + ' ' + r.desc + ' ' + r.calcDesc).toLowerCase().includes(query);
+      return (r.name + ' ' + r.id + ' ' + r.desc + ' ' + r.calcDesc + ' ' + groupText(r.groups))
+        .toLowerCase().includes(query);
     });
   }
 
-  return { allIds, row, list };
+  function groups() { return PSC.AbilityGroups.groups(); }
+
+  return { allIds, row, list, groups };
 })();

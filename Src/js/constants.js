@@ -58,16 +58,6 @@ const RAW_CHART = {
   fairy:    { fire: .5, fighting: 2, poison: .5, dragon: 2, dark: 2, steel: .5 }
 };
 
-/** Fallback enemy tiers if enemies.js parse fails (overwritten live). */
-const DEFAULT_TIERS_BST = [
-  { from: 0,   to: 70,  bst: [180, 330], cast: 7 },
-  { from: 70,  to: 160, bst: [300, 405], cast: 7 },
-  { from: 160, to: 260, bst: [385, 465], cast: 7 },
-  { from: 260, to: 380, bst: [445, 515], cast: 7 },
-  { from: 380, to: 500, bst: [495, 560], cast: 7 },
-  { from: 500, to: 1800, bst: [530, 620], cast: 7 }
-];
-
 /** Precomputed weather uptime averages per type (biome-weighted). */
 const WEATHER_AVG_MULT = {
   normal: 1.000, fire: 1.003, water: 0.997, electric: 1.006, grass: 1.000,
@@ -113,7 +103,10 @@ const MECHANICS_GROUPS = [
     items: [
       'Super-effective ×1.6 · resist ×0.6 · immune ×0.3',
       'Dual types multiply; result clamped to [0.3, 2.4]',
-      'Spawn-weighted values feed offense rating and damage reduction'
+      'Spawn-weighted values feed offense rating and damage reduction',
+      'Enemy tiers are read directly from enemies.js: each tier unlocks at <code>from</code> and uses its game BST band',
+      'Spawn mix follows <code>bagAt(t)</code>: tier weight 10 for its first 260 s, then 3; integrated over the 30-minute run',
+      'Candidates match the game: <code>rarity &lt; 5</code> plus an available sprite; no hand-written tier fallback'
     ]
   },
   {
@@ -159,6 +152,19 @@ const MECHANICS_GROUPS = [
       'Poison DoT uses config Ref enemy HP',
       'Burn DoT uses config Ref player level',
       'Toggle Include DoT on the DPS table to fold these into listed DPS'
+    ]
+  },
+  {
+    title: 'Ability modelling (abilities.js)',
+    items: [
+      'Conditional effects are folded in as expected uptimes instead of ignored',
+      'Below-HP conditions (below 1/3 or 1/2) are treated as 0% uptime',
+      'One-time triggers (Anger Point) are treated as 100% effect and uptime after the trigger',
+      'Near-full HP: 50% at ≥95% · weather: 18% per weather · summon abilities add 25% extra uptime',
+      'Slowed: 25% · Moxie/Beast Boost: half of the +15% cap · Speed Boost: half of +30%',
+      'Crit abilities assume 10% base crit from upgrades and ×1.5 base crit damage',
+      'Single-target conditions (tinted lens, scrappy, rivalry, justified) are spawn-weighted over enemy type groups',
+      'Contact, economy, shield-break and pure slow-immunity abilities are utility only'
     ]
   }
 ];

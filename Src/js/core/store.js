@@ -5,14 +5,13 @@ PSC.Store = (function () {
   const U = PSC.Utils;
 
   const DEFAULT_COLUMNS = [
-    'dex', 'name', 'types', 'ability', 'variant',
+    'dex', 'gen', 'name', 'types', 'ability', 'variant',
     'pa', 'sa', 'df', 'sd', 'hp', 'spd', 'hit', 'bst',
-    'hitbox', 'dodge', 'dr', 'ehp', 'offense', 'score', 'gen'
+    'hitbox', 'dodge', 'dr', 'ehp', 'offense', 'score'
   ];
   const DEFAULT_AXES = {
-    pa: false, sa: false, df: false, sd: false, hp: true, spd: true, hit: false,
-    typeM: false, wxM: false, phyM: true, speM: true, phyDefM: true, speDefM: true,
-    dr: false, dodge: true, ehp: false, score: false
+    pa: true, sa: true, df: true, sd: true, hp: true, spd: true, hit: false,
+    bst: false, hitbox: true, dodge: true, dr: true, ehp: true, offense: true, score: true
   };
 
   function loadScoring() {

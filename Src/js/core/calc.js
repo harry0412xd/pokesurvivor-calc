@@ -119,7 +119,12 @@ PSC.Calc = (function () {
         ? (cfg.mon.sa != null ? cfg.mon.sa : cfg.mon.atk)
         : (cfg.mon.pa != null ? cfg.mon.pa : cfg.mon.atk)) || atkUse;
     }
-    const mult = atkUse * typeFactor * weatherFactor;
+    let abilityFactor = 1;
+    if (cfg.mon && cfg.applyAbility !== false) {
+      const am = abilityMods(cfg.mon);
+      abilityFactor = abilityOutWithMods(am, s.cat, s.type, s) * targetOutForMove(am, s);
+    }
+    const mult = atkUse * typeFactor * weatherFactor * abilityFactor;
     const dmg = +s.dmg;
     const cd = +s.cd;
     const kind = s.kind;
@@ -243,7 +248,7 @@ PSC.Calc = (function () {
       burnDps,
       mobHits: mobInfo.n,
       mobDetail: mobInfo.detail,
-      components: { atkUse, typeFactor, weatherFactor, mult, dmg, cd, count }
+      components: { atkUse, typeFactor, weatherFactor, abilityFactor, mult, dmg, cd, count }
     };
   }
 
@@ -306,7 +311,7 @@ PSC.Calc = (function () {
   }
 
   /** Outgoing ability multiplier for a concrete move instance. */
-  function abilityOutWithMods(am, cat, type) {
+  function abilityOutWithMods(am, cat, type, move) {
     let m = 1;
     if (am.out != null) m *= am.out;
     if (cat === 'physical' && am.outPhy != null) m *= am.outPhy;
@@ -314,11 +319,32 @@ PSC.Calc = (function () {
     if (cat === 'physical' && am.pa != null) m *= am.pa;
     if (cat === 'special' && am.sa != null) m *= am.sa;
     if (am.typeMulti && am.typeMulti[type] != null) m *= am.typeMulti[type];
+    if (typeof am.moveOut === 'function' && move) m *= +(am.moveOut(move) || 1);
     return m;
   }
 
   function abilityOut(row, move) {
-    return abilityOutWithMods(abilityMods(row), move && move.cat, move && move.type);
+    return abilityOutWithMods(abilityMods(row), move && move.cat, move && move.type, move);
+  }
+
+  /** Full outgoing ability multiplier, including spawn-weighted target conditions. */
+  function abilityOutForMove(row, move) {
+    const am = abilityMods(row);
+    return abilityOutWithMods(am, move && move.cat, move && move.type, move) * targetOutForMove(am, move);
+  }
+
+  /** Spawn-weighted target-conditional multiplier (tinted lens, scrappy, rivalry...). */
+  function targetOutForMove(am, move) {
+    if (typeof am.targetOut !== 'function' || !move) return 1;
+    const d = data();
+    const weights = d.enemyWeights || [];
+    if (!weights.length) return 1;
+    const total = weights.reduce((a, e) => a + (e.pct || 0), 0) || 100;
+    let sum = 0;
+    for (const e of weights) {
+      sum += ((e.pct || 0) / total) * (+(am.targetOut(move, e)) || 1);
+    }
+    return sum || 1;
   }
 
   const METRIC_CFG = {
@@ -354,9 +380,9 @@ PSC.Calc = (function () {
    * Moves with higher raw DPS pull the average harder (specialty), while every
    * available move still contributes (flexibility).
    */
-  function offenseForRow(row, mon) {
+  function offenseForRow(row, mon, am) {
     const d = data();
-    const am = abilityMods(row);
+    am = am || abilityMods(row);
     const details = [];
     for (const id of row.moveIds || []) {
       const def = d.movesById[id];
@@ -372,7 +398,7 @@ PSC.Calc = (function () {
           : (mon.pa != null ? mon.pa : mon.atk);
         const tm = d.avgTypeMult[def.type] != null ? d.avgTypeMult[def.type] : 1;
         const wx = WEATHER_AVG_MULT[def.type] != null ? WEATHER_AVG_MULT[def.type] : 1;
-        const ab = abilityOutWithMods(am, cat, def.type);
+        const ab = abilityOutWithMods(am, cat, def.type, def) * targetOutForMove(am, def);
         const factor = (stat || 1) * tm * wx * ab;
         const adjusted = raw * factor;
         if (!pick || adjusted > pick.adjustedDps) {
@@ -422,7 +448,7 @@ PSC.Calc = (function () {
   }
 
   function dodgeFactor(row) {
-    const d = PSC.Abilities.dodge(row.abilityId);
+    const d = PSC.Abilities.dodge(row);
     const profile = data().enemyAttackProfile;
     let specialOnlyFactor = 1;
     if (d.specialOnly && d.chance) {
@@ -439,14 +465,16 @@ PSC.Calc = (function () {
   }
 
   /** Spawn-weighted incoming multiplier, including type, weather, guards, ability. */
-  function damageReduction(row, mon) {
+  function damageReduction(row, mon, am) {
     const d = data();
-    const am = abilityMods(row);
+    am = am || abilityMods(row);
     const profile = d.enemyAttackProfile;
     const typeDef = PSC.TypeChart.defenseTypeScore(mon.types, d.enemyWeights);
     const wxDef = PSC.TypeChart.defenseWeatherScore(d.enemyWeights);
-    const dfG = guardDef(mon.df);
-    const sdG = guardDef(mon.sd);
+    const dfStat = mon.df != null ? +mon.df * (am.df != null ? am.df : 1) : mon.df;
+    const sdStat = mon.sd != null ? +mon.sd * (am.sd != null ? am.sd : 1) : mon.sd;
+    const dfG = guardDef(dfStat);
+    const sdG = guardDef(sdStat);
 
     const rows = [];
     let sum = 0, wsum = 0;
@@ -460,6 +488,8 @@ PSC.Calc = (function () {
       if (e.cat === 'special' && am.inSpe != null) ability *= am.inSpe;
       if (e.cat === 'physical' && am.inPhy != null) ability *= am.inPhy;
       if (am.typeDefMulti && am.typeDefMulti[e.atkType] != null) ability *= am.typeDefMulti[e.atkType];
+      if (am.inSuper != null && m > 1.0001) ability *= am.inSuper;
+      if (am.inNotSuper != null && m <= 1.0001) ability *= am.inNotSuper;
       const combined = m * wx * guard * ability;
       sum += (e.weight || 0) * combined;
       wsum += (e.weight || 0);
@@ -481,11 +511,14 @@ PSC.Calc = (function () {
 
   function metricCore(row, natureId, prefs) {
     const mon = withNature(row, natureId);
-    const off = offenseForRow(row, mon);
-    const def = damageReduction(row, mon);
+    const am = abilityMods(row);
+    const off = offenseForRow(row, mon, am);
+    const def = damageReduction(row, mon, am);
     const hit = hitMulti(mon, prefs);
     const dodge = dodgeFactor(row);
-    const ehp = def.dr > 0 ? (hit * dodge.factor) / def.dr : hit * dodge.factor;
+    const hpMul = am.hp != null ? +am.hp || 1 : 1;
+    const ehp = def.dr > 0 ? (hit * dodge.factor * hpMul) / def.dr : hit * dodge.factor * hpMul;
+    const spdMul = am.spd != null ? +am.spd || 1 : 1;
     return {
       mon,
       natureId: natureId || 'neutral',
@@ -503,7 +536,9 @@ PSC.Calc = (function () {
       dodge,
       dr: def,
       ehp,
-      spd: mon.spd != null ? +mon.spd : 0,
+      hpMul,
+      spdMul,
+      spd: (mon.spd != null ? +mon.spd : 0) * spdMul,
       paNat: mon.pa != null ? mon.pa : mon.atk,
       saNat: mon.sa != null ? mon.sa : mon.atk
     };
@@ -720,7 +755,7 @@ PSC.Calc = (function () {
         '<td>×' + x.ability.toFixed(3) + '</td>' +
         '<td class="' + defClass(x.combined) + '"><b>×' + x.combined.toFixed(3) + '</b></td></tr>';
     }).join('');
-    const ehp = (m.hitMulti * m.dodge.factor) / (m.dr.dr || 1);
+    const ehp = (m.hitMulti * m.dodge.factor * (m.hpMul || 1)) / (m.dr.dr || 1);
     return {
       title: 'Damage reduction — ' + row.name + ' · ' + (row.abilityName || '—'),
       subtitle: 'Spawn-weighted incoming multiplier <b>×' + m.dr.dr.toFixed(3) + '</b> · type ×' + m.dr.typeDef.toFixed(3) +
@@ -738,14 +773,12 @@ PSC.Calc = (function () {
     const m = ensureRow(row, prefs);
     const hs = hitSteps(m.mon, prefs);
     const abilityRows = Object.keys(ABILITY_DODGE).map(id => {
-      const d = ABILITY_DODGE[id];
-      const applied = !d.conditional;
-      const factor = applied ? 1 / (1 - d.chance) : 1;
+      const d = PSC.Abilities.dodge(id);
       const mine = id === row.abilityId;
       return '<tr class="' + (mine ? 'row-highlight' : '') + '"><td class="text-left">' + U.esc(PSC.Data.abilityName(id)) +
         ' <span class="muted-soft">' + U.esc(id) + '</span></td>' +
-        '<td>' + U.pct(d.chance, 0) + '</td>' +
-        '<td class="' + (applied ? 'mult-super' : 'muted-soft') + '">×' + factor.toFixed(3) + '</td>' +
+        '<td>' + U.pct(d.chance, 1) + '</td>' +
+        '<td class="' + (d.applied ? 'mult-super' : 'muted-soft') + '">×' + d.factor.toFixed(3) + '</td>' +
         '<td class="text-left">' + U.esc(d.note || '') + '</td></tr>';
     }).join('');
     return {
@@ -757,24 +790,25 @@ PSC.Calc = (function () {
         '<div class="table-wrap compact matrix-table"><table><thead><tr>' +
         '<th class="text-left">Dodge ability</th><th>Chance</th><th>Factor</th><th class="text-left">Condition</th>' +
         '</tr></thead><tbody>' + abilityRows + '</tbody></table></div>' +
-        '<p class="note">Only unconditional dodges are folded into the multiplier. Conditional dodges are listed here for reference.</p>'
+        '<p class="note">Conditional dodges are folded in as expected uptime (weather 18%, slowed 25%).</p>'
     };
   }
 
   function ehpMatrix(row, prefs) {
     const m = ensureRow(row, prefs);
     const hs = hitSteps(m.mon, prefs);
-    const ehp = (m.hitMulti * m.dodge.factor) / (m.dr.dr || 1);
+    const ehp = (m.hitMulti * m.dodge.factor * (m.hpMul || 1)) / (m.dr.dr || 1);
     return {
       title: 'EHP breakdown — ' + row.name + ' · ' + (row.abilityName || '—'),
-      subtitle: 'EHP = hitbox multi × ability dodge ÷ damage reduction',
+      subtitle: 'EHP = hitbox multi × ability dodge × ability HP ÷ damage reduction',
       html: '<div class="table-wrap compact matrix-table"><table><thead><tr>' +
         '<th class="text-left">Term</th><th>Value</th><th class="text-left">Notes</th></tr></thead><tbody>' +
         '<tr><td class="text-left">Hitbox r</td><td>' + hs.r.toFixed(1) + '</td><td class="text-left">Baseline median ' + hs.med.toFixed(2) + '</td></tr>' +
         '<tr><td class="text-left">Hitbox multi</td><td class="mult-super">×' + m.hitMulti.toFixed(3) + '</td><td class="text-left">' + hs.text + ' (higher is better)</td></tr>' +
-        '<tr><td class="text-left">Ability dodge</td><td class="mult-super">×' + m.dodge.factor.toFixed(3) + '</td><td class="text-left">' + U.esc(m.dodge.note || 'No unconditional dodge') + '</td></tr>' +
+        '<tr><td class="text-left">Ability dodge</td><td class="mult-super">×' + m.dodge.factor.toFixed(3) + '</td><td class="text-left">' + U.esc(m.dodge.note || 'No dodge') + '</td></tr>' +
+        '<tr><td class="text-left">Ability HP</td><td class="mult-super">×' + (m.hpMul || 1).toFixed(3) + '</td><td class="text-left">Max-HP modifier from the ability</td></tr>' +
         '<tr><td class="text-left">Damage reduction</td><td class="' + defClass(m.dr.dr) + '">×' + m.dr.dr.toFixed(3) + '</td><td class="text-left">Spawn-weighted incoming after type, weather, guards and ability</td></tr>' +
-        '<tr class="row-highlight"><td class="text-left"><b>EHP</b></td><td><b>' + ehp.toFixed(3) + '</b></td><td class="text-left">' + m.hitMulti.toFixed(3) + ' × ' + m.dodge.factor.toFixed(3) + ' ÷ ' + m.dr.dr.toFixed(3) + '</td></tr>' +
+        '<tr class="row-highlight"><td class="text-left"><b>EHP</b></td><td><b>' + ehp.toFixed(3) + '</b></td><td class="text-left">' + m.hitMulti.toFixed(3) + ' × ' + m.dodge.factor.toFixed(3) + ' × ' + (m.hpMul || 1).toFixed(3) + ' ÷ ' + m.dr.dr.toFixed(3) + '</td></tr>' +
         '</tbody></table></div>'
     };
   }
@@ -822,6 +856,7 @@ PSC.Calc = (function () {
     withNature,
     abilityMods,
     abilityOut,
+    abilityOutForMove,
     offenseForRow,
     dodgeFactor,
     damageReduction,

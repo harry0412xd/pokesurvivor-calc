@@ -1,5 +1,26 @@
 /* PokéSurvivor Toolkit — changelog */
 const CHANGELOG = [
+      { v: '2.2.32', date: '2026-10-23', items: [
+        'Pokédex ability filter is now a search-and-add box; selected abilities are click-to-remove chips, and clicking a row in the Abilities table adds that ability',
+        'Radar axes now use the same clickable table labels as the Pokédex headers; the checkbox row was removed',
+        'Abilities are classified into condition groups (always, HP, weather, on hit/KO, target, move, crit, once, item, time, boss) and effect groups (damage, defence, absorb, sustain, speed, stats, dodge, utility, drawback); one ability can belong to several groups',
+        'Abilities tab has a Groups column and a group filter',
+        'Below-HP abilities (Blaze, Overgrow, Swarm, Torrent, Guts, Zen Mode) are now treated as 0% uptime; Anger Point is treated as a full +25% after its one-time trigger'
+      ]},
+      { v: '2.2.31', date: '2026-10-23', items: [
+        'Enemy spawn weighting now follows the game: tiers come only from enemies.js TIERS and use bagAt(t) weights (10 for a new tier, 3 after 260 s) instead of a hand-written BST fallback',
+        'Tier candidates now match the game filter (rarity < 5 plus a sprite); spawner rate is used only to weight the time-integrated mix',
+        'Pokédex radar axes now match the numeric table columns, in table order, with a shared full-name → abbreviation dictionary in js/labels.js',
+        'Pokédex headers shortened to hb, dodg, dr, OR and Scr; Gen moved directly after #; Move type renamed to Tm type'
+      ]},
+      { v: '2.2.30', date: '2026-10-23', items: [
+        'Ability modelling rebuilt from the game\'s data/ability-fx.js: 127 explicit effects plus the game\'s generic primary-type +8% fallback for every other ability',
+        'Conditional effects are folded in as expected uptimes (low/half HP, weather, slowed, summons) instead of being ignored or marked "will not implement"',
+        'New ability hooks: per-move conditions, spawn-weighted target conditions, DF/SD stats, super-effective/neutral incoming, max HP, speed, expected dodge',
+        'Fixed Huge Power / Pure Power applying ×1.5 twice (now ×1.5 total) and sustain abilities returning a nested object (now applied correctly)',
+        'Ability multipliers now also feed the DPS and Calculator tabs, with an ability term in the damage-multiplier tooltip',
+        'Abilities tab distinguishes Calculated, Utility only and Will not implement; Mechanics tab documents the ability assumptions'
+      ]},
       { v: '2.2.29', date: '2026-10-23', items: [
         'Radar legend entries are now the toggles: all-rows average and each type average turn on/off independently',
         'Offensive rating now uses the spawn-weighted average DPS of all available moves, normalized by a neutral baseline (×); best-move skill DPS is no longer the score input',

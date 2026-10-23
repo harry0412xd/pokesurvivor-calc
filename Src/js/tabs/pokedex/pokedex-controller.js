@@ -65,6 +65,43 @@ PSC.Controllers.Pokedex = (function () {
       PSC.Store.toggleSet('pokedex.abilitySel', b.dataset.ability);
     });
 
+    function addAbilityFromInput() {
+      const input = document.getElementById('pokeAbilitySearch');
+      if (!input) return;
+      const raw = input.value.trim();
+      if (!raw) return;
+      const query = raw.toLowerCase();
+      const options = PSC.Models.Pokedex.abilityOptions();
+      const nameOf = id => String(PSC.Data.abilityName(id)).toLowerCase();
+      const match = options.find(id => id.toLowerCase() === query || nameOf(id) === query) ||
+        options.find(id => nameOf(id).startsWith(query) || id.startsWith(query)) ||
+        options.find(id => nameOf(id).includes(query) || id.includes(query));
+      if (!match) {
+        input.setCustomValidity('No matching ability');
+        input.reportValidity();
+        return;
+      }
+      input.setCustomValidity('');
+      resetPage();
+      const current = PSC.Store.state.pokedex.abilitySel || new Set();
+      if (!current.has(match)) PSC.Store.set('pokedex.abilitySel', new Set([...current, match]));
+      input.value = '';
+      input.focus();
+    }
+
+    const aSearch = document.getElementById('pokeAbilitySearch');
+    if (aSearch) {
+      aSearch.addEventListener('input', () => aSearch.setCustomValidity(''));
+      aSearch.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        addAbilityFromInput();
+      });
+      aSearch.addEventListener('change', addAbilityFromInput);
+    }
+    const aAdd = document.getElementById('pokeAbilityAdd');
+    if (aAdd) aAdd.addEventListener('click', addAbilityFromInput);
+
     const tBox = document.getElementById('pokeTypeChips');
     if (tBox) tBox.addEventListener('click', e => {
       const b = e.target.closest('button');
@@ -147,10 +184,14 @@ PSC.Controllers.Pokedex = (function () {
 
     // Radar modal controls
     const axes = document.getElementById('radarAxisToggles');
-    if (axes) axes.addEventListener('change', e => {
-      const cb = e.target.closest('input[data-axis]');
-      if (!cb) return;
-      PSC.Store.state.radar.axes[cb.dataset.axis] = cb.checked;
+    if (axes) axes.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-axis]');
+      if (!btn) return;
+      const key = btn.dataset.axis;
+      const on = !PSC.Store.state.radar.axes[key];
+      PSC.Store.state.radar.axes[key] = on;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
       const row = radarCurrentRow();
       if (row) PSC.Views.Pokedex.drawRadar(row);
     });

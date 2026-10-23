@@ -167,7 +167,9 @@ PSC.Data = (function () {
         return out;
       });
 
-    const tiers = (G.Enemies && Array.isArray(G.Enemies.TIERS) ? G.Enemies.TIERS : DEFAULT_TIERS_BST)
+    // Tiers come only from the game's enemies.js. There is no hand-written BST
+    // fallback: if the source is unavailable, spawn weighting is unavailable.
+    const tiers = (G.Enemies && Array.isArray(G.Enemies.TIERS) ? G.Enemies.TIERS : [])
       .map(t => Object.assign({}, t, { bst: (t.bst || [0, 9999]).slice() }));
 
     return {
@@ -247,7 +249,7 @@ PSC.Data = (function () {
   }
 
   function rebuildDerived(data) {
-    const ctx = { spawnRateFn: data.spawnRateFn, spawnDensity: 0.24 };
+    const ctx = { spawnRateFn: data.spawnRateFn, spriteMeta: data.spriteMeta };
     data.enemyWeights = PSC.TypeChart.buildEnemyWeights(data.dex, data.tiers, ctx);
     data.enemyAttackProfile = PSC.TypeChart.buildEnemyAttackProfile(data.dex, data.tiers, ctx);
     data.avgTypeMult = PSC.TypeChart.buildAvgTypeMultipliers(data.enemyWeights);
