@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>PokéSurvivor Calc</title>
+  <link rel="stylesheet" href="css/app.css?v=2.2.29" />
+</head>
+<body>
+  <div class="container">
+    <header class="app-head">
+      <h1>PokéSurvivor Calc <span id="verInline" class="ver-badge">v0</span></h1>
+      <p class="subtitle">MVC rewrite · Pokédex rows per (Pokémon × ability × move type)</p>
+    </header>
+
+    <div id="globalPokeBar" class="global-poke-bar">
+      <div id="globalPokeSprite" class="global-poke-spr empty" aria-hidden="true"></div>
+      <div class="global-poke-meta">
+        <div class="global-poke-line">
+          <strong id="globalPokeName">None</strong>
+          <button type="button" class="btn-secondary global-poke-clear" data-action="clear-global-poke">Clear</button>
+        </div>
+        <div id="globalPokeStats" class="global-poke-stats"></div>
+        <div class="global-poke-search-wrap">
+          <input type="text" id="globalPokeSearch" placeholder="Search Pokémon... (prefix or ~contains)" autocomplete="off" />
+          <div id="globalPokeResults" class="global-poke-results" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <nav id="tabBar" class="tabs">
+      <button type="button" class="tab active" data-tab="dps">DPS Table</button>
+      <button type="button" class="tab" data-tab="calc">Calculator</button>
+      <button type="button" class="tab" data-tab="pokedex">Pokédex</button>
+      <button type="button" class="tab" data-tab="combos">Best Combos</button>
+      <button type="button" class="tab" data-tab="multipliers">Multipliers</button>
+      <button type="button" class="tab" data-tab="abilities">Abilities</button>
+      <button type="button" class="tab" data-tab="items">Items</button>
+      <button type="button" class="tab" data-tab="mechanics">Mechanics</button>
+      <button type="button" class="tab" data-tab="changelog">Changelog</button>
+      <button type="button" class="tab" data-tab="config">Config</button>
+    </nav>
+
+    <main id="panels">
+      <!-- ------------------------------------------------------------------ DPS -->
+      <section class="panel active" id="panel-dps" data-panel="dps">
+        <h2>DPS Table (Move Level 1 → 5)</h2>
+        <div class="filters">
+          <div>
+            <label class="ios-toggle-label">
+              <span>Single</span>
+              <span class="ios-toggle">
+                <input type="checkbox" id="dpsMobbing" />
+                <span class="ios-toggle-slider"></span>
+              </span>
+              <span>Mobbing</span>
+            </label>
+          </div>
+          <div>
+            <label for="dpsSearch">Search</label>
+            <input type="text" id="dpsSearch" placeholder="prefix... or ~contains" />
+          </div>
+          <div>
+            <label for="dpsCatFilter">Category</label>
+            <select id="dpsCatFilter">
+              <option value="">All</option>
+              <option value="physical">Physical</option>
+              <option value="special">Special</option>
+            </select>
+          </div>
+        </div>
+        <div id="mobbingOpts" class="mobbing-sub" hidden>
+          <div class="mobbing-sub-title">Mobbing</div>
+          <div class="filters" style="margin:0">
+            <div>
+              <label>Proj hit %</label>
+              <input type="number" id="projHitPct" value="70" min="1" max="100" step="1" />
+            </div>
+            <div>
+              <label>Avg enemy r</label>
+              <input type="number" id="avgEnemyR" value="12" min="1" max="40" step="0.5" />
+            </div>
+          </div>
+        </div>
+        <div class="filters">
+          <div>
+            <label><input type="checkbox" id="useAvgType" checked /> Spawn-normalised weakness</label>
+          </div>
+          <div>
+            <label><input type="checkbox" id="usePoison" /> Include DoT (poison / burn)</label>
+          </div>
+          <div>
+            <label><input type="checkbox" id="hideUnusableMoves" checked /> Hide unusable skills</label>
+          </div>
+        </div>
+        <div class="filters-block">
+          <label>Types</label>
+          <div id="dpsTypeChips" class="chip-row"></div>
+        </div>
+        <div class="filters-block">
+          <label>Kinds</label>
+          <div id="dpsKindChips" class="chip-row kind-chips"></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="text-left" data-sort="name">Move <span class="arrow"></span></th>
+                <th data-sort="type">Type <span class="arrow"></span></th>
+                <th data-sort="kind">Kind <span class="arrow"></span></th>
+                <th data-sort="cat">Cat <span class="arrow"></span></th>
+                <th data-sort="mult">dmg multi <span class="arrow"></span></th>
+                <th data-sort="lv1">Lv1 <span class="arrow"></span></th>
+                <th data-sort="lv2">Lv2 <span class="arrow"></span></th>
+                <th data-sort="lv3">Lv3 <span class="arrow"></span></th>
+                <th data-sort="lv4">Lv4 <span class="arrow"></span></th>
+                <th data-sort="lv5">Lv5 <span class="arrow"></span></th>
+                <th data-sort="evo">Evo <span class="arrow"></span></th>
+              </tr>
+            </thead>
+            <tbody id="dpsBody"></tbody>
+          </table>
+        </div>
+        <h2 style="margin-top:1.1rem">Buffs (level-up effects)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="text-left">Buff</th>
+                <th>Type</th>
+                <th>Lv1</th><th>Lv2</th><th>Lv3</th><th>Lv4</th><th>Lv5</th>
+                <th class="text-left">Max stage</th>
+              </tr>
+            </thead>
+            <tbody id="buffsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ----------------------------------------------------------- Calculator -->
+      <section class="panel" id="panel-calc" data-panel="calc">
+        <h2>DPS Calculator</h2>
+        <div class="filters">
+          <div id="calcPokeInfo" class="note" style="align-self:center">Uses the selected Pokémon in the top bar.</div>
+          <div style="margin-left:auto">
+            <button type="button" class="btn-secondary" data-action="calc-clear">Clear grid</button>
+          </div>
+        </div>
+        <div class="calc-grid-wrap">
+          <table class="calc-grid" id="calcGrid">
+            <thead>
+              <tr>
+                <th></th><th>Slot 1 · Main</th><th>Slot 2</th><th>Slot 3</th><th>Slot 4</th>
+              </tr>
+            </thead>
+            <tbody id="calcGridBody"></tbody>
+          </table>
+        </div>
+        <div id="calcPicker" class="calc-picker" hidden></div>
+        <div id="calcResult" class="item-row" style="margin-top:0.55rem">
+          <div class="iname">Effective DPS: —</div>
+          <div class="idesc">Select a Pokémon and fill the grid.</div>
+        </div>
+        <h3 class="sub-heading">Size / range</h3>
+        <div id="sizePokeMeta" class="note" style="margin-bottom:0.3rem">Uses the selected Pokémon.</div>
+        <div id="sizeView" class="size-stage"></div>
+      </section>
+
+      <!-- -------------------------------------------------------------- Pokédex -->
+      <section class="panel" id="panel-pokedex" data-panel="pokedex">
+        <div class="pokedex-head">
+          <h2>Pokédex <span id="pokeCount" class="muted-soft"></span></h2>
+          <div class="pokedex-actions">
+            <button type="button" class="btn-secondary" data-action="open-scoring">Scoring</button>
+            <button type="button" class="btn-secondary" data-action="open-columns">Columns</button>
+          </div>
+        </div>
+
+        <div class="filters">
+          <div class="grow">
+            <label for="pokeSearch">Search</label>
+            <input type="text" id="pokeSearch" placeholder="name, #dex, ability, type... (prefix or ~contains)" />
+          </div>
+          <div>
+            <label for="pokeGen">Generation</label>
+            <select id="pokeGen"><option value="">All gens</option></select>
+          </div>
+          <div>
+            <label for="pokeVariantFilter">Row variant</label>
+            <select id="pokeVariantFilter">
+              <option value="all">All (natural + TM)</option>
+              <option value="tm">TM types only</option>
+              <option value="natural">Natural types only</option>
+            </select>
+          </div>
+          <div>
+            <label class="ios-toggle-label" style="margin-top:1.15rem">
+              <input type="checkbox" id="bestAbilityOnly" /> Best ability only
+            </label>
+          </div>
+        </div>
+
+        <div class="filters-block">
+          <div class="filters-block-head">
+            <label>Ability filter</label>
+            <button type="button" class="btn-secondary btn-mini" data-action="clear-abilities">Clear</button>
+          </div>
+          <div id="pokeAbilityChips" class="chip-row ability-chips"></div>
+        </div>
+
+        <div class="filters-block">
+          <div class="filters-block-head">
+            <label>Pokémon types</label>
+            <button type="button" class="btn-secondary btn-mini" data-action="clear-types">Clear types</button>
+          </div>
+          <div id="pokeTypeChips" class="chip-row"></div>
+        </div>
+
+        <div class="filters-block">
+          <div class="filters-block-head">
+            <label>Move type (row variant)</label>
+            <button type="button" class="btn-secondary btn-mini" data-action="clear-variant-types">Clear move types</button>
+          </div>
+          <div id="pokeVariantChips" class="chip-row"></div>
+        </div>
+
+        <p class="note" style="margin:0 0 0.45rem">
+          Each row is one <strong>(Pokémon, ability, move type)</strong> build. Move type is either a natural type
+          (Normal + the Pokémon's types) or a distinct damaging type learned through a TM. Click a multiplier cell to
+          open its damage matrix. Click a header to sort.
+        </p>
+
+        <div class="table-wrap pokedex-wrap">
+          <table class="poke-table" id="pokeTable">
+            <thead>
+              <tr>
+                <th class="text-left sortable col-dex" data-sort="dex"># <span class="arrow"></span></th>
+                <th class="text-left sortable col-name" data-sort="name">Pokémon <span class="arrow"></span></th>
+                <th class="text-left sortable col-types" data-sort="types">Types <span class="arrow"></span></th>
+                <th class="text-left sortable col-ability" data-sort="ability">Ability <span class="arrow"></span></th>
+                <th class="text-left sortable col-variant" data-sort="variant">Move type <span class="arrow"></span></th>
+                <th class="sortable col-pa" data-sort="pa">PA <span class="arrow"></span></th>
+                <th class="sortable col-sa" data-sort="sa">SA <span class="arrow"></span></th>
+                <th class="sortable col-df" data-sort="df">DF <span class="arrow"></span></th>
+                <th class="sortable col-sd" data-sort="sd">SD <span class="arrow"></span></th>
+                <th class="sortable col-hp" data-sort="hp">HP <span class="arrow"></span></th>
+                <th class="sortable col-spd" data-sort="spd">SPD <span class="arrow"></span></th>
+                <th class="sortable col-hit" data-sort="hit">r <span class="arrow"></span></th>
+                <th class="sortable col-bst" data-sort="bst">BST <span class="arrow"></span></th>
+                <th class="sortable col-hitbox" data-sort="hitbox" title="Hitbox evasion multiplier. Higher is better. Click a row cell for the formula.">hitbox multi <span class="arrow"></span></th>
+                <th class="sortable col-dodge" data-sort="dodge" title="Dodge granted by the ability. Higher is better.">dodge (ability) <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="dodge" title="Open dodge matrix">▦</button></th>
+                <th class="sortable col-dr" data-sort="dr" title="Spawn-weighted incoming damage multiplier after type, weather, defences and ability. Lower is better.">damage reduction <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="dr" title="Open damage-reduction matrix">▦</button></th>
+                <th class="sortable col-ehp" data-sort="ehp" title="ehp = hitbox multi × ability dodge ÷ damage reduction. Higher is better.">EHP <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="ehp" title="Open EHP breakdown">▦</button></th>
+                <th class="sortable col-offense" data-sort="offense" title="Spawn-weighted average DPS of available moves, normalized to a neutral baseline (×). Favours strong moves but counts the whole pool.">offensive rating (pool avg) <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="offense" title="Open offense matrix">▦</button></th>
+                <th class="sortable col-score" data-sort="score" title="Overall score. Click the matrix button for the score breakdown.">overall score <span class="arrow"></span><button type="button" class="matrix-btn" data-matrix="score" title="Open score breakdown">▦</button></th>
+                <th class="sortable col-gen" data-sort="gen">Gen <span class="arrow"></span></th>
+              </tr>
+            </thead>
+            <tbody id="pokeBody"></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <button type="button" class="btn-secondary" data-action="page-prev">← Prev</button>
+          <span id="pokePageInfo" class="note">—</span>
+          <button type="button" class="btn-secondary" data-action="page-next">Next →</button>
+        </div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- Combos -->
+      <section class="panel" id="panel-combos" data-panel="combos">
+        <h2>Best Type Combos</h2>
+        <p class="note" style="margin:0 0 0.55rem">Uses the DPS tab Single / Mobbing mode and its mobbing options.</p>
+        <div class="filters">
+          <div>
+            <label for="bondSize">Bond size (moves in active slot)</label>
+            <input type="number" id="bondSize" value="4" min="1" max="4" step="1" />
+          </div>
+          <div>
+            <label class="ios-toggle-label">
+              <span class="ios-toggle">
+                <input type="checkbox" id="preferSwitchSlots" />
+                <span class="ios-toggle-slider"></span>
+              </span>
+              Prefer switching active slots
+            </label>
+          </div>
+          <div>
+            <button type="button" class="btn-primary" data-action="calc-combos">Recalculate</button>
+          </div>
+        </div>
+        <div id="comboList" class="combo-list"></div>
+      </section>
+
+      <!-- ----------------------------------------------------------- Multipliers -->
+      <section class="panel" id="panel-multipliers" data-panel="multipliers">
+        <h2>Multipliers</h2>
+        <h3 class="sub-heading">A — Type chart matrix</h3>
+        <div id="weakAtkChips" class="chip-row" style="margin-bottom:0.35rem"></div>
+        <button type="button" class="btn-secondary btn-mini" data-action="clear-weak-atk">Clear selection</button>
+        <div class="table-wrap compact" style="max-height:360px">
+          <table id="weakMatrixTable"><thead id="weakMatrixHead"></thead><tbody id="weakMatrixBody"></tbody></table>
+        </div>
+
+        <h3 class="sub-heading">B — Offense multipliers (per attack type)</h3>
+        <div class="table-wrap compact">
+          <table>
+            <thead>
+              <tr><th class="text-left">Attack type</th><th>type multi</th><th>weather multi</th><th>combined</th></tr>
+            </thead>
+            <tbody id="offenseTypeBody"></tbody>
+          </table>
+        </div>
+
+        <h3 class="sub-heading">C — Defense multipliers (per your type)</h3>
+        <div class="table-wrap compact">
+          <table>
+            <thead>
+              <tr><th class="text-left">Your type(s)</th><th>type def</th><th>weather def</th><th>def multi</th></tr>
+            </thead>
+            <tbody id="defenseTypeBody"></tbody>
+          </table>
+        </div>
+
+        <h3 class="sub-heading">C2 — Hitbox evasion</h3>
+        <div id="hitboxSummary" class="note"></div>
+
+        <h3 class="sub-heading">D — Enemy type weights</h3>
+        <div class="table-wrap compact">
+          <table>
+            <thead><tr><th class="text-left">Types</th><th>%</th><th class="text-left">Examples</th></tr></thead>
+            <tbody id="enemyTypeBody"></tbody>
+          </table>
+        </div>
+        <div id="weakMultiSummary" class="note"></div>
+      </section>
+
+      <!-- ------------------------------------------------------------- Abilities -->
+      <section class="panel" id="panel-abilities" data-panel="abilities">
+        <h2>Abilities</h2>
+        <p class="note" style="margin:0 0 0.5rem">Click an ability name to filter the Pokédex to that ability.</p>
+        <div class="filters">
+          <div>
+            <label for="abilitySearch">Search</label>
+            <input type="search" id="abilitySearch" placeholder="Search ability..." />
+          </div>
+          <div>
+            <label class="ios-toggle-label" style="margin-top:1.15rem">
+              <input type="checkbox" id="abilImplOnly" /> Implemented only
+            </label>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="compact" id="abilTable">
+            <thead><tr><th class="text-left">Ability</th><th class="text-left">Description (EN)</th><th class="text-left">Calc status</th></tr></thead>
+            <tbody id="abilBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ----------------------------------------------------------------- Items -->
+      <section class="panel" id="panel-items" data-panel="items">
+        <h2>Item &amp; Ticket Drop Rates</h2>
+        <div class="table-wrap" style="max-height:none">
+          <table>
+            <thead><tr><th class="text-left">Source</th><th class="text-left">Equipable item</th><th class="text-left">Ticket ×1</th><th class="text-left">Ticket ×10</th><th class="text-left">Other</th></tr></thead>
+            <tbody id="dropBody"></tbody>
+          </table>
+        </div>
+        <h2 style="margin-top:1.1rem">Equipable items</h2>
+        <div class="combo-list" id="itemList"></div>
+      </section>
+
+      <!-- ------------------------------------------------------------- Mechanics -->
+      <section class="panel" id="panel-mechanics" data-panel="mechanics">
+        <h2>Game Mechanics</h2>
+        <div id="mechanicsBody" class="mech-groups"></div>
+      </section>
+
+      <!-- ------------------------------------------------------------- Changelog -->
+      <section class="panel" id="panel-changelog" data-panel="changelog">
+        <h2>Changelog <span id="appVersionBadge" class="muted-soft"></span></h2>
+        <div id="changelogList" class="combo-list"></div>
+      </section>
+
+      <!-- ---------------------------------------------------------------- Config -->
+      <section class="panel" id="panel-config" data-panel="config">
+        <h2>Configuration</h2>
+        <div class="config-grid">
+          <div><label for="typeMult">Type Multiplier</label><input type="number" id="typeMult" value="1.00" min="0.3" max="2.4" step="0.1" /></div>
+          <div><label for="weatherMult">Weather Multiplier (manual)</label><input type="number" id="weatherMult" value="1.00" min="0.5" max="1.5" step="0.1" /></div>
+          <div><label><input type="checkbox" id="useWeatherAvg" checked /> Use weather avg (~18% uptime)</label></div>
+          <div><label for="coneHitCap">Cone/Nova same-target hit cap</label><input type="number" id="coneHitCap" value="3" min="1" max="20" step="1" /></div>
+          <div><label for="trailTick">Trail patch tick (s)</label><input type="number" id="trailTick" value="0.5" min="0.1" max="2" step="0.05" /></div>
+          <div><label for="refEnemyHp">Ref enemy HP (poison DoT)</label><input type="number" id="refEnemyHp" value="100" min="10" max="5000" step="10" /></div>
+          <div><label for="refPlayerLvl">Ref player level (burn DoT)</label><input type="number" id="refPlayerLvl" value="20" min="1" max="100" step="1" /></div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-primary" data-action="recalc">Recalculate</button>
+          <button type="button" class="btn-secondary" data-action="reload">Force reload from GitHub</button>
+        </div>
+        <div id="status" class="status">Ready. Loading data...</div>
+      </section>
+    </main>
+  </div>
+
+  <div id="tt" class="tooltip"></div>
+
+  <!-- Radar / detail modal -->
+  <div id="radarModal" class="modal-backdrop" hidden>
+    <div class="modal-card radar-modal-card">
+      <div class="radar-head">
+        <h3 id="pokeDetailTitle">Pokémon</h3>
+        <div id="pokeDetailTypes" class="chip-row"></div>
+        <select id="radarNatureSel" title="Nature"></select>
+        <button type="button" class="btn-secondary btn-mini" data-action="close-radar">Close</button>
+      </div>
+      <div id="radarAxisToggles" class="radar-axes"></div>
+      <div class="radar-body">
+        <canvas id="pokeRadar" width="300" height="300"></canvas>
+        <div id="pokeStatList" class="poke-stat-list"></div>
+      </div>
+      <div id="radarLegend" class="radar-legend"></div>
+    </div>
+  </div>
+
+  <!-- Damage matrix modal -->
+  <div id="matrixModal" class="modal-backdrop" hidden>
+    <div class="modal-card matrix-modal-card">
+      <div class="modal-head">
+        <h3 id="matrixTitle">Damage matrix</h3>
+        <button type="button" class="btn-secondary btn-mini" data-action="close-matrix">Close</button>
+      </div>
+      <div id="matrixSubtitle" class="note"></div>
+      <div id="matrixBody"></div>
+    </div>
+  </div>
+
+  <!-- Scoring modal -->
+  <div id="scoringModal" class="modal-backdrop" hidden>
+    <div class="modal-card" style="max-width:26rem">
+      <div class="modal-head">
+        <h3>Scoring</h3>
+        <button type="button" class="btn-secondary btn-mini" data-action="close-scoring">Close</button>
+      </div>
+      <p class="note" style="margin:0 0 0.55rem">score = (offense / median)^wOff × (ehp / median)^wDef × (spd / median)^wSpd</p>
+      <div class="score-w-row"><label>Offensive</label><input type="range" id="swOffRange" min="0" max="2" step="0.05" value="1" /><input type="number" id="swOffNum" min="0" max="2" step="0.05" value="1" /></div>
+      <div class="score-w-row"><label>Defensive</label><input type="range" id="swDefRange" min="0" max="2" step="0.05" value="1" /><input type="number" id="swDefNum" min="0" max="2" step="0.05" value="1" /></div>
+      <div class="score-w-row"><label>Speed</label><input type="range" id="swSpdRange" min="0" max="2" step="0.05" value="0.25" /><input type="number" id="swSpdNum" min="0" max="2" step="0.05" value="0.25" /></div>
+      <hr class="sep" />
+      <div class="score-field"><label for="natureModeSel">Nature</label>
+        <select id="natureModeSel">
+          <option value="neutral" selected>Neutral (raw stats)</option>
+          <option value="modest">Modest (+SA / −PA)</option>
+          <option value="best">Best for score (per row)</option>
+        </select>
+      </div>
+      <div class="score-field"><label for="dodgeMedianModeSel">Baseline hitbox r</label>
+        <select id="dodgeMedianModeSel">
+          <option value="pokemon" selected>All Pokémon r</option>
+          <option value="distinct">Distinct r values</option>
+        </select>
+      </div>
+      <div class="score-field"><label for="dodgeCurveSel">Hitbox evasion curve</label>
+        <select id="dodgeCurveSel">
+          <option value="linear">med / r</option>
+          <option value="power15" selected>(med / r)^1.5</option>
+          <option value="soft">½·(med/r) + ½·(med/r)²</option>
+          <option value="area">(med / r)2</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-secondary" data-action="reset-scoring">Reset 1 / 1 / 0.25</button>
+        <button type="button" class="btn-primary" style="margin-left:auto" data-action="apply-scoring">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Columns modal -->
+  <div id="columnsModal" class="modal-backdrop" hidden>
+    <div class="modal-card" style="max-width:22rem">
+      <div class="modal-head">
+        <h3>Table columns</h3>
+        <button type="button" class="btn-secondary btn-mini" data-action="close-columns">Close</button>
+      </div>
+      <p class="note" style="margin:0 0 0.5rem">The radar and matrices always use every stat.</p>
+      <div id="columnsList" class="poke-cols-list"></div>
+      <div class="btn-row">
+        <button type="button" class="btn-secondary" data-action="reset-columns">Defaults</button>
+        <button type="button" class="btn-primary" style="margin-left:auto" data-action="apply-columns">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <footer id="siteFooter" class="site-footer">
+    <a href="https://github.com/JPTER78/pokesurvivor" target="_blank" rel="noopener">Game: JPTER78/pokesurvivor</a>
+  </footer>
+
+  <!-- Core -->
+  <script src="js/constants.js?v=2.2.29"></script>
+  <script src="js/abilities.js?v=2.2.29"></script>
+  <script src="js/changelog.js?v=2.2.29"></script>
+  <script src="js/core/utils.js?v=2.2.29"></script>
+  <script src="js/core/type-chart.js?v=2.2.29"></script>
+  <script src="js/core/data-service.js?v=2.2.29"></script>
+  <script src="js/core/calc.js?v=2.2.29"></script>
+  <script src="js/core/store.js?v=2.2.29"></script>
+  <script src="js/core/ui.js?v=2.2.29"></script>
+
+  <!-- Tab models -->
+  <script src="js/tabs/dps/dps-model.js?v=2.2.29"></script>
+  <script src="js/tabs/pokedex/pokedex-model.js?v=2.2.29"></script>
+  <script src="js/tabs/calculator/calculator-model.js?v=2.2.29"></script>
+  <script src="js/tabs/combos/combos-model.js?v=2.2.29"></script>
+  <script src="js/tabs/multipliers/multipliers-model.js?v=2.2.29"></script>
+  <script src="js/tabs/abilities/abilities-model.js?v=2.2.29"></script>
+  <script src="js/tabs/items/items-model.js?v=2.2.29"></script>
+  <script src="js/tabs/mechanics/mechanics-model.js?v=2.2.29"></script>
+  <script src="js/tabs/changelog/changelog-model.js?v=2.2.29"></script>
+  <script src="js/tabs/config/config-model.js?v=2.2.29"></script>
+
+  <!-- Tab views -->
+  <script src="js/tabs/dps/dps-view.js?v=2.2.29"></script>
+  <script src="js/tabs/pokedex/pokedex-view.js?v=2.2.29"></script>
+  <script src="js/tabs/calculator/calculator-view.js?v=2.2.29"></script>
+  <script src="js/tabs/combos/combos-view.js?v=2.2.29"></script>
+  <script src="js/tabs/multipliers/multipliers-view.js?v=2.2.29"></script>
+  <script src="js/tabs/abilities/abilities-view.js?v=2.2.29"></script>
+  <script src="js/tabs/items/items-view.js?v=2.2.29"></script>
+  <script src="js/tabs/mechanics/mechanics-view.js?v=2.2.29"></script>
+  <script src="js/tabs/changelog/changelog-view.js?v=2.2.29"></script>
+  <script src="js/tabs/config/config-view.js?v=2.2.29"></script>
+  <script src="js/views/modal-view.js?v=2.2.29"></script>
+
+  <!-- Tab controllers -->
+  <script src="js/tabs/dps/dps-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/pokedex/pokedex-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/calculator/calculator-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/combos/combos-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/multipliers/multipliers-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/abilities/abilities-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/items/items-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/mechanics/mechanics-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/changelog/changelog-controller.js?v=2.2.29"></script>
+  <script src="js/tabs/config/config-controller.js?v=2.2.29"></script>
+
+  <!-- Shell -->
+  <script src="js/controllers/app-controller.js?v=2.2.29"></script>
+  <script src="js/app.js?v=2.2.29"></script>
+</body>
+</html>
